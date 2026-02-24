@@ -1,0 +1,33 @@
+{% load static i18n %}
+<!-- content -->
+<div class="modal-content">
+  <form class="return-job" id="return_job_notes" action="" method="POST">
+    {% csrf_token %}
+    <div class="modal-header justify-content-between">
+      <h4 id="return_job_optionsform_label" class="modal-title">{% trans 'Add Note' %}</h4>
+      <button type="reset" class="btn text-reset" data-bs-toggle="modal" aria-label="Close" id="close_notes_popup" data-bs-target="">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25 7L7 25"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body text-center return-job-options-body">
+        <div id="wrong_info_content_div_id" style="margin-top: 20px;">
+          <textarea id="notes" name="notes" placeholder="{% trans 'Please enter information context...' %}" style="width: 100%;height: 150px;padding: 12px;border-radius: 7px;border: 1px solid #d7e7ef;background: #FFFFFF;" required></textarea>
+        </div>
+    </div>
+    <input type="hidden" id="next_url" name="next" value="">
+
+    <div class="modal-footer">
+      <div class="row flex-1 justify-content-center">
+        <div class="col-md-6">
+          <button type="submit" class="btn btn-primary btn-active m-0">
+            {% trans 'Save' %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

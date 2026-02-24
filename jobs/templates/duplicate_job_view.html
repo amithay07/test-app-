@@ -1,0 +1,154 @@
+{% load static i18n %}
+<div class="modal-content duplicate_job_view_modal">
+  <div class="modal-header">
+    <h4 id="exampleModalToggleLabel" class="offcanvas-title" style="text-align:right">{% trans 'Duplicate' %}</h4>
+    <button type="button" class="btn_close text-reset" data-bs-dismiss="modal" aria-label="Close"
+      style="text-align:left">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M25 7L7 25"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row align-items-md-stretch">
+  
+      <div class="col-md-6">
+        <div class="d-flex align-items-center justify-content-start text mb-3" id="duplicate_job_title">
+          <svg class="me-1" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M13.125 17.5H4.375C4.20924 17.5 4.05027 17.4342 3.93306 17.3169C3.81585 17.1997 3.75 17.0408 3.75 16.875V5.625C3.75 5.45924 3.81585 5.30027 3.93306 5.18306C4.05027 5.06585 4.20924 5 4.375 5H10.625L13.75 8.125V16.875C13.75 17.0408 13.6842 17.1997 13.5669 17.3169C13.4497 17.4342 13.2908 17.5 13.125 17.5Z"
+              stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+              d="M6.25 5V3.125C6.25 2.95924 6.31585 2.80027 6.43306 2.68306C6.55027 2.56585 6.70924 2.5 6.875 2.5H13.125L16.25 5.625V14.375C16.25 14.5408 16.1842 14.6997 16.0669 14.8169C15.9497 14.9342 15.7908 15 15.625 15H13.75"
+              stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M6.875 11.875H10.625" stroke="#666666" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M6.875 14.375H10.625" stroke="#666666" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          <p class="mb-0">{% trans 'Duplicate Job' %}</p>
+        </div>
+        <!-- /Left Side -->
+        <div class="job-modal-inner">
+          <div class="duplicate-job">
+            <div class="form-group mb-3 p-0">
+              <label class="form-label" for="duplicate_job_popup_id">{% trans 'Job ID' %}</label>
+              <input autocomplete="off" type="number" class="form-control" id="duplicate_job_popup_id" name="id" maxlength="10" value="{{ job_obj.job.id }}" />
+            </div>
+            <div class="form-group mb-3 p-0">
+              <label class="form-label" for="duplicate_job_latitude">{% trans 'Latitude' %}</label>
+              <input autocomplete="off" class="map_lat_lng" type="text" id="duplicate_job_latitude" name="latitude" disabled value="{{job_obj.job.latitude}}"/>
+            </div>
+    
+            <div class="form-group mb-3 p-0">
+              <label class="form-label" for="duplicate_job_longitude">{% trans 'Longitude' %}</label>
+              <input autocomplete="off" class="map_lat_lng" type="text" id="duplicate_job_longitude" name="longitude" disabled value="{{job_obj.job.longitude}}"/>
+            </div>
+            
+            <div class="d-flex mb-3">
+              <div class="form-group mb-0 w-100 p-0">
+                <label class="form-label one-line-elipsis" for="duplicate_job_address_id" id="duplicate_job_address_label">{% trans job_obj.job.address %}</label>
+                <input autocomplete="off" type="text" id="duplicate_job_address_id" class="form-control" name="address" readonly value="{{ job_obj.job.address_information }}"/>
+              </div>
+              <button id="duplicate" type="button" class="location_box p-4 border-dashed rounded-3 ms-3 d-flex align-items-center btn" data-bs-toggle="modal" data-bs-target="#location_modal" data_address="{{job_obj.job.address}}">
+                <svg width="37" height="36" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.375 32.625H28.625" stroke="#32425E" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path
+                    d="M18.5 19.125C20.9853 19.125 23 17.1103 23 14.625C23 12.1397 20.9853 10.125 18.5 10.125C16.0147 10.125 14 12.1397 14 14.625C14 17.1103 16.0147 19.125 18.5 19.125Z"
+                    stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path
+                    d="M29.75 14.625C29.75 24.75 18.5 32.625 18.5 32.625C18.5 32.625 7.25 24.75 7.25 14.625C7.25 11.6413 8.43526 8.77983 10.545 6.67005C12.6548 4.56026 15.5163 3.375 18.5 3.375C21.4837 3.375 24.3452 4.56026 26.455 6.67005C28.5647 8.77983 29.75 11.6413 29.75 14.625V14.625Z"
+                    stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+            <div class="first_image duplicate_popup_image" id="duplicate_image_id">
+              <div id="detail_job_duplicate_image">
+                {{ob_obj.job.job_image.all}}
+                {% if job_obj.job.job_image.all|slice:':1' %}
+                  {% for image in job_obj.job.job_image.all|slice:':1' %}
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-lazysrc="{{ image.image.url }}" style="width:100%; height: 250px; border-radius: 5px; padding: 0px;" id="duplicate_image"/>
+                  {% endfor %}
+                {% else %}
+                  <img src="{% static 'assets/img/default_job.png' %}" style="width:100%; height: 250px; border-radius: 5px; padding: 0px;" id="duplicate_image"/>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Left Side -->
+      </div>
+  
+      <div class="col-md-6">
+        <div class="d-flex align-items-center justify-content-start text mb-3">
+          <svg class="me-1" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M15.125 15.5H6.375C6.20924 15.5 6.05027 15.4342 5.93306 15.3169C5.81585 15.1997 5.75 15.0408 5.75 14.875V3.625C5.75 3.45924 5.81585 3.30027 5.93306 3.18306C6.05027 3.06585 6.20924 3 6.375 3H12.625L15.75 6.125V14.875C15.75 15.0408 15.6842 15.1997 15.5669 15.3169C15.4497 15.4342 15.2908 15.5 15.125 15.5Z"
+              stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M8.875 9.875H12.625" stroke="#666666" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M8.875 12.375H12.625" stroke="#666666" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          <p class="mb-0">{% trans 'Original Job' %}</p>
+        </div>
+        <!-- Right Side -->
+        <div class="job-modal-inner">
+          <div class="original-job">
+            <div class="form-group mb-3 p-0">
+              <label class="form-label" for="original_job_id">{% trans 'Job ID' %}</label>
+              <input autocomplete="off" type="number" class="form-control" id="original_job_id" name="id" maxlength="10" readonly />
+            </div>
+            <div class="form-group mb-3 p-0">
+              <label class="form-label" for="original_job_latitude">{% trans 'Latitude' %}</label>
+              <input autocomplete="off" class="map_lat_lng" type="text" id="original_job_latitude" name="latitude" disabled/>
+            </div>
+            <div class="form-group mb-3 p-0">
+              <label class="form-label" for="original_job_longitude">{% trans 'Longitude' %}</label>
+              <input autocomplete="off" class="map_lat_lng" type="text" id="original_job_longitude" name="longitude" disabled/>
+            </div>
+            <div class="d-flex mb-3">
+              <div class="form-group mb-0 w-100 p-0">
+                <label class="form-label one-line-elipsis" for="original_job_address_id" id="original_job_address_label"></label>
+                <input autocomplete="off" type="text" id="original_job_address_id" class="form-control" name="address" readonly />
+              </div>
+              <button id="original" type="button" class="location_box p-4 border-dashed rounded-3 ms-3 d-flex align-items-center btn" data-bs-toggle="modal" data-bs-target="#location_modal" data_address="{{job_obj.job.address}}">
+                <svg width="37" height="36" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.375 32.625H28.625" stroke="#32425E" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path
+                    d="M18.5 19.125C20.9853 19.125 23 17.1103 23 14.625C23 12.1397 20.9853 10.125 18.5 10.125C16.0147 10.125 14 12.1397 14 14.625C14 17.1103 16.0147 19.125 18.5 19.125Z"
+                    stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path
+                    d="M29.75 14.625C29.75 24.75 18.5 32.625 18.5 32.625C18.5 32.625 7.25 24.75 7.25 14.625C7.25 11.6413 8.43526 8.77983 10.545 6.67005C12.6548 4.56026 15.5163 3.375 18.5 3.375C21.4837 3.375 24.3452 4.56026 26.455 6.67005C28.5647 8.77983 29.75 11.6413 29.75 14.625V14.625Z"
+                    stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+            <div class="first_image">
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-lazysrc="" style="width:100%; height: 250px; border-radius: 5px; padding: 0px;" id="original_job_image_id" />
+            </div>
+          </div>
+        </div>
+        <!-- /Right Side -->
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $("#duplicate, #original").on("click", function(){
+    var address = $(this).attr("data_address")
+    var btn_id = $(this).attr("id")
+    var map_readonly = true
+    var detail_latitude = $(`#${btn_id}_job_latitude`).attr("value");
+    var detail_longitude = $(`#${btn_id}_job_longitude`).attr("value");
+
+    $("#map_close_btn").attr("data-bs-target", "#duplicate_job_view_modal")
+    $.getScript("https://maps.googleapis.com/maps/api/js?key=" + "{{google_api_key}}" + "&libraries=places&language=he").done(function (script, textStatus) {
+      google.maps.event.addEventListener(window, "load", initMap(parseFloat(detail_latitude), parseFloat(detail_longitude), map_readonly))
+    });
+  });
+
+</script>

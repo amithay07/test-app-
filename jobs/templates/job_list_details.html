@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+
+{% block extra_css %}
+{{block.super}}
+<style>
+  table {
+    width: 100%;
+  }
+
+  .save-pdf-button {
+    padding: 10px;
+    margin: 10px;
+  }
+
+  .user-list-datatable th {
+    border-bottom: 1px solid #d4d8dd;
+    padding: 12px 10px;
+    font-size: 16px;
+    color: rgb(90, 173, 222);
+  }
+
+  .user-list-datatable td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #d4d8dd;
+  }
+
+  .user-list-datatable td p {
+    margin-bottom: 0;
+  }
+
+  .user-list-datatable tr.selected {
+    border-top: 1px solid #d4d8dd;
+    background-color: #eef8fd;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="p-20 d-flex flex-column h-100">
+  <table id="user_list_datatable" class="user-list-datatable">
+    <thead>
+      <tr>
+        <th></th>
+        <th width="20%">{% trans 'job_id' %}</th>
+        <th width="35%">{% trans 'address' %}</th>
+        <th width="15%">{% trans 'job description' %}</th>
+        <th width="15%">{% trans 'Status' %}</th>
+      </tr>
+    </thead>
+    <tbody id="tbodyid">
+      {% for job in context %}
+      <tr data-id="{{ job.id }}">
+        <td>
+          <button type="button" class="btn dropdown-toggle hide-arrow p-0" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bx bx-dots-vertical-rounded"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item ask-about-job-form delete_job_btn_id" id="close_job_button" data-bs-toggle="modal" data-bs-target="#remove_job_modal" data-address="{{job_address}}" data-job-id="{{job.id}}">
+                <div class="d-flex align-items-center">
+                  <img src="{% static 'assets/img/delete_modal.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                  <span>{% trans 'Remove job' %}</span>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </td>
+        <td>
+          <p>{{ job.job.job_id }}</p>
+        </td>
+        <td>
+          <p>{{ job.job.address }}</p>
+        </td>
+        <td>{{ job.job.description }}</td>
+        <td>{{ job.job.status }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div  class="mt-3 img-report-button">
+    <div class="d-flex align-items-center mb-2">
+      <label for="pdf_with_image">{% trans 'Image' %}</label>
+      <label class="switch_group ms-2">
+        <input type="checkbox" id="pdf_with_image" role="switch" name="priority">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="mt-auto">
+      <button class="dt-button add-new btn btn-primary" tabindex="1" aria-controls="DataTables_Table_0" type="button"
+        id="detail_report_generate_btn" data="detail">
+        <svg class="me-1" width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"
+          stroke="currentcolor">
+          <path d="M7.39062 9.45312L11 13.0625L14.6094 9.45312" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+          <path d="M11 3.4375V13.0625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path
+            d="M18.5625 13.0625V17.875C18.5625 18.0573 18.4901 18.2322 18.3611 18.3611C18.2322 18.4901 18.0573 18.5625 17.875 18.5625H4.125C3.94266 18.5625 3.7678 18.4901 3.63886 18.3611C3.50993 18.2322 3.4375 18.0573 3.4375 17.875V13.0625"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span class="d-inline-block">{% trans 'Generate Report' %}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade remove_job_modal" id="remove_job_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+    {% include 'remove_job.html' %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/themes/smoothness/jquery-ui.css" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js"></script>
+<script type="text/javascript">
+  let allJobIds = [];
+  $(function () {
+    let value = false;
+    $("#tbodyid").sortable({
+      items: 'tr',
+      cursor: 'pointer',
+      helper: function (e, ui) {
+        ui.children().each(function () {
+          $(this).width($(this).width());
+        });
+        return ui;
+      },
+      start: function (e, ui) {
+        ui.item.addClass("selected");
+      },
+      stop: function (e, ui) {
+        ui.item.removeClass("selected");
+        updateJobIds();
+      }
+    });
+
+    function updateJobIds() {
+        allJobIds = [];
+        $("#tbodyid").find("tr").each(function (index) {
+            let jobId = $(this).data('id');
+            if (jobId) {
+                allJobIds.push(jobId);
+            }
+        });
+    }
+  // Function to get query parameters
+  if (allJobIds.length === 0) {
+    function getAllJobIds() {
+        let jobIds = [];
+        $('#tbodyid tr').each(function() {
+          let jobId = $(this).data('id');
+          if (jobId) {
+            jobIds.push(jobId);
+          }
+        });
+        return jobIds;
+      }
+      allJobIds = getAllJobIds();
+    }
+    $("#pdf_with_image").change(function () {
+      if ($(this).is(":checked")) {
+        value = true;
+
+      } else {
+        value = false;
+      }
+    });
+    var job_ids = []
+    $(".job-checkbox").change(function() {
+      var jobId = $(this).data("job-id");
+
+      if ($(this).is(":checked")) {
+        job_ids.push(jobId);
+      } else {
+        var index = job_ids.indexOf(jobId);
+        if (index !== -1) {
+          job_ids.splice(index, 1);
+        }
+      }
+
+      // Log the current array of job IDs (for debugging)
+      console.log("Selected job IDs:", job_ids);
+      console.log(job_ids.length)
+      if (job_ids.length > 0) {
+    $(".img-report-button").show();
+  } else {
+    $(".img-report-button").hide();
+  }
+    });
+    console.log(job_ids)
+    $("#detail_report_generate_btn").click(function () {
+      let jobIds = allJobIds;
+      const url = `{% url  'jobs:job-list-pdf' %}?jobIds=${jobIds}&report_with_image=${value}`;
+      window.open(url, "_blank");
+
+    });
+  });
+  var removed_job_id = 0;
+  $("#tbodyid").on("click", "#close_job_button", function() {
+      jobId = $(this).data("job-id");
+      removed_job_id = jobId;
+      
+    });
+    $("#remove-form_btn_id").on("click", function(event) {
+      event.preventDefault();
+      $(`tr[data-id='${removed_job_id}']`).remove();
+      let new_ids = allJobIds.filter(id => id !== jobId);
+      const url = `{% url  'jobs:job-lists-details' %}?jobIds=${new_ids}`;
+
+      window.location.href = url;
+
+    });
+</script>
+{% endblock %}

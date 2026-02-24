@@ -1,0 +1,1299 @@
+{% load myfilters static i18n %}
+
+<!-- transfer job modal -->
+<div class="modal fade transfer_job_modal" id="transfer_job_modal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="transfer_job_modalLabel" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+    {% include 'transfer_job.html' %}
+  </div>
+</div>
+
+<!-- transfer job successfully modal -->
+<div class="modal fade transfer_success_modal" id="transfer_success_modal"  data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="transfer_success_modalLabel" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+  </div>
+</div>
+
+<!-- open return job (duplicate/Wrong info) modal -->
+<div class="modal fade return_job_modal" id="return_job_modal"  data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="return_job_modalLabel" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+    {% include 'return_job_options.html' %}
+  </div>
+</div>
+
+<!-- job list modal for duplication -->
+<div class="modal fade return_job_list_modal" id="return_job_list_modal"  data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="return_job_list_modalLabel" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+    {% include 'return_job_list.html' %}
+  </div>
+</div>
+
+<!-- return job successfully modal -->
+<div class="modal fade return_success_modal" id="return_success_modal"  data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="return_success_modalLabel" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+  </div>
+</div>
+
+<!-- duplicate job view modal -->
+<div class="modal fade duplicate-job-view-modal" id="duplicate_job_view_modal"  data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="duplicate_job_view_modalLabel" aria-hidden="true">
+<div class="modal-dialog comman_modal modal-dialog-centered" style="max-width: 872px;">
+  {% include 'duplicate_job_view.html' %}
+</div>
+</div>
+
+<!--  edit job modal-->
+<div class="modal fade edit_job_modal" id="edit_job_modal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+    <div class="modal-content">
+      {% include 'edit_job.html' %}
+    </div>
+  </div>
+</div>
+
+<!--allstatus_success_popup.html-->
+<div class="modal-content success-popup" id="success_popup_id" >
+  <div class="modal-header success-popup justify-content-center">
+    <button type="button" class="transfer_popup_close text-reset" data-bs-dismiss="modal" aria-label="Close" 
+      style="background-color: transparent; color: #000000; border: none;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25 7L7 25" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M25 25L7 7" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>              
+    </button>
+    <div class="message_block">
+    </div>
+  </div>
+
+  <div class="modal-body text-center jobstatus-success-body">
+    <p class="delete_modal_text mb-0"></p>
+  </div>
+
+  <div class="modal-footer success-popup m-0">
+    <div class="row flex-1 m-0">
+    
+      {% if request.user.role.title != "מִשׁתַמֵשׁ" %}
+        <div class="col-md-6" id="close_job_id">
+          <input type="submit" class="btn close_job" value="{% trans 'Close' %}" id="close_job_id">
+        </div>
+      {% endif %}  
+      <div class="col-md-6" id="partial_job_id">
+        <input type="submit" class="btn btn-primary btn-active close_job" value="{% trans 'Partial' %}" id="partial_job_id">
+      </div>
+      <div class="col-md-6" id="transfer_job_no_id">
+        <button type="reset" class="btn w-100" data-bs-dismiss="modal" href="{% url 'jobs:add-new-job' %}" id="transfer_job_no_id">{%trans 'No' %} </button>
+      </div>
+      <div class="col-md-6" id="transfer_job_yes_id">
+        <button type="button" class="btn btn-primary btn-active" id="transfer_job_yes_id"> {% trans 'Yes' %} </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+
+  function format_date(input_date){
+    const parts = input_date.split('-');
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = new Intl.DateTimeFormat('he-IL', options).format(date);
+    return formattedDate
+  }
+
+  function job_find(job_id){
+    id = "module"
+    get_job(id, job_id, "tranfer-job-form job_row")
+  }
+
+  function get_job_detail(job_id){
+    id = "edit_job"
+    get_job(id, job_id, "tranfer-job-form job_row")
+  }
+
+  var job_id, job_address, job_address_info, job_lat, job_lng, job_img, edit_latitude, edit_longitude, map_readonly=false, form_data, edit_job_id, edit_job_status, sum_of_bills = 0, edit_job, data_group, status;
+  $(".three-drop-button, .three-drop-button_detail, #edit_job, #close_job").on("click", function(){
+    job_id = $(this).attr("data-id")
+    data_group=$(this).attr("data-group")
+    job_address = $(this).attr("data-address")
+    job_address_info = $(this).attr("data-address-info")
+    job_notes = $(this).attr("data-notes")
+    job_lat = $(this).attr("data-lat")
+    job_lng = $(this).attr("data-lng")
+    job_img = $(this).attr("data-img")
+    job_module = $(this).attr("data-module")
+    get_job($(this).attr("id"), job_id, $(this).attr("class"))
+  })
+  var translations = {
+    Job_created_by: "{% trans 'Job Added By' %}",
+    Job_created_on: "{% trans 'The Job Added on' %}",
+    Job_updated_by: "{% trans 'Job Updated By' %}",
+    Job_closed_by: "{% trans 'Job Closed By' %}",
+    Job_returned_by: "{% trans 'Job Returned By' %}",
+    Job_partially_closed_by: "{% trans 'Job Partial Closed By' %}",
+    Job_transferred_by: "{% trans 'Job Transferred By' %}",
+    Job_updated_on: "{% trans 'The Job Updated on' %}",
+    Job_closed_on: "{% trans 'The Job Closed on' %}",
+    Job_returned_on: "{% trans 'The Job Returned on' %}",
+    Job_partially_closed_on: "{% trans 'The Job Partial Closed on' %}",
+    Job_transferred_on: "{% trans 'The Job Transferred on' %}"
+  };
+
+  function get_job(id, job_id, job_class) {
+
+    // Append data in edit job model
+    if(id == "edit_job"||id == "close_job"||id == "module"){
+      var button_id = id
+      $.ajax({
+        type:"GET",
+        url:`/jobs/job_detail/${job_id}/?button_id=${button_id}`,
+        processData:false,
+        contentType:false,
+        success: function(response){
+          if(response["error"]){
+            $(".edit-form").hide()
+            $('#two_job_detail_button').children().hide();
+            $('.three-drop-button_detail').children().hide();
+
+            $('#two_job_detail_button').append(`
+              <div class="modal-body text-center delete-bill-modal">
+                <p class="delete_modal_text mb-0">משרה זו נמחקה, אתה לא יכול לקבל את העבודה.</p>
+                <span id=delete-bill-type></span>
+              </div>
+            `);
+          }else{
+
+            edit_job = "edit"
+            $("#form_popup").attr("data-bs-target", "#edit_job_modal")
+            $("#sign_bill_popup").attr("data-bs-target", "#edit_job_modal")
+            $("#material_bill_popup").attr("data-bs-target", "#edit_job_modal")
+  
+            if (response["is_sign"].includes(true)) {
+              $("#edit_add_sign_bills").attr("hidden", false)
+            }
+  
+            if (response["module_job_status"]=="לַחֲזוֹר" ||  response["job_status"]=="לַחֲזוֹר"&&  button_id == "module"){
+              $('#two_job_detail_button').children().hide();
+              $('.three-drop-button_detail').children().hide();
+            }
+
+            if (response["job_status"]=="סגור" ||  response["job_status"]=="חלקי" ||  button_id == "close_job"){
+              $("#edit_job-bills").attr("hidden", false);
+              $("#edit_furtherBilling").attr("hidden", false);
+              $("#edit_notes").attr("hidden", false);
+              //$("#edit_furtherInspection").attr("hidden", true);
+              $("#editPriority").attr("hidden", true);
+            }
+            $("#job_close_id").show();
+
+            if ((response.hasOwnProperty("is_lock_closed") && response["job_status"]=="פתוח") || (response["is_active"] == false)) {
+              $("#job_close_id").hide();
+            } 
+            
+            if (response["is_active"] == false) {
+            $('.three-drop-button_detail').hide();
+            }
+
+            edit_job_id = response["id"]
+            edit_job_status = button_id == "close_job" ? "סגור" : response["job_status"]
+            $("#edit_job_id").attr("value", response["job_id"])
+            $("#edit_job_job_id").attr("value", response["job_job_id"])
+            $("#edit_job_status").attr("value", response["status"])
+            $("#edit_job_latitude").attr("value", response["latitude"])
+            $("#edit_job_longitude").attr("value", response["longitude"])
+            $("#edit_job_address").attr("value", response["address"])
+            $("#edit_job_address_info").attr("value", response["address_information"])
+
+            if (response["notes"] && response["notes"].length > 0) {
+                // Iterate through each note in the response
+                response["notes"].forEach(function(note) {
+                    // Extract note details
+                    let updatedAt = new Date(note['updated_at']);
+                    let options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+                    updatedAt = format_date(updatedAt.toLocaleDateString('en-GB', options).split('/').reverse().join('-'));
+
+                    let createdAt = new Date(note['created_at']);
+                    createdAt = format_date(createdAt.toLocaleDateString('en-GB', options).split('/').reverse().join('-'));
+
+                    let createdBy = note['created_by__user_name'] ? note['created_by__user_name'] : '';
+                    let noteContent = note['note'];
+                    let noteId = note['id'];
+
+                    // Check if updated_at exists, and use it as the date to display, otherwise use created_at
+                    let dateToUse = updatedAt ? updatedAt : createdAt;
+
+                    // Construct HTML for the note
+                    let noteHtml = `
+                        <div class="py-2">
+                          <div class="d-flex justify-content-between">
+                            <h6 class="mb-0">${createdBy}</h6>
+                            <p class="status-time mb-0">${dateToUse}</p>
+                          </div>
+                          <p id="${noteId}" class="text-start mb-0 mt-2"><textarea class="form-control border-0" name="notes" rows="2" cols="10" placeholder="Add Note">${noteContent} </textarea></p>
+                        </div>
+                    `;
+
+                    // Append the noteHtml to the textarea
+                    $("#edit_job_notes").append(noteHtml);
+                    $("#edit_create_notes").attr('hidden', true);
+                    $("#edit_notes").attr('hidden', false);
+                    
+                  });
+                }
+                else{
+                  $("#edit_notes").attr('hidden', true);
+              }
+
+            $("#edit_job_description").html(response["description"])
+            $("#edit_job_group").attr("value", response["group"])
+            $("#edit_further_inspection").attr("checked",response["further_inspection"])
+            $("#edit_further_billing").attr("checked",response["further_billing"])
+            $("#edit_priority").attr("checked", response["priority"])
+            $("#edit_job_notes").attr("checked", response["notes"])
+            $("#job_delete_id").attr("data-id", response["job_id"])
+            $(`#edit_job_form select[name^="main_group"] option[value="${response["main_group"]}"]`).prop("selected", true).trigger('change');
+  
+            if(button_id == "close_job"){
+              $("#edit_job_status").attr("value", "סגור")
+              $("#edit_job_btn").html("{% trans 'Close' %}")
+              $("#close_jobform_label").html("{% trans 'Close Job' %}")
+            }
+  
+            $("#approved_job_id").attr("job_id", response["id"])
+            $("#unapproved_job_id").attr("job_id", response["id"])
+            $("#generate_report_btn").attr("job_data", response["id"])
+            $("#generate_report_btn").attr("group_data", response["group_id"])
+            $("#generate_report_btn").attr("group_name", response["group"])
+  
+            $(".three-drop-button").attr("data-id", response["id"])
+            $(".three-drop-button").attr("data-address",response["address"])
+            $(".three-drop-button").attr("data-group", response["group_id"])
+  
+            $("#ask_about_job_id2").attr("job_id", response["id"])
+            $("#ask_about_job_id2").attr("group_id", response["group_id"])
+            $("#ask_about_job_id2").attr("address", response["address"])
+            $("#ask_about_job_id2").attr("description", response["description"])
+            if (response["image_with_id"].length>0){
+              $("#ask_about_job_id2").attr("image", response["image_with_id"][0]["img"])
+            }
+  
+            if(response["job_status"]=="סגור"){
+              $("#job_close_id").hide()
+              if(response["job_reviewed"]==true){
+                $("#unapproved_job_id").attr("hidden", false)
+              }else{
+                $("#approved_job_id").attr("hidden", false)
+              }
+            }else{
+              $(".transfer_job_id2").attr("hidden", false)
+              $(".return_job_options_id2").attr("hidden", false)
+            }
+
+            if (response.hasOwnProperty("job_logs_data")) {
+              var jobLogsData = response.job_logs_data;
+
+              jobLogsData.forEach(function (logData) {
+                  var name = logData["user_name"] == "" ? logData["email"].split("@")[0] : logData["user_name"];
+                  var phone = logData["phone"].replace(/^\+972|[^0-9]/g, '');
+                  var log_date = format_date(logData["created_at"]);
+                  var label = translations[logData['label']];
+                  var label2 = translations[logData['label2']];
+
+                  $("#created_updated_closed_by").append(`
+            <div class="mb-3 job_added_by_id border border-1 rounded-3">
+                <label class="form-label" for="job_added_by_id">${label}</label>
+                <div class="job-inner-card">
+                    <div class="job-row remove-edit" id="${label.replace(' ', '_').toLowerCase()}">
+                        <img src="${logData["profile_image"]}" style="width:50px; height:50px; border-radius:5px;object-fit: cover;">
+                        <div class="group-block">
+                            <h6>${name}</h6>
+                            <p class="m-0">${logData["role"]}</p>
+                            <p class="m-0">${phone}</p>
+                        </div>
+                    </div>
+                    <p class="status-time">${label2}<br /> ${log_date}</p>
+                </div>
+            </div>
+        `);
+                });
+            
+              }
+              
+            $("#delete_job_btn_id2").attr("data-address", response["address"])
+            $("#delete_job_btn_id2").attr("data-id", response["job_id"])
+  
+            //$(".transfer_job_modal").attr("data-bs-target", "#edit_job_modal")
+            //$("#return_job_optionsform_id").attr("data-bs-target", "#edit_job_modal")
+            //$("#delete_job_modal").attr("data-bs-target", "#edit_job_modal")
+
+            function areAllResourcesLoaded(resources, callback) {
+              var loadedCount = 0;
+            
+              function checkAllLoaded() {
+                loadedCount++;
+                if (loadedCount === resources.length) {
+                  callback();
+                }
+              }
+            
+              resources.forEach(function (resource) {
+                var element = new Image();
+                element.onload = checkAllLoaded;
+                element.src = resource.url;
+              });
+            }
+            
+            var resources = [];
+            var image_with_id = response["image_with_id"]
+            for (var i = 0; i < image_with_id.length; i++) {
+              getSplitArray = image_with_id[i]["img"].split(".")
+              getExtension = getSplitArray[getSplitArray.length-1]
+              var resource = {url: image_with_id[i]["img"]};
+              resources.push(resource);
+  
+              if(getExtension=="jpg"||getExtension=="jpeg"||getExtension=="png"){
+                $("#edit_image_carousel.owl-carousel").owlCarousel("add", (`
+                <div class="item">
+                  <button class="owl_image_remove close-icon" type="button" 
+                    onclick="edit_doc_remove('${image_with_id[i]["id"]}', 'edit_image_carousel')"><svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </button>
+                  <a data-magnify="gallery" data-src="" data-group="a" href="${image_with_id[i]["img"]}" class="test">
+                    <img class="img-item" id="remove_doc_${image_with_id[i]["id"]}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-src="${image_with_id[i]["img"]}">
+                  </a>
+                </div>`));
+                
+                // Magnific-popup
+                $("[data-magnify=gallery]").magnify({
+                  draggable: false,
+                  resizable: false,
+                  movable: false,
+                  title: true,
+                  modalWidth: 1109,
+                  modalHeight: 607,
+                  initEvent: 'click',
+                  fixedContent:true,
+                  title:true,
+                  zIndex: 1090,
+                  keyboard: true,
+                  progressiveLoading: true,
+                  headToolbar: ['close'],
+                  footToolbar: ['zoomIn', 'zoomOut', 'prev', 'next'],
+                  icons: {
+                    prev: '<svg width="12" height="22" viewBox="0 0 12 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.3125 20.375L10.6875 11L1.3125 1.625" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',              
+                    next: '<svg width="12" height="22" viewBox="0 0 12 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.6875 20.375L1.3125 11L10.6875 1.625" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',              
+                    close: '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M25 7L7 25" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 25L7 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',              
+                    zoomIn:'<svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5664 18.5254H22.4831" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5249 22.4836V14.5669" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.2082 33.2498C26.5155 33.2498 33.2498 26.5155 33.2498 18.2082C33.2498 9.90089 26.5155 3.1665 18.2082 3.1665C9.90089 3.1665 3.1665 9.90089 3.1665 18.2082C3.1665 26.5155 9.90089 33.2498 18.2082 33.2498Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M34.8332 34.8332L31.6665 31.6665" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    zoomOut:'<svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.25 18.5249H22.1667" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.2082 33.2498C26.5155 33.2498 33.2498 26.5155 33.2498 18.2082C33.2498 9.90089 26.5155 3.1665 18.2082 3.1665C9.90089 3.1665 3.1665 9.90089 3.1665 18.2082C3.1665 26.5155 9.90089 33.2498 18.2082 33.2498Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M34.8332 34.8332L31.6665 31.6665" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                  }, 
+                  callbacks: {
+                    opened: function(el){
+                      var img_url=$(".owl-item.active a").attr("href")
+                      var img_name = img_url.split('/').pop()
+                      $(".magnify-head-toolbar").append(`<a href="${img_url}" id="img_preview_download" download target="_blank"><img src="{% static "assets/img/download_icon.svg" %}" alt="download-icon" /></a>`);
+                      $(".magnify-header").append(`<div class="title_block"><div class="icon_logo"><img src="{% static "assets/img/image_icon.svg" %}" alt="image-icon" /></div><div class="image_title"><p class="image-title" id="img_preview_title">${img_name}</p><span class="image_size" id="img_preview_size"></span></div></div>`);
+                      var url = `${img_url}`;
+                      get_size(url)
+                    },
+                    changed: function(el){
+                      var img_url = $(".magnify-image").attr("src")
+                      var img = document.getElementsByClassName("magnify-image")
+                      var img_name = img_url.split('/').pop()
+                      $("#img_preview_download").attr("href", img_url);
+                      $("#img_preview_title").text(img_name);
+                      var url = `${img_url}`;
+                      get_size(url)
+                    } 
+                  },
+                });
+                function get_size(url){
+                  fetch(url)
+                  .then(response => {
+                    const contentLength = response.headers.get('Content-Length');
+                    const fileSizeInBytes = contentLength;
+                    if(fileSizeInBytes.length>6){
+                      $("#img_preview_size").text(`${(contentLength/(1024*1024)).toFixed(2)} MB`)
+                    }else(
+                      $("#img_preview_size").text(`${(contentLength/1024).toFixed(2)} KB`)
+                    )
+                  });
+                };
+              }else{
+                $("#edit_image_carousel.owl-carousel").owlCarousel("add", (`
+                <div class="item video-item"><button class="owl_image_remove close-icon" type="button" 
+                  onclick="edit_doc_remove('${image_with_id[i]["id"]}', 'edit_image_carousel')"><svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </button>
+                <img class="image-placeholder" src="../static/assets/img/video-placeholder.png">
+                <video id="remove_doc_${image_with_id[i]["id"]}" type="video/*" controls class="video-element">
+                  <source src="${image_with_id[i]["img"]}">
+                </video>
+                </div>`));
+              }
+            }
+
+            $(".video-item").each(function () {
+              var videoElement = $(this).find(".video-element");
+              var imagePlaceholder = $(this).find(".image-placeholder");
+              videoElement.hide();
+              videoElement.on("loadeddata", function () {
+                imagePlaceholder.hide();
+                videoElement.show();
+              })
+            });
+            $(".img-item").each(function () {
+              var currentSrc = $(this).attr("data-src");
+
+              if (currentSrc) {
+                var img = new Image();
+                img.onload = function () {
+                  $(this).attr("src", currentSrc).removeAttr("data-src");
+                }.bind(this);
+
+                img.src = currentSrc;
+              }
+            });
+            $(".owl-carousel").owlCarousel("update");
+            $(".owl-carousel").owlCarousel("refresh");
+  
+            edit_latitude = response["latitude"]
+            edit_longitude = response["longitude"]
+            status = response["status"]
+  
+            var attachment = response["attachment"]
+            if(attachment.length!==0){
+              $(".edit-attachment").attr("hidden", false)
+            }
+            for (var i = 0; i < attachment.length; i++) {
+              var name = attachment[i]
+              $("#edit_attachment").append(`
+              <div class="col-sm-6 position-relative edit_doc_remove_${name[3]} edit_docuemnt" id="remove_document_${name[3]}">
+                <button class="remove_docs close-icon small-icon" type="button" 
+                  onclick="edit_doc_remove('${name[3]}')">
+                  <svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </button>
+                <a href="${name[4]}" target="_blank">
+                  <div class="document_block" style="background-color: #eef8fd;">
+                    <div class="document_info">
+                      <div class="document_name">${name[0]}</div>
+                      <div class="ms-2">
+                        <p>${decodeURIComponent(name[1])}</p>
+                        <span>${name[5]}</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              `)
+            }
+  
+            if(!`{{job_obj.group.form.all}}`){
+              var forms = response["forms"]
+              for (var i = 0; i < forms.length; i++){
+                var id = forms[i]["id"]
+                var name = forms[i]["name"]
+                $("#formList > ul").append(`
+                  <li>
+                    <div class="check-select2 form_list align-items-center">
+                      <div class="gray-round-checkbox me-2">
+                        <input type="checkbox" id="form_${id}" name="form" value="${id}" data-name="${name}" class="round-input" />
+                        <label for="form_${id}" class="round-label"></label>
+                      </div>
+                      <label for="form_${id}">${name}</label>
+                    </div>
+                  </li>
+                `)
+              }
+            }
+  
+            var job_id
+            if (response["job_close_bills"].length!=0){
+              var job_close_bills = response["job_close_bills"]
+              job_id = "close_bill_id"
+            }else{
+              var job_close_bills = response["default_bills"]
+              job_id = "bill_id"
+            }
+            if(job_close_bills){
+              for (var i = 0; i < job_close_bills.length; i++){
+                sum_of_bills= sum_of_bills + job_close_bills[i]["measurement"]
+                var image = ""
+                if(job_close_bills[i]["type"] == "Sign"){
+                  image = job_close_bills[i]["image"] ? "https://job-management-media.s3.il-central-1.amazonaws.com/media/" + job_close_bills[i]["image"]: "{% static 'assets/img/bill.svg' %}";
+                }
+                var close_jobbills_id = job_close_bills[i]["job_id"] ? job_close_bills[i]["job_id"] : response["id"]
+    
+                  $("#edit_bill_table > tbody:last-child").append(`
+                    <tr class="bills">
+                    <td id="serial_no">${i+1}</td>
+                    <td content="True" key="bill_name"><span class="bills_img_${job_close_bills[i]["id"]}"></span><span class="ms-2">${job_close_bills[i]["name"]}</span></td>
+                    <td>
+                      <button type="button" id="please_btn" class="btn btn-primary p-0 my-2 edit-subtraction" style="font-size: 30px;width: 24px;height: 24px;display: flex;vertical-align: middle;align-items: center;justify-content: center;background: #EEF8FD;color: #5AADDE;" data-id="${job_close_bills[i]["id"]}" data-value="${job_close_bills[i]["jumping_ration"]}" id="subtraction-${job_close_bills[i]["id"]}" bill_type="${job_close_bills[i]["type"]}">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentcolor" xmlns="http://www.w3.org/2000/svg"><path d="M3.125 10H16.875" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                      </button>
+                    </td>
+                    <td content="True" key="measurement" style="width:120px;">
+                      <input autocomplete="off" class="bill_measurement jumping_ration-${job_close_bills[i]["id"]}" onkeyup="bill_measurement('jumping_ration-${job_close_bills[i]["id"]}')" 
+                      type=number id="jumping_ration-${job_close_bills[i]["id"]}" 
+                      value="${job_close_bills[i]["measurement"] ? job_close_bills[i]["measurement"] : 0  }"
+                      style="font-size: 14px;"
+                      onclick="bill_removeDefaultZero(this)">
+                    </td>
+                    <td style="padding-left:10px;">
+                      <button type="button" class="btn btn-primary p-0 my-2 edit-addition" style="font-size: 20px;width: 24px;height: 24px;display: flex;align-items: center;justify-content: center;" data-id="${job_close_bills[i]["id"]}" data-value="${job_close_bills[i]["jumping_ration"]}" id="addition-${job_close_bills[i]["id"]}" bill_type="${job_close_bills[i]["type"]}">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentcolor" xmlns="http://www.w3.org/2000/svg"><path d="M3.125 10H16.875" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 3.125V16.875" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </button>
+                    </td>
+                    <td class="type_count_${job_close_bills[i]["id"]}" content="True" key="type_counting">${job_close_bills[i]["type_counting"]}</td>
+                    <td class="type_counting_${job_close_bills[i]["jumping_ration"]}" style="display:none;" content="True" key="jumping_ration">${job_close_bills[i]["jumping_ration"]}</td>
+                    <td class="type_counting_${job_close_bills[i]["type"]}" style="display:none;" content="True" key="type">${job_close_bills[i]["type"]}</td>
+                    <td class="type_counting_${close_jobbills_id}" style="display:none;" content="True" key="job_id">${close_jobbills_id}</td>
+                    <td content="True" key="image" style="display:none;">${job_close_bills[i]["image"]}</td>
+                    <td content="True" key="${job_id}" style="display:none;">${job_close_bills[i]["id"]}</td>
+                    </tr>
+                  `);
+    
+                if(image){
+                  $(`.bills_img_${job_close_bills[i]["id"]}`).append(`<img src=${image} style="width: 30px;height: 30px;border-radius:7px;">`)
+                }
+                  $("#without_btn_bill_table > tbody:last-child").append(`
+                    <tr class="bills">
+                    <td id="serial_no">${i+1}</td>
+                    <td><span class="_img_${job_close_bills[i]["id"]}"></span><span class="ms-2">${job_close_bills[i]["name"]}</span></td>
+                    <td>${job_close_bills[i]["measurement"] ? job_close_bills[i]["measurement"] : 0  }</td>
+                    <td>${job_close_bills[i]["type_counting"]}</td>
+                    </tr>
+                  `);
+    
+                if(image){
+                  $(`._img_${job_close_bills[i]["id"]}`).append(`<img src=${image} style="width: 30px;height: 30px;border-radius:7px;">`)
+                }
+              } 
+            }else{
+              $("#without_btn_bill_table > tbody:last-child").append(`
+                    <tr class="bills">
+                    <td id="serial_no" colspan="4" style="text-align:center;">לא נמצא מידע !</td>
+                    </tr>
+                  `);
+            }
+            
+            //$("#bill_table").removeAttr("id", "bill_table")
+  
+            form_data = new FormData(document.querySelector("#edit_job_form"));
+          }
+
+          if (job_class=="tranfer-job-form job_row" || job_class == "notification card-body border group_list job_row"){
+            $(".close-icon").addClass("d-none")
+          }
+        }
+      })
+    }
+    manage_edit_popup(button_id)
+  }
+
+  $(".transfer_job_id2").on("click", function(){
+    $(".transfer_popup_close").attr("data-bs-target", "#edit_job_modal")
+    $(".transfer_popup_close").attr("data-bs-toggle", "modal")
+  })
+  $(".return_job_options_id2").on("click", function(){
+    $(".return_close_popup").attr("data-bs-target", "#edit_job_modal")
+    $(".return_close_popup").attr("data-bs-toggle", "modal")
+  })
+  $("#delete_job_btn_id2").on("click", function(){
+    $(".delete_job_popup").attr("data-bs-target", "#edit_job_modal")
+    $(".delete_job_popup").attr("data-bs-toggle", "modal")
+  })
+
+  // Add duplicate job data after return duplicate job popup
+  $("#return_joblist_btn_id").on("click", function(){
+    $("#duplicate_job_popup_id").val(job_id)
+    $("#duplicate_job_latitude").attr("value", job_lat)
+    $("#duplicate_job_longitude").attr("value", job_lng)
+    $("#duplicate_job_address_label").html(job_address)
+    $("#duplicate_job_address_id").attr("value", job_address_info)
+
+    $("#detail_job_duplicate_image").remove()
+    duplicate_job_image =  job_img.length==0 ? "{% static 'assets/img/default_job.png' %}" : job_img
+    $("#duplicate_image_id").append(`<img src="${duplicate_job_image}" style="width:100%; height: 250px; border-radius: 5px; padding: 0px;" id=""/>`)
+  });
+
+  $("#return_job_id").on("click", function(){
+    $(`#duplicate-job-${job_id}`).parent().remove()
+    var group = $(".duplicate_job_group")
+    job_group = `{{job_obj.group_id}}` ? `{{job_obj.group_id}}` : data_group
+    group.each(function(index, item){
+      var itemClass = $(this).attr("group");
+      if(itemClass != job_group){
+        $(this).remove()
+      }
+    });
+    var current_group = $(".duplicate_job_group")
+    if(current_group.length == 0){
+      $("#return_joblist_btn_id").hide()
+      $("#duplicateReturnJobList").append(`
+          <div class="no-data-found"> 
+          <img src="{% static 'assets/img/no-data-found.svg' %}" alt="no-data-found.svg">
+          </div>
+        `)
+    }
+  });
+
+    //hide return success modal 
+    $("#success_popup_id").hide();
+
+    //set transfer group val in success modal
+    $('.transfer_job_modal_body input[name="group"] ').on("change", function(){
+      let transfer_group =  $(this).attr("data-name")
+      $("#transfer_job_btn_id").attr("data-group", transfer_group)
+    })
+
+    
+
+    //set content of transfer job success modal
+    let transfer_form= document.querySelector("#transfer_jobform_id")
+    $("#transfer_job_btn_id").on("click", function(){
+      let group_val = $(this).attr("data-group")
+      $('#transfer_jobform_id #transfer_error').empty()
+      if(group_val == null ){
+        $('#transfer_jobform_id #transfer_error').append(`<p style="color:red; font-size: 17px; margin-top:3px;" id="form_error">Please select group. </p>`)
+      }else{
+          $("#success_popup_id .message_block").html(`<svg width="66" height="66" viewBox="0 0 66 66" fill="none" xmlns="http://www.w3.org/svg"> <path d="M45.1936 39.0966L57.3872 26.903L45.1936 14.7095" stroke="#19253B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.61279 51.2904C8.61279 44.8226 11.1821 38.6196 15.7556 34.0461C20.3291 29.4727 26.532 26.9033 32.9999 26.9033H57.387" stroke="#19253B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/> </svg>`)
+        $("#success_popup_id .jobstatus-success-body").find("p").html(`{% trans 'Are you sure you want to transfer this job to' %}${group_val}?`)
+        $("#success_popup_id #return_success_id").hide();
+        $("#success_popup_id #partial_job_id").hide();
+        $("#success_popup_id #close_job_id").hide();
+        
+        $("#transfer_success_modal .modal-dialog.comman_modal.modal-dialog-centered").append($("#success_popup_id"));
+        $("#transfer_success_modal").modal("show");
+        $("#transfer_job_modal").modal("hide");
+        $("#success_popup_id").show();
+      }
+    })
+
+    //submit transfer-job form
+    $("#transfer_job_yes_id").on("click", function(){
+
+      let csrftoken = $("#transfer_jobform_id").children().first().val();
+      var transfer_formdata = new FormData(transfer_form);
+
+      multiple_jobs = []
+      const selectedCheckboxes = document.querySelectorAll('.transfer_multiple_job:checked');
+      selectedCheckboxes.forEach(function(checkboxes){
+        multiple_jobs.push(checkboxes.getAttribute("job_id")) 
+      })
+      
+      if(job_id){
+        url = `/jobs/transfer-job/${job_id}/` 
+      }
+      if(multiple_jobs.length != 0){
+        url = `/jobs/multiple-transfer-job/?multiple_jobs=${multiple_jobs}`
+      }
+
+      $.ajax({
+        type: "POST",
+        url: `${url}`,
+        data : transfer_formdata,
+        processData: false,
+        contentType: false,
+        headers: {
+          'X-CSRFTOKEN': csrftoken,
+        },
+        success : function (response){
+          if(response?.error){
+            $('#transfer_jobform_id #transfer_error').empty()
+            $("#transfer_success_modal").modal("hide");
+            $("#transfer_job_modal").modal("show");
+            $('#transfer_jobform_id #transfer_error').append(`<p style="color:red; font-size: 17px; margin-top:3px;" id="form_error">{% trans '${response.error}' %}</p>`)
+          }
+          else{
+            location.reload();
+          }
+        }
+      })
+    })
+
+
+    //return job section 
+    $("#wrong_info_content_id").attr("disabled", 'disabled');
+    $("#duplicate_job_id").on("change", function(){
+      $("#return_job_optionsform_id #wrong_info_content_id").attr('disabled','disabled');
+    })
+    $("#wrong_info_id").on("change", function(){
+      $("#wrong_info_content_id").removeAttr('disabled')
+    })
+
+    let return_form = document.querySelector('#return_job_optionsform_id')
+    csrftoken = $('#return_job_optionsform_id').children().first().val();
+    var return_formData = {}
+
+    return_form.addEventListener('submit', (e) => {
+      e.preventDefault()
+      return_formData = new FormData(return_form)
+
+      $('#return_job_optionsform_id #return_error').empty()
+      if(return_formData.get("is_duplicate") == null){
+        $('#return_job_optionsform_id #return_error').append(`<p style="color:red; font-size: 17px; margin-top:3px;" id="form_error">Please select atleast one option. </p>`)
+      }
+
+      $("#success_popup_id .message_block").html(`<svg width="43" height="30" viewBox="0 0 43 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.69219 2.0769L27.5383 27.9231L40.4614 15" stroke="#19253B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`)
+      $("#success_popup_id .jobstatus-success-body").find("p").html(`{% trans 'The job at' %}<b>${job_address}</b> {% trans 'has successfully returned to the inspectors of main group.' %}`)
+
+      $("#success_popup_id #return_success_id").show();
+      $("#success_popup_id #transfer_job_yes_id").hide();
+      $("#success_popup_id #partial_job_id").hide();
+      $("#success_popup_id #close_job_id").hide();
+      $("#success_popup_id #transfer_job_no_id").hide();
+      $("#return_success_modal .modal-dialog.comman_modal.modal-dialog-centered").append($("#success_popup_id"));
+      
+      for (const pair of return_formData.entries()) {
+        let key = pair[0]
+        let value = pair[1]
+        
+        if(key == "is_duplicate" && value == "is_duplicate")
+        {
+          $("#return_job_list_modal").modal("show");
+          $("#return_job_modal").modal("hide"); 
+          $(`#retun_original_job_${job_id}`).hide()
+        }
+        else if(key == "is_duplicate" && value == "is_wrong_info"){
+          //submit wrong information return job
+          $.ajax({
+            type: "POST",
+            url: `/jobs/return-job-create/${job_id}/`,
+            data : return_formData,
+            processData: false,
+            contentType: false,
+            headers: {
+              'X-CSRFTOKEN': csrftoken,
+            },
+            success : function (response){
+              $('#return_job_optionsform_id #return_error').empty()
+              if(response?.error){
+                $("#return_job_modal").modal("show");
+                $("#return_success_modal").modal("hide");
+                $('#return_job_optionsform_id #return_error').append(`<p style="color:red; font-size: 17px; margin-top:3px;" id="form_error">{% trans '${response.error}' %}</p>`)
+              }
+              else if((response?.transfer_error)){
+                $("#return_job_modal").modal("show");
+                $("#return_success_modal").modal("hide");
+                $('#return_job_optionsform_id #return_error').append(`<p style="color:red; font-size: 17px; margin-top:3px;" id="form_error">{% trans '${response.transfer_error}' %}</p>`)
+              }
+              else{
+                window.location = `/`
+              }
+            },
+          })
+        } 
+      }
+    })
+
+    let return_list_form = document.querySelector("#return_joblistform_id")
+    return_list_form.addEventListener('submit', (e) => {
+      e.preventDefault()
+      let return_joblist_formData = new FormData(return_list_form)
+      $('#return_joblistform_id #return_list_error').empty()
+      if(return_joblist_formData.get("job") == null )
+      {
+        $('#return_joblistform_id #return_list_error').append(`<p style="color:red; font-size: 17px; margin-top:3px;" id="form_error">{% trans 'Please select atleast one option.' %}</p>`)
+      }else{
+        return_formData.append("job",return_joblist_formData.get("job") )
+        $.ajax({
+          type: "POST",
+          url: `/jobs/return-job-create/${job_id}/`,
+          data : return_formData,
+          processData: false,
+          contentType: false,
+          headers: {
+            'X-CSRFTOKEN': csrftoken,
+          },
+          success : function (response){
+            $('#return_joblistform_id #return_error').empty()
+            if(response?.error){
+              $("#return_job_list_modal").modal("show");
+              $("#return_job_modal").modal("hide");
+              $('#return_joblistform_id #return_list_error').append(`<p style="color:red; font-size: 17px; margin-top:3px;" id="form_error">{% trans '${response.error}' %}</p>`)
+            }
+            else if((response?.transfer_error)){
+              $("#return_job_list_modal").modal("show");
+              $("#return_job_modal").modal("hide");
+              $('#return_joblistform_id #return_list_error').append(`<p style="color:red; font-size: 17px; margin-top:3px;" id="form_error">{% trans '${response.transfer_error}' %}</p>`)
+            }
+            else{
+              window.location = `/`
+            }
+          }
+        })
+      }
+    })
+
+    $("#duplicate_jobview_btn_id").on("click", function(){
+      $("#return_success_modal").modal("show");
+      $("#duplicate_job_view_modal").modal("hide");
+      $("#success_popup_id").show();
+    })
+
+
+    // Edit job ajax call
+    $("#edit_job_btn, #job_partial_btn").on("click", function(){
+      var form = document.getElementById('edit_job_form');
+      form.reportValidity();
+
+      if (form.checkValidity()) {
+
+        let formData = new FormData(document.querySelector("#edit_job_form"));
+      
+        formData_length = Array.from(formData.entries()).length
+        form_data_length = Array.from(form_data.entries()).length
+        
+        var table_bill_sum = 0
+        isDifferent = false;
+        for(const [key, value] of formData.entries()){
+          if (form_data.get(key) !== value&&typeof(value)!="object"||form_data_length !== formData_length) {
+            isDifferent = true;
+          }
+        };
+  
+        $("#edit_bill_table tbody tr").each(function(){
+          var rowData={};
+          $(this).find('td[content="True"]').each(function(){
+            var key = $(this).attr('key')
+            if (key=="measurement"){
+              const $tdElement = $(this);
+              const $childElement = $tdElement.find("input");
+              const attributeValue = $childElement.attr("value");
+              rowData[key]= attributeValue
+            }else{
+              rowData[key]= ($(this).text()).trim()
+            }
+          });
+          table_bill_sum = table_bill_sum + parseInt(rowData["measurement"])
+          formData.append("tabledata",JSON.stringify(rowData))
+        });
+  
+        if (formData.get("status")=="סגור"){
+          isDifferent = true;
+        }else{
+          if (isDifferent==false){
+            if(table_bill_sum != sum_of_bills){
+              isDifferent = true;
+            }else{
+              isDifferent = false;
+            }
+          }
+        }
+        if ($(this).html() == 'Partial') {
+          $(this).html("חלקי");
+        }
+        if($(this).html() == "חלקי" || $(this).html() == "סגור"){
+          edit_job_status2 = $(this).html();
+        }else{
+          edit_job_status2  = $("#edit_job_status").attr("value");
+        }
+        
+        let csrfmiddlewaretoken = $("#edit_job_form").children().first().val();
+  
+        if(isDifferent==true){
+          $('.loader').removeAttr("style");
+          $.ajax({
+            type: "POST",
+            url: `/jobs/close_job/?status=${edit_job_status2}&transfer_job=${edit_job_id}&update=true`,
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+              'X-CSRFTOKEN': csrfmiddlewaretoken
+            },
+            success: function(response){
+              if(response?.IntegrityError){
+                $('#edit_form_id').html(response["IntegrityError"]["status"])
+                $('#edit_form_id').removeAttr('hidden')
+                $('.loader').css({ "opacity": "0", "visibility": "hidden" });
+              }else if(response?.error){
+                form_validation('#close_jobform_id', response?.error)
+                $('.loader').css({ "opacity": "0", "visibility": "hidden" });
+              }
+              else{
+                window.location.reload(true);
+              }
+            }
+          });
+        }
+        else{
+          $('#edit_form_error').removeAttr('hidden')
+        }
+      }
+    });
+
+  var units = `{% trans 'Units' %}`
+  var sqm = `{% trans 'SQM' %}`
+
+  function subtraction(id, bill_type, type_counting, jumping_ration, value){
+      if (bill_type=="Sign" && type_counting==sqm && value>=0){
+      return (value - 0.5).toFixed(1)
+      }
+      else if(bill_type=="Sign" && type_counting==units && value>=0){
+      return (value - 1).toFixed(1)
+      }
+      else if(bill_type=="Material" && value>=0){
+      return (value - jumping_ration).toFixed(1)
+      }
+  }
+
+  function addition(id, bill_type, type_counting, jumping_ration, value){
+      if (bill_type=="Sign" && type_counting==sqm){
+      return (value + 0.5).toFixed(1)
+      }
+      else if(bill_type=="Sign" && type_counting==units){
+        return (value + 1).toFixed(1)
+      }
+      else if(bill_type=="Material" && bill_type!="Sign"){
+      return (value + jumping_ration).toFixed(1)
+      }
+  }
+
+  function bill_removeDefaultZero(inputElement) {
+    if (inputElement.value === '0') {
+      inputElement.value = '';
+    }
+  }
+
+  function bill_measurement(inputId){
+      const inputElement = $(`#${inputId}`).val()
+      $(`#${inputId}`).attr("value", inputElement)
+    }
+
+
+   //job close subtraction
+   $(document).on("click", ".edit-subtraction", function(){
+    let id = $(this).attr("data-id")
+    let bill_type = $(this).attr("bill_type")
+    let type_counting = this.parentNode.parentNode.querySelector(`.type_count_${id}`).textContent
+    let jumping_ration = parseFloat($(this).attr("data-value"))
+    let value = parseFloat($(`#jumping_ration-${id}`).attr("value"))
+
+    sub_value= subtraction(id, bill_type, type_counting, jumping_ration, value);
+    subtraction_value= sub_value <= 0 ? 0 : sub_value
+    $(`#jumping_ration-${id}`).attr("value", subtraction_value)
+    $(`.jumping_ration-${id}`).attr("value", subtraction_value)
+    $(`#jumping_ration-${id}`).val(subtraction_value)
+  });
+
+  //job close addition
+  $(document).on("click", ".edit-addition", function(){
+    let id = $(this).attr("data-id")
+    let bill_type = $(this).attr("bill_type")
+    let type_counting = this.parentNode.parentNode.querySelector(`.type_count_${id}`).textContent
+    let jumping_ration = parseFloat($(this).attr("data-value"))
+    let value = parseFloat($(`#jumping_ration-${id}`).attr("value"))
+    
+    addition_value = addition(id, bill_type, type_counting, jumping_ration, value);
+    $(`#jumping_ration-${id}`).attr("value", addition_value)
+    $(`.jumping_ration-${id}`).attr("value", addition_value)
+    $(`#jumping_ration-${id}`).val(addition_value)
+  });
+
+    //add action on opening delete job
+    $("#job_delete_id").on('click',function(){
+      job_id = $(this).attr("data-id")
+      job_address = $(this).attr("data-address")
+      $("#delete-job-name-role").html(`${job_address}`)
+      $('#delete_job_id').attr('action', `/jobs/delete_job/${job_id}/`)
+    })
+
+
+     // set latitude and longitude
+    $("#edit_add-location").on("click", function(){
+      edit_longitude = $("#edit_job_longitude").val()
+      edit_latitude= $("#edit_job_latitude").val()
+
+      $("#save_location, #live_location").removeAttr('hidden')
+      $("#map_close_btn, #save_location").attr("data-bs-target", "#edit_job_modal")
+      callMap("", parseFloat(edit_latitude), parseFloat(edit_longitude), map_readonly)
+    });
+
+    $(".three-drop-button_detail").on("click", function(){
+      var job_status = $(this).attr("data-status")
+        callMap("edit_job")
+    })
+
+    //add action on opening delete job
+    $(".delete_job_btn_id").on('click',function(){
+      job_id = $(this).attr("data-id")
+      job_address = $(this).attr("data-address")
+      $("#delete-job-name-role").html(`${job_address}`)
+      $('#delete_job_id').attr('action', `/jobs/delete_job/${parseInt(job_id)}/`)
+    })
+
+
+    function close_doc_remove(id, carousel_name){
+      var attachment;
+      if(carousel_name){
+        attachment = "image"
+        var deleted_img_id = $("#close_delete_image").attr("value") +","+ id
+        $("#close_delete_image").attr("value", deleted_img_id.replace('undefined,', ''))
+      }else{
+        var deleted_docs_id = $("#close_delete_docs").attr("value") +","+ id
+        $("#close_delete_docs").attr("value", deleted_docs_id.replace('undefined,', ''))
+      }
+      
+
+        if(carousel_name){
+          var owl = $(`#${carousel_name}.owl-carousel`);
+          var activeItem = $(`#${carousel_name}.owl-carousel .owl-item.active`);
+          var indexToRemove = activeItem.index();
+          owl.trigger('remove.owl.carousel', indexToRemove).trigger('refresh.owl.carousel');
+        }else{
+          $(`#remove_document_${id}`).remove()
+          if($(`.edit_docuemnt`).length == 0){
+            $(".edit-attachment").attr("hidden", true)
+          }
+        }
+    }  
+
+    function edit_doc_remove(id, carousel_name){
+      var attachment;
+      if(carousel_name){
+        attachment = "image"
+        var deleted_img_id = $("#delete_image").attr("value") +","+ id
+        $("#delete_image").attr("value", deleted_img_id.replace('undefined,', ''))
+      }else{
+        var deleted_docs_id = $("#delete_docs").attr("value") +","+ id
+        $("#delete_docs").attr("value", deleted_docs_id.replace('undefined,', ''))
+      }
+      
+
+        if(carousel_name){
+          var owl = $(`#${carousel_name}.owl-carousel`);
+          var activeItem = $(`#${carousel_name}.owl-carousel .owl-item.active`);
+          var indexToRemove = activeItem.index();
+          owl.trigger('remove.owl.carousel', indexToRemove).trigger('refresh.owl.carousel');
+        }else{
+          $(`#remove_document_${id}`).remove()
+          if($(`.edit_docuemnt`).length == 0){
+            $(".edit-attachment").attr("hidden", true)
+          }
+        }
+  }
+  
+  // Define the updated_notes function
+    function updated_notes(id, updatedNote) {
+        let currentNotes = $("#updated_notes").val();
+        let updatedNotesObj = currentNotes ? JSON.parse(currentNotes) : {};
+        updatedNotesObj[id] = updatedNote;
+        $("#updated_notes").val(JSON.stringify(updatedNotesObj));
+    }
+
+    // Add the onchange event to the textarea dynamically using event delegation
+    $(document).on('change', 'textarea[name="notes"]', function() {
+        // Get the id and updated note content
+        let noteId = $(this).closest('p').attr('id');
+        let updatedNote = $(this).val().trim();
+
+        updated_notes(noteId, updatedNote);
+    });
+
+  $("#approved_job_id, #menu_approved_job_id, #unapproved_job_id, #menu_unapproved_job_id").on("click", function(){
+    var status = $(this).attr("is_reviewed")
+    var job_id = $(this).attr("job_id")
+    $.ajax({
+      type: "GET",
+      url: `/jobs/job_approved?job_id=${job_id}&is_reviewed=${status}`,
+      processData: false,
+      contentType: false,
+      success: function (response) {
+        location.reload()
+      }
+    })
+  });
+
+  $("#generate_report_btn").on("click", function(){
+    var job = $(this).attr("job_data")
+    var group = $(this).attr("group_name")
+    
+    const url = `{% url  'jobs:generatePdf' %}?job=${job}&groups=${group}&single_report=True`;
+
+    window.open(url, "_blank");
+  });
+
+  var askAboutJobElement = document.getElementById("");
+  $("#ask_about_job_id2").on("click", function(){
+    var job_id = $(this).attr("job_id");
+    var group_id = $(this).attr("group_id");
+    var address = $(this).attr("address");
+    var description = $(this).attr("description");
+    var image_url = $(this).attr("image");
+
+    var url = `/chats/?job_id=${job_id}&group_id=${group_id}&address=${address}&description=${description}&image=${image_url}`;
+
+    // Redirect to the constructed URL
+    window.location.href = url;
+  })
+
+
+  function manage_edit_popup(button_id){
+    if(button_id=="module"){
+      $("#two_job_detail_button").attr("hidden", false)
+    $("#one_job_detail_button").hide()
+
+    var form = document.getElementById('edit_job_form');
+
+    for (var i = 0; i < form.elements.length; i++) {
+        var element = form.elements[i];
+        if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
+            element.disabled = true;
+        }
+    }
+
+    var submitButton = document.querySelector('#edit_job_btn');
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+    $("#save_location").hide()
+    $("#edit_add_sign_bills").hide()
+    $("#edit_add_material_bills").hide()
+    $("#edit_add_forms").hide()
+    $("#edit_bill_table").hide()
+    $("#edit_inputfile-docs").hide()
+    $("#edit_note_id-docs").hide()
+    $("#without_btn_bill_table").show()
+    }
+  }
+
+
+  $(".dropdown-edit").on("click", function(){
+    $("#close_jobform_label").html("{% trans 'Edit Job' %}")
+    $("#one_job_detail_button").show()
+    $("#two_job_detail_button").attr("hidden", true)
+    $("#without_btn_bill_table").hide()
+    $(".three-drop-button_detail").hide();
+    $("#edit_bill_table").show()
+    $("#edit_add_sign_bills").show()
+    $("#edit_add_material_bills").show()
+    $("#edit_add_forms").show()
+    
+    form_disabled()
+  })
+
+  $(".dropdown-close").on("click", function(){
+    $("#one_job_detail_button").show()
+    $("#two_job_detail_button").attr("hidden", true)
+    $("#without_btn_bill_table").hide()
+    $(".three-drop-button_detail").hide();
+    $("#edit_bill_table").show()
+    $("#edit_add_sign_bills").show()
+    $("#edit_add_material_bills").show()
+    $("#edit_add_forms").show()
+    
+    form_disabled()
+  })
+
+  $(".job_row").on("click", function(){
+    $(".three-drop-button_detail").show();
+    $("#two_job_detail_button").attr("hidden", false)
+    $("#one_job_detail_button").hide()
+    $("#edit_job-bills").attr("hidden", true);
+    $("#edit_furtherBilling").attr("hidden", true);
+    $("#edit_notes").attr("hidden", true);
+    $("#edit_furtherInspection").attr("hidden", false);
+    $("#editPriority").attr("hidden", false);
+    $(".job_partial_btn").attr("hidden", true)
+    $("#close_jobform_label").html("{% trans 'Close Job' %}")
+
+    var form = document.getElementById('edit_job_form');
+
+    for (var i = 0; i < form.elements.length; i++) {
+        var element = form.elements[i];
+        if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
+            element.disabled = true;
+        }
+    }
+
+    var submitButton = document.querySelector('#edit_job_btn');
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+    $("#save_location").hide()
+    $("#edit_add_sign_bills").hide()
+    $("#edit_add_material_bills").hide()
+    $("#edit_add_forms").hide()
+    $("#edit_bill_table").hide()
+    $("#edit_inputfile-docs").hide()
+    $("#edit_note_id-docs").hide()
+    $("#without_btn_bill_table").show()
+  })
+  
+  $("#job_edit_id, #job_close_id").on("click", function(){
+    $("#two_job_detail_button").hide()
+    $("#one_job_detail_button").show()
+    $("#close_jobform_label").html("{% trans 'Edit Job' %}")
+    var job_status = $("#edit_job_status").attr("value")
+    
+    if($(this).attr("id")=="job_close_id" || job_status == "סגור"){
+      $(".close-icon").removeClass("d-none")
+      $("#edit_job-bills").attr("hidden", false);
+      $("#edit_furtherBilling").attr("hidden", false);
+      $("#edit_furtherInspection").attr("hidden", true);
+      $("#editPriority").attr("hidden", true);
+      $(".job_partial_btn").attr("hidden", false)
+      $("#edit_job_btn").html("סגור")
+      $("#close_jobform_label").html("{% trans 'Close Job' %}")
+    }else if(job_status == "חלקי"){
+      $(".close-icon").removeClass("d-none")
+      $("#edit_job-bills").attr("hidden", false);
+      $("#edit_furtherBilling").attr("hidden", false);
+      $("#edit_furtherInspection").attr("hidden", true);
+      $("#editPriority").attr("hidden", true);
+      $("#edit_job_btn").html("{% trans 'Save' %}")
+      $("#close_jobform_label").html("{% trans 'Edit Job' %}")
+    }else{
+      $(".close-icon").removeClass("d-none")
+      $("#edit_job-bills").attr("hidden", true);
+      $("#edit_furtherBilling").attr("hidden", true);
+      $("#edit_furtherInspection").attr("hidden", false);
+      $("#editPriority").attr("hidden", false);
+      $(".job_partial_btn").attr("hidden", true)
+      $("#close_jobform_label").html("{% trans 'Edit Job' %}")
+      $("#edit_job_btn").html("{% trans 'Save' %}")
+    }
+
+    if(job_status == "סגור"){
+      $(".job_partial_btn").attr("hidden", true)
+      $("#edit_job_btn").html("{% trans 'Save' %}")
+    }
+
+    form_disabled()
+
+    var submitButton = document.querySelector('#edit_job_btn');
+    if (submitButton) {
+        submitButton.disabled = false;
+    }
+    $("#save_location").show()
+    $("#edit_add_sign_bills").show()
+    $("#edit_add_material_bills").show()
+    $("#edit_add_forms").show()
+    $("#edit_bill_table").show()
+    $("#without_btn_bill_table").hide()
+    $("#edit_inputfile-docs").show()
+    $("#edit_note_id-docs").show()
+  })
+
+  function form_disabled(){
+    var form = document.getElementById('edit_job_form');
+
+    for (var i = 0; i < form.elements.length; i++) {
+        var element = form.elements[i];
+        if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
+          if (element.id !== 'edit_job_group') {
+            element.disabled = false;
+          }
+        }
+    }
+  }
+
+</script>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+{% load static i18n %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>{% trans 'Sum-up Report' %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/logo.png' %}" />
+    <style>
+        @page {
+            size: A4;
+            margin: 0px;
+            padding: 10px 30px 30px;
+
+            @bottom-left {
+                font-family: 'Roboto', sans-serif;
+                font-weight: 400;
+                margin-top: -60px;
+                font-size: 14px;
+                margin-left: 30px;
+                content: "Page " counter(page)" / " counter(pages);
+            }
+        }
+
+        @media screen,
+        print {
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Roboto', sans-serif;
+            }
+
+            tfoot {
+                page-break-after: always;
+            }
+
+            table {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                border-spacing: 0;
+            }
+
+            img {
+                max-width: 100%;
+            }
+
+            th,
+            td {
+                padding: 0;
+                vertical-align: middle;
+            }
+
+            .head_table>td {
+                border-bottom: 1px solid #999999;
+            }
+
+            p {
+                margin-bottom: 0;
+                font-size: 14px;
+                line-height: 14px;
+                font-weight: 400;
+            }
+
+            .body_table p {
+                font-size: 16px;
+            }
+
+            .body_table tbody tr td {
+                vertical-align: baseline;
+            }
+
+            .main-table tbody {
+                page-break-inside: avoid;
+            }
+
+            .product_table tbody tr:nth-child(odd) td {
+                background: #f5f3f3;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <table class="main-table">
+        <thead>
+            <tr class="head_table">
+                <td style="text-align:right; width:25%; padding:0;">
+                    <p style="color: #666666;font-weight: 600;margin-bottom: 10px;">{% trans 'Date' %} :</p>
+                    <p style="font-weight: 600;">{{date.from_date}} {% trans 'to' %} {{date.to_date}}</p>
+                </td>
+                <td style="width: 75%; text-align: right;padding: 10px 0;">
+                    <table class="brand_table">
+                        <tr>
+                            <td style="width: 90%;padding: 0;">
+                                <div style="margin-right: 14px;">
+                                    <h4 style="margin-bottom: 10px;">משה בוצ׳ן</h4>
+                                    <p style="margin-bottom: 0;">ביוב - עבודות ואחזקה בע״מ</p>
+                                </div>
+                            </td>
+                            <td style="width: 10%;padding: 0;">
+                                <img src="https://i.ibb.co/GvR3hk4/Brand.png" alt="brand">
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for items in context %}
+                {% if items.material or items.sign_bill%}
+                    <tr style="page-break-before: always;">
+                        <td colspan="2">
+                            <table style="page-break-after: auto;">
+                                <tr>
+                                    <td style="text-align: right;">
+                                        <p style="padding: 20px 10px 0px;font-weight: 600;font-size: 18px;">{{items.group_name}}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            {% if items.material %}
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <p style="padding: 20px 10px 10px;font-weight: 600;text-decoration: underline;text-align: right;">
+                                                {% trans 'Material Bills' %}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <table class="product_table">
+                                    <thead>
+                                        <tr style="text-align: right;">
+                                            <th style="width: 30%; padding: 15px 10px; text-align: center;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Unit' %}</p>
+                                            </th>
+                                            <th style="width: 15%; padding: 15px 10px;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'QTY' %}</p>
+                                            </th>
+                                            <th style="width: 40%; padding: 15px 10px;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Name' %}</p>
+                                            </th>
+                                            <th style="width: 15%; padding: 15px 10px;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Sr. No.' %}</p>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in items.material %}
+                                            <tr style="text-align: right;">
+                                                <td style="width: 30%; padding: 15px 10px; text-align: center;">
+                                                    <p style="font-weight: 400;font-size: 14px;">{{item.type_counting}}</p>
+                                                </td>
+                                                <td style="width: 15%; padding: 15px 10px;">
+                                                    <p style="font-weight: 400;font-size: 14px;">{{item.quantity}}</p>
+                                                </td>
+                                                <td style="width: 40%; padding: 15px 10px;">
+                                                    <p style="font-weight: 400;font-size: 14px;">{{item.name}}</p>
+                                                </td>
+                                                <td style="width: 15%; padding: 15px 10px;">
+                                                    <p style="font-weight: 400;font-size: 14px;">{{ forloop.counter }}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                            {% if items.sign_bill %}
+
+                                <table style="margin-top: 30px;margin-bottom: 5px;">
+                                    <tr>
+                                        <td>
+                                            <p
+                                                style="padding: 0px 10px;font-weight: 600;text-decoration: underline;text-align: right;">
+                                                {% trans 'Sign Bills' %}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <table class="product_table">
+                                    <thead>
+                                        <tr style="text-align: right;">
+                                            <th style="width: 30%; padding: 15px 10px; text-align: center;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Unit' %}</p>
+                                            </th>
+                                            <th style="width: 15%; padding: 15px 10px;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'QTY' %}</p>
+                                            </th>
+                                            <th style="width: 40%; padding: 15px 10px;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Name' %}</p>
+                                            </th>
+                                            <th style="width: 15%; padding: 15px 10px;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Sr. No.' %}</p>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in items.sign_bill %}
+                                        <tr style="text-align: right;">
+                                            <td style="width: 30%; padding: 15px 10px; text-align: center;">
+                                                <p style="font-weight: 400;font-size: 14px;">{{item.type_counting}}</p>
+
+                                            </td>
+                                            <td style="width: 15%; padding: 15px 10px;">
+                                                <p style="font-weight: 400;font-size: 14px;">{{item.quantity}}</p>
+                                            </td>
+                                            <td style="width: 40%; padding: 15px 10px;">
+                                                <p style="font-weight: 400;font-size: 14px;">{{item.name}}</p>
+                                            </td>
+                                            <td style="width: 15%;padding: 15px 10px;">
+                                                <p style="font-weight: 400;font-size: 14px;">{{ forloop.counter }}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            {% endif %}
+
+                            {% if items.jobs %}
+                                <table style="margin-top: 30px;margin-bottom: 5px;">
+                                    <tr>
+                                        <td>
+                                            <p
+                                                style="padding: 0px 10px;font-weight: 600;text-decoration: underline;text-align: right;">
+                                                {% trans 'Jobs' %}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <table class="product_table">
+                                    <thead>
+                                        <tr style="text-align: right;">
+                                            <th style="width: 30%;padding: 15px 10px; text-align: center;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Closed Date' %}</p>
+                                            </th>
+                                            <th style="width: 15%;padding: 15px 10px;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Note' %}</p>
+                                            </th>
+                                            <th style="width: 40%;padding: 15px 10px;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Job Address' %}</p>
+                                            </th>
+                                            <th style="width: 15%;padding: 15px 10px;">
+                                                <p style="font-weight: 600;font-size:14px">{% trans 'Job Id' %}</p>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for job in items.jobs %}
+                                            <tr style="text-align: right;">
+                                                <td style="width: 30%; padding: 15px 10px; text-align: center;">
+                                                    <p style="font-weight: 400;font-size: 14px;">{{job.closd_date}}</p>
+
+                                                </td>
+                                                <td style="width: 15%; padding: 15px 10px;">
+                                                    <p style="font-weight: 400;font-size: 14px;">{{job.notes}}</p>
+                                                </td>
+                                                <td style="width: 40%; padding: 15px 10px;">
+                                                    <p style="font-weight: 400;font-size: 14px;">{{job.address}}</p>
+                                                </td>
+                                                <td style="width: 15%;padding: 15px 10px;">
+                                                    <p style="font-weight: 400;font-size: 14px;">{{job.job_id}}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="padding-top: 15px; border-bottom: 1px dashed rgb(173, 173, 173);"></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            
+            {% if jobs %}
+                <table style="margin-top: 30px;margin-bottom: 5px;">
+                    <tr>
+                        <td>
+                            <p
+                                style="padding: 0px 10px;font-weight: 600;text-decoration: underline;text-align: right;">
+                                {% trans 'Jobs' %}</p>
+                        </td>
+                    </tr>
+                </table>
+                <table style="width: 100%; margin-bottom: 20px; border-spacing: 0;">
+                    <tr style="text-align: right;">
+                        <td style="width:25%; padding: 5px 20px 5px 0;">
+                            <b>{% trans 'Closed Date' %}</b>
+                        </td>   
+                        <td style="width:25%; padding: 5px 0;">
+                            <b>{% trans 'Note' %}</b>
+                        </td>
+                        <td style="width: 40%; padding: 5px 0;">
+                            <b>{% trans 'Job Address' %}</b>
+                        </td>
+                        <td style="width: 10%; padding: 5px 0; text-align: center;">
+                            <b>{% trans 'Job Id' %}</b>
+                        </td>
+                    </tr>
+                    {% for item in jobs %}
+                        <tr style="text-align: right;" class="odd-even-bg-css">
+                            <td style="padding: 10px 0; text-align: center;">
+                                {{item.closed_date|date}}
+                            </td>
+                            <td style="padding: 10px 0; word-break: break-all">
+                                {% if item.notes %}
+                                    <ul style="list-style-type: none; padding: 0;">
+                                        {% for note in item.notes %}
+                                            <li>{{ note.note }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                <td style="padding: 10px 0; word-break: break-all">
+                                    -
+                                </td>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 10px 0; word-break: break-all">
+                                {{item.address}}
+                            </td>
+                            <td style="padding: 10px;">
+                                {{ item.job_id }}
+                            </td>   
+                        </tr>
+                    {% endfor %} 
+                </table>
+            {% endif %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" style="height: 40px;">
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+
+</html>

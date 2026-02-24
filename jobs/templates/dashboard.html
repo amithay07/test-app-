@@ -1,0 +1,1223 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% load myfilters static i18n %}
+{% block extra_css %}
+
+{{block.super}}
+<style>
+  #dot-group{
+    position: relative;
+    padding: 10px 10px 10px 20px;
+  }
+  #dot-group .button-head-grp{
+    left: 0px;
+    top: 7px;
+    position: absolute;
+  }
+  #dot-group .card-text{
+    white-space: nowrap; 
+    width: 180px; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+
+  }
+
+  
+  .job-slider-section{
+    height: unset;
+  }
+
+    .job-list{
+      height: calc(100vh - 380px - 56px);
+      overflow: auto;
+    }
+    
+    .btn-group {
+      max-width: 340px;
+      width: 100%;
+      border-radius: 7px;
+    }
+  
+    .btn-group .btn {
+      border: none;
+    }
+  
+    .btn-group .btn:first-child {
+      border-radius: 0px 7px 7px 0px !important;
+    }
+  
+    .btn-group .btn:last-child {
+      border-radius: 7px 0 0 7px !important;
+    }
+  
+    .dashboard_head_select {
+      max-width: 150px;
+      margin-right: auto;
+    @media (max-width: 767px) {
+      margin-left: auto;
+      margin-right: 0;
+    }
+    }
+  
+    .dashboard_head_select .select2.select2-container .select2-selection--single .select2-selection__rendered {
+      padding-left: 30px;
+    }
+  
+  .btn-group {
+    max-width: 340px;
+    width: 100%;
+    border-radius: 7px;
+  }
+
+  .btn-group .btn {
+    border: none;
+  }
+
+  .btn-group .btn:first-child {
+    border-radius: 0px 7px 7px 0px !important;
+  }
+
+  .btn-group .btn:last-child {
+    border-radius: 7px 0 0 7px !important;
+  }
+
+  .dashboard_head_select {
+    max-width: 150px;
+    margin-right: auto;
+  }
+
+  .dashboard_head_select .select2.select2-container .select2-selection--single .select2-selection__rendered {
+    padding-left: 30px;
+  }
+
+  .dashboard_date_range .flatpickr {
+    display: none;
+  }
+
+  .avatar-initial span{
+    margin-top: 5px;
+  }
+
+  .image-card {
+    padding: 8px;
+  }
+
+  .image-card .image-block{
+    border-radius: 6px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .image-card .image-block img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .status-block{
+    padding: 2px 8px; 
+    font-weight: 400;
+    font-size: 13px;
+    color: #5AADDE;
+    background: #EEF8FD;
+    border-radius: 4px;
+  }
+
+  .job-card {
+    padding: 9px;
+    transition: all 0.5s;
+    height: 100%;
+  }
+
+  .job-card:hover{
+    cursor: pointer;
+    transition: all 0.5s;
+    box-shadow: rgb(181 181 181) 0px 0px 20px 0px
+  }
+
+  .job-info {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+  }
+
+  .job-info .card-text {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 17px;
+    color: #32425E;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .dashboard_date_range{
+    border: 1px solid #d4d8dd !important;
+  }
+
+  .dashboard_date_range .flatpickr-calendar.inline{
+    border: none !important;
+  }
+
+  .dashboard_date_range .btn-block{
+    padding: 0 20px 26px;
+  }
+
+  .dashboard_date_range .btn-block .btn{
+    min-width: 49%;
+  }
+
+  .job-slider-section .card-body{
+    border-radius: 7px !important;
+  }
+
+  .card-title{
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .card-title img {
+    width: 25px;
+    height: 25px;
+  }
+
+  .card-title span {
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 25px;
+    color: #19253B;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .fw-normal{
+    margin-bottom: 20px;
+  }
+
+  .fw-normal span{
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: #32425E;
+  }
+
+  .carousel-inner img,.carousel-inner video{
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .notification-header {
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 30px;
+    margin-top: 17px;
+  }
+
+  .page-heading{
+    font-weight: 600;
+    font-size: 28px;
+    line-height: 42px;
+    color: #19253B !important;
+  }
+
+  .job-heading{
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 30px;
+    color: #19253B;
+  }
+
+  .no-data-contain {
+    height: calc(100vh - 380px);
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .no-notification {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .no-notification img{
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  @media (max-width: 1440px) {
+    #dot-group .card-text{  
+      width: 130px; 
+    }
+    .carousel-inner img, .carousel-inner video{
+      height: 140px;
+    }
+  }
+
+  .select2-results__option[aria-disabled=true]{
+    display: none;
+  }
+
+  .stickey-head{
+    position: sticky;
+    background-color: #fff;
+    top: 0;
+    z-index: 99;
+    border-bottom: 1px solid #d4d8dd;
+  }
+
+  .postion-top-sticky{
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 99;
+  }
+  @media (max-width: 991px) {
+    #dot-group .card-text{  
+     width: 230px; 
+    }
+  }
+  @media (max-width: 876px) {
+    #dot-group .card-text{  
+     width: 190px; 
+    }
+  }
+  @media (max-width: 768px) {
+    #dot-group .card-text{  
+     width: 300px; 
+    }
+  }
+  @media (max-width: 500px) {
+    #dot-group .card-text{  
+     width: 200px; 
+    }
+  }
+  @media (max-width: 420px) {
+    #dot-group .card-text{  
+     width: 150px; 
+    }
+  }
+  @media (max-width: 350px) {
+    #dot-group .card-text{  
+     width: 120px; 
+    }
+  }
+
+  .job-list-row {
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 0.3s;
+}
+
+.job-list-row:hover {
+    background-color: #EEF8FD;
+}
+
+.job-list-row.inactive *{
+    color: #a4a9bc; 
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12 h-100 p-20">
+ 
+  <div class="row">
+    <div class="col-lg-8 order-lg-first order-last mb-lg-0">
+      <div class="row d-none d-lg-flex mb-20">
+        <div class="col-sm-6">
+          <h2 class="mb-0 text-black page-heading">{% trans 'Dashboard' %}</h2>
+        </div>
+        {% if request.user.role.title != "מִשׁתַמֵשׁ" %}
+        <div class="col-sm-6 text-end">
+          <div class="mb-2">
+              <button class="dt-button add-new btn btn-primary" id="generate_pdf_dashboard" hidden>
+                  <span>{% trans 'Generate Report' %}</span>
+              </button>
+              <button class="dt-button add-new btn btn-primary" id="clear_button_dashboard" hidden>
+                  <span>{% trans 'Clear' %}</span>
+              </button>
+          </div>
+          <div>
+              <button class="dt-button add-new btn btn-primary create_new_job" data-bs-toggle="modal" data-bs-target="#transfer_job_modal" id="multi_transfer_job_id" hidden>
+                  <span>
+                      <img src="{% static 'assets/img/transfer-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                      <span>{% trans 'Transfer Job' %}</span>
+                  </span>
+              </button>
+              <button class="dt-button add-new btn btn-primary create_new_job" id="create_new_job" type="button" data-bs-toggle="modal" data-bs-target="#create_job_modal">
+                  <span>
+                      <i class="bx bx-plus me-md-2"></i>
+                      <span class="d-inline-block">{% trans 'Add New Job' %}</span>
+                  </span>
+              </button>
+          </div>
+      </div>
+        {% endif %}
+      </div>
+
+      <div class="border radius-7px job-slider-section mb-0 position-relative">
+        <div class="stickey-head p-20">
+          <!-- Open and Close job tab -->
+          <div class="row">
+            <div class="col-md-4">
+              <h3 class="job-heading">{% trans 'Job' %}</h3>
+            </div>
+            <div class="col-md-4 text-start">
+              <div class="btn-group">
+                <button class="dt-button add-new btn btn-primary open-job" tabindex="1" aria-controls="DataTables_Table_0"
+                  type="button" href="#" data-bs-toggle="modal" data-bs-target="#show_open_job_modal" id="open_job_id" onclick="change_url('Open')">
+                  <span class="d-lg-inline-block">
+                      {% trans 'Open' %}</span>
+                </button>
+                <button class="dt-button add-new btn btn-primary close-job" tabindex="1" aria-controls="DataTables_Table_0"  
+                  type="button" href="#" data-bs-toggle="modal" data-bs-target="#show_close_job_modal" id="close_job_id" onclick="change_url('Close')">
+                  <span class="d-lg-inline-block">
+                      {% trans 'Close' %}</span>
+                </button>
+              </div>
+            </div>
+            <!-- Add Group Button filter and Date Filter -->
+            <div class="col-md-4 text-end">
+              <div id="layout-menu" class="w-100 bg-menu-theme mt-3 mt-md-0"
+                data-bg-class="bg-menu-theme">
+                <!-- Group list for filter -->
+                <form action="" method="GET" name="group">
+                  <div class="mb-2 form-group dashboard_head_select">
+                    <select class="form-control" id="group_filters" name="group" value="search">
+                      {% for group in group_list %}
+                      {% if previous_group_id %}
+                      <option value="{{group.name}}" id="{{group.id}}" {% if group.id == previous_group_id %} selected {% endif %}>
+                        {{ group }}</option>
+                      {% else %}
+                        {% if forloop.first %}
+                          <option value="{{group.name}}" id="{{group.id}}" selected>{{ group }}</option>
+                        {% else %}
+                            <option value="{{group.name}}" id="{{group.id}}">{{ group }}</option>
+                        {% endif %}
+                      {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="mb-2 form-group dashboard_head_select">
+                    <select class="form-control" id="sort_by" name="sort_by">
+                      <option value="ascending">{% trans 'Ascending' %}</option>
+                      <option value="descending" selected>{% trans 'Descending' %}</option>
+                    </select>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- Job count by types of job -->
+          <div class="row row-cols-md-5 g-3 mt-2">
+            {% for job_status, job_count in jobs_count.items %}
+            {% if request.user.role.title == "מנהל מערכת" %}   
+              <div class="card-body text-center d-flex align-items-center justify-content-center p-2 border radius-7px mx-1">
+                <div class="avatar avatar-md me-2">
+                  <button type="button" data-bs-toggle="modal" data-bs-target="#job_list_model" 
+                    class="job_list_btn" status="{{job_status}}" from_date="{{from_date}}" to_date="{{to_date}}" group="{{selected_group}}">
+                    <span class="avatar-initial rounded-circle bg-label-light"><span>{{job_count}}</span></span></button>
+                </div>
+                <p class="d-block text-nowrap text-black text-capitalize mb-0">{{job_status}}</p>
+              </div>
+            {% endif %}
+            {% if job_status != "הועברה" and request.user.role.title == "מְפַקֵחַ" %}
+              <div class="card-body text-center d-flex align-items-center justify-content-center p-2 border radius-7px mx-1">
+                <div class="avatar avatar-md me-2">
+                  <button type="button" data-bs-toggle="modal" data-bs-target="#job_list_model" 
+                  class="job_list_btn" status="{{job_status}}" from_date="{{from_date}}" to_date="{{to_date}}" group="{{selected_group}}">
+                    <span class="avatar-initial rounded-circle bg-label-light"><span>{{job_count}}</span></span></button>
+                </div>
+                <p class="d-block text-nowrap text-black text-capitalize mb-0">{{job_status}}</p>
+              </div>
+            {% endif %}
+            {% if job_status != "הועברה" and request.user.role.title == "מִשׁתַמֵשׁ" %}
+              <div class="card-body text-center d-flex align-items-center justify-content-center p-2 border radius-7px mx-1">
+                <div class="avatar avatar-md me-2">
+                  <button type="button" data-bs-toggle="modal" data-bs-target="#job_list_model" 
+                    class="job_list_btn" status="{{job_status}}" from_date="{{from_date}}" to_date="{{to_date}}" group="{{selected_group}}">
+                    <span class="avatar-initial rounded-circle bg-label-light"><span>{{job_count}}</span></span></button>
+                </div>
+                <p class="d-block text-nowrap text-black text-capitalize mb-0">{{job_status}}</p>
+              </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+
+        <!-- Jobs list by date -->
+        {% if jobs %}
+          <div id="jobs" class="job-list p-20 py-0">
+            {% if close_job == True %}
+              {% regroup jobs by job.closed_at.date as jobs_days_group %}
+            {% else %}
+              {% regroup jobs by created_at.date as jobs_days_group %}
+            {% endif %}
+              
+            {% for jobs_of_day in jobs_days_group %}
+              <div class="date-block">
+                <div class="card-datatable">
+                  <div id="DataTables_Table_3_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                    <table class="dt-multilingual table no-footer dtr-column overflow-auto"  id="job_list_datatable" style="text-align: center">
+                      <thead>
+                        <th colspan="7">
+                          <h5 class="fw-normal d-inline-flex align-items-center mb-0 mt-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none">
+                              <path d="M3 10H21M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="fw-bold ms-2">{{jobs_of_day.grouper}}</span>
+                            <span class="" style="background-color: #EEF8FD; padding:6px 8px; border-radius:4px; line-height:16px; margin-right:8px; font-weight:500;">
+                              {{jobs_of_day.list|length}}
+                            </span>
+                          </h5> 
+                        </th>
+                      </thead>
+                      <tbody id="tbodyid">
+                        {% for job in jobs_of_day.list %}
+                        <tr class="job-list-row {% if not job.is_active and not close_job %}inactive{% endif %}"
+                        onmouseover="this.style.backgroundColor='#EEF8FD'"
+                        onmouseout="this.style.backgroundColor='transparent'">
+                            {% if job.is_active %}
+                            <td style="width: 2%; padding:0">
+                                <input class="transfer_multiple_job" type="checkbox" id="check_{{job.id}}" job_id="{{job.id}}" group_id="{{job.group_id}}" style="width: 20px; height: 20px;">
+                            </td>
+                            {% endif %}
+                            <td style="width: 35%" class="tranfer-job-form job_row" data-bs-toggle="modal" data-bs-target="#edit_job_modal" id="edit_job" data-id="{{job.id}}" data-address="{{job_address}}" data-job-id="{{job.job.id}}">
+                              <div class="profile-block">
+                                <h5 class="card-title text-start">
+                                  {% if job.job.priority == True  and job.status != "חלקי" %}
+                                    <div class="d-flex">
+                                      <img src="{% static 'assets/img/prority.png' %}" style="height: 25px; width:25px;" alt="image-icon" class="me-2">
+                                      <span class="fw-bold" style="color: red; -webkit-line-clamp: unset;">{{job.job.address}}</span>
+                                    </div>
+                                  {% elif  job.status == "חלקי" and job.job.priority == True %}
+                                    <div class="d-flex">
+                                      <img src="{% static 'assets/img/orange_priority.svg' %}" alt="image-icon"  style="height: 25px; width:25px;"/>             
+                                      <span class="one-line-elipsis me-2 fw-bold" style="color: #F9A602; -webkit-line-clamp: unset;">{{job.job.address}}</span>
+                                    </div>
+                                  {% elif  job.status == "חלקי" %}
+                                    <div class="d-flex">
+                                      <span class="one-line-elipsis me-2 fw-bold" style="color: #F9A602; -webkit-line-clamp: unset;">{{job.job.address}}</span>
+                                    </div>
+                                  {% else %}
+                                    <span class="fw-bold" style="-webkit-line-clamp: unset;">{{job.job.address}}</span>
+                                  {% endif %}
+                                  <div>
+                                </h5>
+                              </div>
+                            </td>
+                            <td style="width: 15%" class="tranfer-job-form job_row" data-bs-toggle="modal" data-bs-target="#edit_job_modal" id="edit_job" data-id="{{job.id}}" data-address="{{job_address}}" data-job-id="{{job.job.id}}">{{job.job.job_id}}</td>
+                            <td style="width: 22%" class="tranfer-job-form job_row" data-bs-toggle="modal" data-bs-target="#edit_job_modal" id="edit_job" data-id="{{job.id}}" data-address="{{job_address}}" data-job-id="{{job.job.id}}">{{job.job.address_information|truncatechars:17}}</td>
+                            <td style="width: 22%" class="tranfer-job-form job_row" data-bs-toggle="modal" data-bs-target="#edit_job_modal" id="edit_job" data-id="{{job.id}}" data-address="{{job_address}}" data-job-id="{{job.job.id}}">{{job.job.description|truncatechars:17}}</td>
+                            <td style="width: 3%; padding:0;" class="tranfer-job-form job_row" data-bs-toggle="modal" data-bs-target="#edit_job_modal" id="edit_job" data-id="{{job.id}}" data-address="{{job_address}}" data-job-id="{{job.job.id}}">
+                              {% if request.user.role.title == "מְפַקֵחַ" or request.user.role.title == "מנהל מערכת" %}
+                                {% if job.is_reviewed  %}
+                                  <img src="{% static 'assets/img/green_check.png' %}" class="text-start" alt="" style="height: 25px; width: 25px; max-width: unset;">
+                                {% endif %}
+                              {% endif %}
+                            </td>
+                            {% with job_image=job.job|get_first_image job_id=job.id job_group_id=job.group_id job_address=job.job.address job_description=job.job.description job_status=job.status job_latitude=job.job.latitude job_longitude=job.job.longitude job_address_info=job.job.address_information %}
+                              <td class="edit-delete-button" style="width: 3%; padding:0;">
+                                  <div id="carouselExampleInterval_{{job_id}}" class="carousel slide" data-bs-ride="carousel">
+                                      <div class="d-flex align-items-center three-drop-button three-btn" data-id="{{job_id}}" data-address="{{job_address}}" data-address-info="{{job_address_info}}" 
+                                          data-group="{{job_group_id}}" data-lat="{{job_latitude}}" data-lng="{{job_longitude}}" data-img="{{job_image}}">
+                                          <button type="button" class="btn dropdown-toggle hide-arrow p-0 three-drop-down-button" id="three-drop-down-button" data-bs-toggle="dropdown" aria-expanded="false" data-status="{{job_status}}">
+                                              <i class="bx bx-dots-vertical-rounded"></i>
+                                          </button>
+                                          <ul class="dropdown-menu dropdown-menu-end">
+                                              {% if request.user.is_superuser or request.user.role|stringformat:"s" == "מנהל מערכת" %}
+                                              <li>
+                                                  <a class="dropdown-item dropdown-edit tranfer-job-form" data-bs-toggle="modal" data-bs-target="#edit_job_modal" id="edit_job" data-id="{{job_id}}">   
+                                                      <div class="d-flex align-items-center">
+                                                          <img src="{% static 'assets/img/PencilSimple.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                                                          <span>{% trans 'Edit Job' %}</span>
+                                                      </div>
+                                                  </a>
+                                              </li>
+                                              {% endif %}
+                                              {% if job_status != "סגור" and request.user.role|stringformat:"s" == "מנהל מערכת"  %}
+                                              <li>
+                                                  <a class="dropdown-item tranfer-job-form dropdown-close" data-bs-toggle="modal" data-bs-target="#edit_job_modal" id="close_job" data-id="{{job_id}}">   
+                                                      <div class="d-flex align-items-center">
+                                                          <img src="{% static 'assets/img/true.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                                                          <span>{% trans 'Close Job' %}</span>
+                                                      </div>
+                                                  </a>
+                                              </li>
+                                              <li>
+                                                  <a class="dropdown-item tranfer-job-form" data-bs-toggle="modal" data-bs-target="#transfer_job_modal" id="transfer_job_id">
+                                                      <div class="d-flex align-items-center">
+                                                          <img src="{% static 'assets/img/transfer-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                                                          <span>{% trans 'Transfer Job' %}</span>
+                                                      </div>
+                                                  </a>
+                                              </li>
+                                              <li>
+                                                  <a class="dropdown-item d-flex align-items-center return-job-form" data-bs-toggle="modal" data-bs-target="#return_job_modal" id="return_job_options_id">
+                                                      <div class="d-flex align-items-center">
+                                                          <img src="{% static 'assets/img/return-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                                                          <span> {% trans 'Return Job' %}</span>
+                                                      </div>
+                                                  </a>
+                                              </li>
+                                              {% endif %}
+                                              {% if request.user.is_superuser or request.user.role.title == "מנהל מערכת" %}
+                                              <li>
+                                                  <a class="dropdown-item ask-about-job-form delete_job_btn_id" id="delete_job_btn_id" data-bs-toggle="modal" data-bs-target="#delete_job_modal" data-address="{{job_address}}" data-id="{{job.job.id}}">
+                                                      <div class="d-flex align-items-center">
+                                                          <img src="{% static 'assets/img/delete_modal.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                                                          <span>{% trans 'Delete' %}</span>
+                                                      </div>
+                                                  </a>
+                                              </li>
+                                              {% endif %}
+                                              {% if job.is_reviewed != True and request.user.role.title == "מְפַקֵחַ" and job_status == "סגור" %}
+                                              <li>
+                                                  <a class="dropdown-item ask-about-job-form"  id="menu_approved_job" is_reviewed="True" job_id="{{job_id}}">
+                                                      <div class="d-flex align-items-center">
+                                                          <img src="{% static 'assets/img/green_check.png' %}" class="text-start" alt="" style="width: 29px; height: 30px;" >
+                                                          <span>{% trans 'Approved' %}</span>
+                                                      </div>
+                                                  </a>
+                                              </li>
+                                              {% endif %}
+                                              {% if job.is_reviewed != False and request.user.role.title == "מְפַקֵחַ" and job_status == "סגור" %}
+                                              <li>
+                                                  <a class="dropdown-item ask-about-job-form"  id="menu_unapproved_job" is_reviewed="False" job_id="{{job_id}}">
+                                                      <div class="d-flex align-items-center">
+                                                          <img src="{% static 'assets/img/unaproved.png' %}" class="me-2" style="width: 22px; height: 22px;" />
+                                                          <span>{% trans 'Unreviewed' %}</span>
+                                                      </div>
+                                                  </a>
+                                              </li>
+                                              {% endif %}
+                                              <li>
+                                                  <a class="dropdown-item ask-about-job-form" id="ask_about_job_id" onclick="window.location.href = 
+                                                  '/chats/?job_id={{job_id}}&group_id={{job_group_id}}&address={{job_address}}&description={{job_description}}&image={{job_image}}' ">
+                                                      <div class="d-flex align-items-center">
+                                                          <img src="{% static 'assets/img/ask-job-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                                                          <span>{% trans 'Ask About Job' %}</span>
+                                                      </div>
+                                                  </a>
+                                              </li>
+                                          </ul>
+                                      </div>
+                                  </div>
+                              </td>
+                            {% endwith %}
+                          
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+            {% endfor %}  
+          
+            <!-- Jobs Pagination  -->
+            <div id="pagination">
+              {% include 'pagination.html' %}
+            </div>
+          </div>
+            
+        {% else %}
+          <div class="p-20 no-data-contain">
+            <img src="{% static 'assets/img/no-data-found.svg' %}" alt="no-data-found.svg">
+          </div>
+        {% endif %}
+      </div>
+
+      <!--  add new job modal-->
+      <div class="modal fade create_job_modal" id="create_job_modal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-hidden="true">
+        <div class="modal-dialog comman_modal modal-dialog-centered">
+          <div class="modal-content">
+            {% include 'create_job.html' %}
+          </div>
+        </div>
+      </div>
+
+      <!--add job successfully modal-->
+      <div class="modal fade add_job_success_modal" id="add_job_success_modal" tabindex="-1" data-bs-backdrop="static"
+        data-bs-keyboard="false" aria-labelledby="add_job_success_modalLabel" aria-hidden="true">
+        <div class="modal-dialog comman_modal modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header justify-content-center">
+              <button type="button" class="btn_close  text-reset" data-bs-dismiss="modal" aria-label="Close">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M25 7L7 25"  stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              </button>
+              <div class="message_block">
+                <svg width="43" height="30" viewBox="0 0 43 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1.69219 2.0769L27.5383 27.9231L40.4614 15" stroke="#19253B" stroke-width="3.2"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="modal-body text-center jobstatus-success-body">
+              <p class="delete_modal_text mb-0">{% trans 'Added Job Successfully' %}</p>
+            </div>
+
+            <div class="modal-footer">
+              <input type="button" class="btn btn-primary btn-active" value="{% trans 'Okay' %}" id="add_job_success_id"
+                onclick="currentURL()">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 ps-md-2">
+      <div class="row d-flex d-lg-none align-items-center mb-20">
+        <div class="col-5">
+          <h2 class="mb-0 text-black">{% trans 'Dashboard' %}</h2>
+        </div>
+        <div class="col-7 text-end">
+          <button class="dt-button add-new btn btn-primary create_new_job" type="button" data-bs-toggle="modal" data-bs-target="#transfer_job_modal" id="multi_transfer_job_id" hidden>
+            <span>
+              <img src="{% static 'assets/img/transfer-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+              <span>{% trans 'Transfer Job' %}</span>
+            </span>
+          </button>
+          <button class="dt-button add-new btn btn-primary create_new_job" type="button" data-bs-toggle="modal" data-bs-target="#create_job_modal">
+            <span>
+              <i class="bx bx-plus me-md-2"></i>
+              <span class="d-inline-block">{% trans 'Add New Job' %}</span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 col-lg-12">
+          <form action="" method="GET" id="date_range_picker">
+            <div class="mb-3 mb-lg-3 dashboard_date_range radius-7px h-100">
+              <input autocomplete="off" type="text" class="form-control flatpickr flatpickr-input" name="date_range" placeholder="{% trans 'YYYY-MM-DD to YYYY-MM-DD' %}" id="range" readonly="readonly">
+              <div class="d-flex btn-block justify-content-center">
+                <button class="btn btn-primary me-2 radius-7px" type="button" id="group_filter_apply">
+                  <span class="d-lg-inline-block font-size-16px">{% trans 'Apply' %}</span>
+                </button>
+                <button class="dt-button add-new btn btn-primary radius-7px" type="button" id="dashboard_clear_filter">
+                  <span class="d-lg-inline-block font-size-16px">{% trans 'Clear' %}</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6 col-lg-12 mb-3 mb-lg-0">
+          <div class="p-3 pe-0 pb-0 border radius-7px mt-0 dashboard_notification">
+            <div class="header mb-0">
+              <h4 class="notification-header mt-0">{% trans 'Return Job' %}</h4>
+            </div>
+
+            {% if return_jobs %}
+              {% regroup return_jobs by created_at.date as return_jobs_days_group %}
+              <div class="body pe-3">
+                {% for return_job_day in return_jobs_days_group %} 
+                <h5 class="fw-normal d-inline-flex align-items-center mb-8">
+                  <img src="{% static 'assets/img/calendar-icon.png' %}" alt="date-icon" class="me-2">
+                  <span>{{return_job_day.grouper}}</span>
+                </h5>
+                <div id="notification" class="notification">
+                  {% for return_job in return_job_day.list %}
+                    {% if return_job.duplicate and return_job.duplicate.status == "לַחֲזוֹר" %}
+                        <div class="card-body border" id="dot-group">
+                          <div class="card-row" style="cursor: pointer;" onclick="window.location.href = '/jobs/return_job_list/?redirect_job_id={{return_job.id}}&status=לְשַׁכְפֵּל'">
+                            <div class="profile me-2">
+                              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" 
+                              data-lazysrc="{% if return_job.first_duplicate_job_image != None %} /media/{{return_job.first_duplicate_job_image}}{% else %}{% static 'assets/img/default_job.png'%}{% endif %}" />
+                            </div>
+                            <div class="notification_details">
+                              <div class="info_block">
+                                <h5 class="card-title text-start me-2 mb-0">
+                                  {% if return_job.duplicate.job.priority == True %}
+                                    <img src="{% static 'assets/img/prority.png' %}" alt="image-icon" class="me-2">             
+                                    <span style="color: red;">{{return_job.duplicate.job.address}}</span>
+                                  {% else %}
+                                    <span>{{return_job.duplicate.job.address}}</span>
+                                  {% endif %}
+                                </h5>
+                                <p class="card-text">{{return_job.duplicate.job.address_information}}</p>
+                                {% if return_job.notes %}
+                                  <p class="card-text">{{return_job.notes}}</p>
+                                {% endif %}
+                              </div>
+                              <small class="text-end time_info">{{return_job.duplicate.updated_at|custom_timesince}}</small>
+                            </div>
+                          </div>
+                          <div class="d-flex align-items-center justify-content-end button-head-grp">
+                              <button type="button" class="three-drop-button_detail btn dropdown-toggle hide-arrow p-0" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg width="22" height="22" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M22 24.0625C23.1391 24.0625 24.0625 23.1391 24.0625 22C24.0625 20.8609 23.1391 19.9375 22 19.9375C20.8609 19.9375 19.9375 20.8609 19.9375 22C19.9375 23.1391 20.8609 24.0625 22 24.0625Z" fill="#19253B"/>
+                                  <path d="M22 13.0625C23.1391 13.0625 24.0625 12.1391 24.0625 11C24.0625 9.86091 23.1391 8.9375 22 8.9375C20.8609 8.9375 19.9375 9.86091 19.9375 11C19.9375 12.1391 20.8609 13.0625 22 13.0625Z" fill="#19253B"/>
+                                  <path d="M22 35.0625C23.1391 35.0625 24.0625 34.1391 24.0625 33C24.0625 31.8609 23.1391 30.9375 22 30.9375C20.8609 30.9375 19.9375 31.8609 19.9375 33C19.9375 34.1391 20.8609 35.0625 22 35.0625Z" fill="#19253B"/>
+                                </svg>              
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end">
+                                  <li>
+                                    <a class="dropdown-item add_return_job_notes" data-bs-toggle="modal" data-bs-target="#add_job_notes" data-id="{{return_job.id}}">   
+                                      <div class="d-flex align-items-center">
+                                        <img src="{% static 'assets/img/PencilSimple.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                                        <span>{% trans 'Add Notes' %}</span>
+                                      </div>
+                                    </a>
+                                  </li>
+                              </ul>
+                          </div>  
+                        </div>  
+                    {% else %}
+                        <div class="card-body border" id="dot-group">
+                          <div class="card-row" style="cursor: pointer;" onclick="window.location.href = '/jobs/return_job_list/?redirect_job_id={{return_job.id}}&status=מידע שגוי'">
+                            <div class="profile me-2">
+                              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" 
+                              data-lazysrc="{% if return_job.first_job_image != None %} /media/{{return_job.first_job_image}}{% else %}{% static 'assets/img/default_job.png'%}{% endif %}" />
+                            </div>
+                            <div class="notification_details">
+                              <div class="info_block">
+                                <h5 class="card-title text-start me-2 mb-0">
+                                  {% if return_job.job.job.priority == True %}
+                                    <img src="{% static 'assets/img/prority.png' %}" alt="image-icon" class="me-2">             
+                                    <span style="color: red;">{{return_job.job.job.address}}</span>
+                                  {% else %}
+                                    <span>{{return_job.job.job.address}}</span>
+                                  {% endif %}
+                                </h5>
+                                <p class="card-text">{{return_job.job.job.address_information}}</p>
+                                {% if return_job.notes %}
+                                  <p class="card-text">{{return_job.notes|truncatechars:40}}</p>
+                                {% endif %}
+                              </div>
+                              <small class="text-end time_info">{{return_job.job.updated_at|custom_timesince}}</small>
+                            </div>
+                          </div>
+                          <div class="text-end">
+                            <div class="d-flex align-items-center justify-content-end button-head-grp">
+                              <button type="button" class="three-drop-button_detail btn dropdown-toggle hide-arrow p-0" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg width="22" height="22" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M22 24.0625C23.1391 24.0625 24.0625 23.1391 24.0625 22C24.0625 20.8609 23.1391 19.9375 22 19.9375C20.8609 19.9375 19.9375 20.8609 19.9375 22C19.9375 23.1391 20.8609 24.0625 22 24.0625Z" fill="#19253B"/>
+                                  <path d="M22 13.0625C23.1391 13.0625 24.0625 12.1391 24.0625 11C24.0625 9.86091 23.1391 8.9375 22 8.9375C20.8609 8.9375 19.9375 9.86091 19.9375 11C19.9375 12.1391 20.8609 13.0625 22 13.0625Z" fill="#19253B"/>
+                                  <path d="M22 35.0625C23.1391 35.0625 24.0625 34.1391 24.0625 33C24.0625 31.8609 23.1391 30.9375 22 30.9375C20.8609 30.9375 19.9375 31.8609 19.9375 33C19.9375 34.1391 20.8609 35.0625 22 35.0625Z" fill="#19253B"/>
+                                </svg>              
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end">
+                                  <li>
+                                    <a class="dropdown-item add_return_job_notes" data-bs-toggle="modal" data-bs-target="#add_job_notes" data-id="{{return_job.id}}">   
+                                      <div class="d-flex align-items-center">
+                                        <img src="{% static 'assets/img/PencilSimple.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                                        <span>{% trans 'Add Notes' %}</span>
+                                      </div>
+                                    </a>
+                                  </li>
+                              </ul>
+                            </div>  
+                          </div>
+                        </div>  
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="no-notification mb-auto body">
+                <img src="{% static 'assets/img/not-available-job.png' %}" width="50%" alt="no-data-found.svg">
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transfer-job, Duplicate Return and Wrong Return Job -->
+  <div>
+    {% include 'job_operations.html' %}
+  </div>
+
+  <!-- map popup -->
+  <div class="modal fade create_job_modal" id="location_modal" aria-hidden="true">
+    {% include 'map_popup.html' %}
+  </div>
+
+   <!-- Job list -->
+  <div class="modal fade group_job_modal" id="job_list_model" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+      {% include 'job_list_popup.html' %}
+    </div>
+  </div>
+
+  <!-- delete job modal-->
+  <div class="modal fade delete_job_modal" id="delete_job_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+      {% include 'delete_job.html' %}
+    </div>
+  </div>
+
+  <!-- Add Notes modal-->
+  <div class="modal fade add_job_notes" id="add_job_notes" tabindex="-1" data-bs-backdrop="static"
+    data-bs-keyboard="false" aria-labelledby="delete_bill_modalLabel" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered" style="max-width: 468px;">
+      {% include 'add_return_job_notes.html' %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function currentURL(){
+    var quary_parmas = new URLSearchParams(window.location.search)
+    var allParams = ""
+    quary_parmas.forEach(function(value, key){
+      allParams += `${key}=${value}&`
+    })
+    var allParams = allParams.slice(0, -1);
+    window.location.href = window.location.pathname+`?${allParams}`
+  }
+
+  function change_url(job_section){
+    var quary_parmas = new URLSearchParams(window.location.search)
+    if(quary_parmas.get("group")==null){
+      window.location.href = window.location.pathname+`?job=${job_section}&group={{selected_group}}`
+    }else{
+      window.location.href = window.location.pathname+`?job=${job_section}&group=${quary_parmas.get("group")}`
+    }
+  }
+  
+  $(document).ready(function () {
+    function resetToggleState() {
+    const toggle = document.getElementsByClassName('transfer_multiple_job');
+    toggle.checked = false;
+    localStorage.removeItem('transfer_multiple_job');
+  }
+  window.addEventListener('load', clearHighlightedJobs);
+    $(".add_return_job_notes").on("click", function(){
+      var job_id = parseInt($(this).attr("data-id"))
+
+      if($(this).attr("id") == "wrong_notes_btn"){
+        $("#close_notes_popup").attr("data-bs-target", "#duplicate_return_model")
+      }else{
+        $("#close_notes_popup").attr("data-bs-target", "#wrong_return_model")
+      }
+
+      $("#next_url").attr("value", "{% url 'index' %}")
+      $("#return_job_notes").attr("action", `/jobs/return_job_notes/${job_id}/`)
+
+      $.ajax({
+        url: "{% url 'jobs:get-return-job-notes' 0 %}".replace('0', job_id),
+        type: "GET",
+        processData: false,
+        contentType: false,
+        headers: {
+          'X-CSRFTOKEN': csrftoken,
+        },
+        success: function(response){
+          $("#notes").html(response["notes"])
+        }
+      })
+    })
+
+    var job_type = '{{job_type}}'
+    if (job_type == "Close") {
+      $("#close_job_id").css({ "background-color": "#5AADDE", "color": "#FFFFFF" });
+      $("#open_job_id").css({ "background-color": "#eef8fd", "color": "#19253b" });
+    }else{
+      $("#open_job_id").css({ "background-color": "#5AADDE", "color": "#FFFFFF" });
+      $("#close_job_id").css({ "background-color": "#eef8fd", "color": "#19253b" });
+    };
+
+
+    // Range-Picker
+    $("#range").flatpickr({
+      inline: true,
+      altInput: true,
+      locale: {
+        firstDayOfWeek: 0,
+        weekdays: {
+          shorthand: ["א", "ב", "ג", "ד", "ה", "ו", "ש"],
+          longhand: ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"],
+        },
+        months: {
+          shorthand: ["ינו׳", "פבר׳", "מרץ", "אפר׳", "מאי", "יוני", "יולי", "אוג׳", "ספט׳", "אוק׳", "נוב׳", "דצמ׳"],
+          longhand: ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"],
+        },
+      },
+      dateFormat: "Y-m-d",
+      mode: "range",
+      ariaDateFormat:"Y-m-d",
+      maxDate:"today",
+      defaultDate: [`{{from_date}}`, `{{to_date}}`].includes('None') ? [] : [`{{from_date}}`, `{{to_date}}`],
+    });
+    
+    var quary_parmas = new URLSearchParams(window.location.search)
+    
+    //Date Filter
+    $("#group_filter_apply").click(function(){
+      group = $("#select2-group_filters-container").text();
+      var date_range_value = $(".flatpickr-input").val()
+      filter(date_range_value, group)
+    }); 
+
+    // Group Filter
+    $('#group_filters').on("change", function(){
+        var date_range_value = quary_parmas.get("date_range");
+        var group = $(this).val(); // Get selected group
+        var sort = $("#sort_by").val(); // Get selected sort order
+        filter(date_range_value, group, sort);
+    });
+
+    // Event listener for the sort_by dropdown change
+    // Parse the URL parameters
+    var urlParams = new URLSearchParams(window.location.search);
+    var sortOrder = urlParams.get('sort_by');
+
+    // Set the default selection if no sort order is found in the URL
+    if (!sortOrder) {
+        $('#sort_by').val('descending').change(); // Default selection is Descending
+    } else {
+        $('#sort_by').val(sortOrder).change(); // Set the selection based on the sort_by parameter in the URL
+    }
+
+    $('#sort_by').on("change", function(){
+        var sortOrder = $(this).val();
+        var dateRangeValue = quary_parmas.get("date_range");
+        var group = $("#select2-group_filters-container").text();
+        filter(dateRangeValue, group, sortOrder);
+    });
+
+    // Group and Date Filter Function
+    function filter(date_range_value, group, sort){
+        // Get the selected sort order
+        if (group=="Select Group"){
+            const url = date_range_value ? window.location.pathname+`?job=${job_type}&date_range=${date_range_value}&sort_by=${sort}` : window.location.pathname+`?job=${job_type}&sort_by=${sort}`;
+            window.location.href = url;
+            console.log(url);
+        } else {
+            const url = date_range_value ? window.location.pathname+`?job=${job_type}&date_range=${date_range_value}&group=${group.trim()}&sort_by=${sort}` : window.location.pathname+`?job=${job_type}&group=${group.trim()}&sort_by=${sort}`;
+            window.location.href = url;
+            console.log(url);
+        }
+
+    };
+
+    $("#dashboard_clear_filter").on("click", function(){
+      var urlParams = new URLSearchParams(window.location.search);
+      if(urlParams.has('date_range')||urlParams.has('group')||urlParams.has('search')){
+        urlParams.delete('date_range');
+        urlParams.delete('search');
+        var newUrl = window.location.pathname+'?'+ urlParams.toString();
+        window.location.href = newUrl
+      };
+    });
+
+    $("#create_jobform_id").submit(function (event) {
+      $('.loader').removeAttr("style");
+      event.preventDefault()
+      csrftoken = $(this).children().first().val();
+      formdata = new FormData(document.querySelector("#create_jobform_id"));
+      $.ajax({
+        url: `{% url 'jobs:job-create' %}`,
+        type: "POST",
+        data: formdata,
+        processData: false,
+        contentType: false,
+        headers: {
+          'X-CSRFTOKEN': csrftoken,
+        },
+        success: function (response) {
+          if (response?.error) {
+            form_validation("#create_jobform_id", response.error)
+            $('.loader').css({ "opacity": "0", "visibility": "hidden" });
+          }
+          else {
+            location.reload(true);
+            //$("#create_job_modal").modal('hide')
+            //$("#add_job_success_modal").modal('show')
+
+            //$("#add_job_success_modal").on('shown.bs.modal', function () {
+            //  $('.loader').css({ "opacity": "0", "visibility": "hidden" });
+            //}).modal('show');
+          }
+        }
+      })
+    });
+
+    // set latitude and longitude
+    $("#save_location").on("click", function(){
+      const job_address = document.getElementById("job_address_id");
+      const job_latitude = document.getElementById("job_latitude");
+      const job_longitude = document.getElementById("job_longitude");
+      job_address.value = formatted_address
+      job_latitude.value = latitude
+      job_longitude.value = longitude
+      
+      const edit_job_address = document.getElementById("edit_job_address");
+      const edit_job_latitude = document.getElementById("edit_job_latitude");
+      const edit_job_longitude = document.getElementById("edit_job_longitude");
+      edit_job_address.value = formatted_address
+      edit_job_latitude.value = latitude
+      edit_job_longitude.value = longitude
+    })
+
+    $("#add-location").on("click", function(){
+      $("#save_location, #live_location").removeAttr('hidden')
+      $("#map_close_btn, #save_location").attr("data-bs-target", "#create_job_modal")
+      var lng = $("#job_longitude").val()
+      var lat = $("#job_latitude").val()
+      var map_readonly = false
+      callMap("", parseFloat(lat), parseFloat(lng), map_readonly)
+    })
+
+    $(".create_new_job").on("click", function(){
+      callMap("create_job")
+    })
+    $(".three-drop-down-button, #three-drop-down-button").on("click", function(){
+      var job_status = $(this).attr("data-status")
+        callMap("edit_job")
+    })
+    
+
+    //function callMap(status, lat, lng, map_readonly){
+    //  $.getScript("https://maps.googleapis.com/maps/api/js?key=" + "{{google_api_key}}" + "&libraries=places&language=he").done(function (script, textStatus) {
+    //    initMap( lat, lng, map_readonly);
+    //    addressAutocomplete(status);
+    //  });
+    //}
+
+    $("#menu_approved_job, #menu_unapproved_job").on("click", function(){
+      var status = $(this).attr("is_reviewed")
+      var job_id = $(this).attr("job_id")
+      $.ajax({
+        type: "GET",
+        url: `/jobs/job_approved?job_id=${job_id}&is_reviewed=${status}`,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          location.reload()
+        }
+      })
+    });
+
+
+
+    $(".job_list_btn").on("click", function(value){
+        var job_status = $(this).attr("status")
+        var from_date = $(this).attr("from_date")
+        var to_date = $(this).attr("to_date")
+        var group = $(this).attr("group")
+        $.ajax({
+          type: "GET",
+          url: `/jobs/jobs_list/?job_status=${job_status}&from_date=${from_date}&to_date=${to_date}&group=${group}`,
+          dataType: 'json',
+          success: function (response) {
+            var job_list = response["job_list"]
+            
+            $(`#popup_job_list`).empty()
+            if(job_list.length != 0){
+              for (var i = 0; i < job_list.length; i++) {
+                job = job_list[i]
+                
+                if(job_list[i]["status"])
+                image = job_list[i]["first_image"] != null ? job_list[i]["first_image"] : `{% static 'assets/img/default_job.png' %}`
+                priority = job_list[i]["job_priority"] ? `<img src="{% static 'assets/img/prority.png' %}" id="prority_img"> <span class="ms-2" id="popup_job_address" style="color: red;">${job_list[i]["job_address"]}</span>` : `<span class="ms-2" id="popup_job_address">${job_list[i]["job_address"]}</span>`
+  
+                $(`#popup_job_list`).append(`
+                  <div class="card-list p-30 py-0" id="popup_jobs" status="${job_list[i]["status"]}">
+                    <div class="card rounded-3 group_list py-2 mb-2 mx-2">
+                      <div class="image_block">
+                        <img src="${image}">
+                      </div>
+                      <div class="card_info">
+                        <div class="info_block">
+                          <div class="content">
+                            <h5 id="address" class="mb-0" class="one-line-elipsis">
+                              ${priority}
+                            </h5>
+                            <p class="mb-0" id="popup_group">{% trans 'Assigned on ' %}${job_list[i]["group"]}</p>
+                          </div>
+                          <p class="text-end mb-0 status_block" id="popup_status">${job_list[i]["status"]}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                `)
+              }
+            }else{
+              $(`#popup_job_list`).append(`
+                <img src="{% static 'assets/img/no-data-found.svg' %}" alt="no-data-found.svg">
+              `)
+            }
+          }
+        });
+      });
+      var clickedJobIds = [];
+
+      $("#generate_pdf_dashboard").on("click", function () {
+      var jobIdsString = clickedJobIds.join(",");
+      const url = `{% url 'jobs:job-lists-details' %}?jobIds=` + jobIdsString;
+      window.location.href = url;
+    });
+  $(".transfer_multiple_job").on("change", function () {
+    var jobId = $(this).attr("job_id");
+
+    if ($(this).is(":checked")) {
+      if (!clickedJobIds.includes(jobId)) {
+        clickedJobIds.push(jobId);
+      }
+    } else {
+      var index = clickedJobIds.indexOf(jobId);
+      if (index > -1) {
+        clickedJobIds.splice(index, 1);
+      }
+    }
+      if (clickedJobIds.length === 0) {
+      $("#multi_transfer_job_id").attr("hidden", true);
+      $("#generate_pdf_dashboard").attr("hidden", true);
+      $("#clear_button_dashboard").attr("hidden", true);
+      
+    } else {
+      $("#multi_transfer_job_id").attr("hidden", false);
+      $("#generate_pdf_dashboard").attr("hidden", false);
+      $("#clear_button_dashboard").attr("hidden", false);
+    }
+  });
+  function clearHighlightedJobs() {
+    const checkboxes = document.getElementsByClassName('transfer_multiple_job');
+    
+    for (let i = 0; i < checkboxes.length; i++) {
+      checkboxes[i].checked = false;
+    }
+    clickedJobIds = [];
+    $("#multi_transfer_job_id").attr("hidden", true);
+    $("#generate_pdf_dashboard").attr("hidden", true);
+    localStorage.removeItem('transfer_multiple_job');
+  }
+
+  $("#clear_button_dashboard").on("click",function(){
+      clearHighlightedJobs();
+      clickedJobIds = [];
+      $("#clear_button_dashboard").attr("hidden",true)
+    })
+
+});
+
+</script>
+{% endblock extra_js %}

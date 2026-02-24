@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% load myfilters static i18n %}
+
+{% block extra_css %}
+
+{{block.super}}
+<style>
+
+.dashboard_notification .card-body, .dashboard_notification .fw-normal,.dashboard_notification .header {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.dashboard_notification .body {
+  height: auto;
+  padding-left: 20px;
+}
+
+.page-title {
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 42px;
+  color: #19253B;
+  margin-bottom: 20px;
+}
+
+.fw-normal span {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.dashboard_notification .info_block h5 {
+  line-height: 30px;
+  margin-bottom: 15px;
+}
+
+.dashboard_notification .card-body {
+  margin-bottom: 16px;
+}
+
+.notification {
+  margin-bottom: 28px;
+}
+
+.dashboard_notification .notification_details {
+  align-items: flex-start;
+}
+
+.dashboard_notification .body {
+  overflow-y: auto;
+  height: calc(100vh - 195px);
+}
+
+.info_block .card-title img{
+  width: 30px;
+  height: 30px;
+}
+
+.no-data-contain {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 220px);
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-12 mb-3 mb-lg-0">
+    <div class="p-20 mt-0 dashboard_notification">
+      <div class="header mb-0">
+        <h4 class="page-title">{% trans 'Notification' %}</h4>
+      </div>
+      
+      {% if object_list %}
+        {% regroup object_list by created_at.date as close_jobs_days_group %}
+        <div class="body">
+          {% for notification_of_day in close_jobs_days_group %} 
+          <h5 class="fw-normal d-inline-flex align-items-center mb-2">
+            <img src="{% static 'assets/img/calendar-icon.png' %}" alt="date-icon" class="me-1">
+            <span>{{notification_of_day.grouper}}</span>
+          </h5>
+          <div id="notification" class="notification">
+            {% for notification in notification_of_day.list %} 
+            <div class="card-body border" onclick="window.location.href='/jobs/job-detail/{{notification.job_id}}/'">
+              <div class="card-row">
+                <div class="profile me-2">
+                  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-lazysrc="{% if notification.job.job_image.first.exits %}{{notification.job.job_image.first.image.url}}{% else %}{% static 'assets/img/avatars/avatar.svg' %}{% endif %}" />
+                </div>
+                <div class="notification_details">
+                  <div class="info_block">
+                    <h5 class="card-title text-start mt-2 me-2">
+                      {% if notification.job.job.priority == True %}
+                        <img src="{% static 'assets/img/prority.png' %}" alt="image-icon" class="me-1">             
+                        <span style="color: red;">{{notification.job.job.address}}</span>
+                      {% else %}
+                        <span>{{notification.job.job.address}}</span>
+                      {% endif %}
+                    </h5>
+                    <p>{{notification.message}}</p>
+                  </div>
+                  <small class="text-end time_info">{{notification.created_at|custom_timesince}}</small>
+                </div>
+              </div>
+            </div>   
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="no-data-contain">
+          <img src="{% static 'assets/img/no-notification.png' %}" alt="no-data-found.svg">
+        </div>
+      {% endif %}
+        
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+{% block extra_js %}
+  <script>
+    $(document).ready(function () {
+      $(".search, #serach_button").hide();
+    })
+  </script>
+{% endblock extra_js %}
+

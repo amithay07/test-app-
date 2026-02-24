@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+{% load static i18n %}
+{% load myfilters static i18n %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>{% trans 'Detail Report' %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/logo.png' %}" />
+    <style>
+        @page {
+            size: A4;
+            margin: 0px;
+            padding: 10px 30px 30px;
+
+            @bottom-left {
+                font-family: 'Roboto', sans-serif;
+                font-weight: 400;
+                margin-top: -60px;
+                font-size: 14px;
+                margin-left: 30px;
+                content: "Page " counter(page)" / " counter(pages);
+            }
+        }
+
+        @media screen,
+        print {
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Roboto', sans-serif;
+            }
+
+            table {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                border-spacing: 0;
+            }
+
+            img {
+                max-width: 100%;
+            }
+
+            th,
+            td {
+                padding: 0;
+                vertical-align: middle;
+            }
+
+            .head_table>td {
+                border-bottom: 1px solid #999999;
+            }
+
+            p {
+                margin-bottom: 0;
+                font-size: 14px;
+                line-height: 14px;
+                font-weight: 400;
+            }
+
+            .body_table p {
+                font-size: 14px;
+            }
+
+            .body_table tbody tr td {
+                vertical-align: baseline;
+            }
+
+            .product_table{
+                border: 1px solid #d4d8dd;
+                border-radius: 10px;
+                padding: 10px;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body> 
+    <table class="main-table">
+        <tbody>
+            <tr class="head_table">
+                <td style="text-align:right; width:25%; padding:0;">
+                    <p style="color: #666666;font-weight: 600;margin-bottom: 10px;">{% trans 'Date' %} :</p>
+                    <p style="font-weight: 600;">{{date.from_date}} {% trans 'to' %} {{date.to_date}}</p>
+                </td>
+                <td style="width: 75%; text-align: right;padding: 10px 0;">
+                    <table class="brand_table">
+                        <tr>
+                            <td style="width: 90%;padding: 0;">
+                                <div style="margin-right: 14px;">
+                                    <h4 style="margin-bottom: 10px;">משה בוצ׳ן</h4>
+                                    <p style="margin-bottom: 0;">ביוב - עבודות ואחזקה בע״מ</p>
+                                </div>
+                            </td>
+                            <td style="width: 10%;padding: 0;">
+                                <img src="https://i.ibb.co/GvR3hk4/Brand.png" alt="brand" style="object-fit: contain; width:100%; height:100%">
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: left; vertical-align: top; font-size: 12px; padding: 10px 0;">
+                    <p style="display: inline-block;color: #666666;color: #666666; font-size: 20px; font-weight: 600;">{{groups}}</p>
+                </td>
+                <td style="text-align: right; padding: 10px 0;">
+                    <p style="font-size: 20px; font-weight: 600;">{% trans 'Group' %}</p>
+                </td>
+            </tr>
+            {% for record in context %}
+            {# Always show jobs - removed conditional filter #}
+            <tr style="page-break-inside: avoid;">
+                <td colspan="2" style="padding-top: 10px;">
+                    {# Show job table for all jobs, not just ones with detail_bills #}
+                    <table class="product_table" width="100%">
+                        <thead>
+                            <tr>
+                                <th colspan="2" style="text-align: left; vertical-align: top; font-size: 12px; border-bottom: 1px solid #d4d8dd; padding-bottom: 10px;">
+                                    <p>{{record.updated_at}}</p>
+                                </th>
+                                <th style="text-align: right; border-bottom: 1px solid #d4d8dd; padding-bottom: 10px;">
+                                    <h6 style="font-weight: 400; margin-bottom: 5px; font-size: 20px; width: 100%; word-break: break-all;">{{record.address}}</h6>
+                                    <p style="font-size: 13px;">{{record.job_id}}</p>
+                                    <p style="font-size: 13px; width: 100%; word-break: break-all;">{{record.address_information}}</p>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" style="text-align: left; vertical-align: top; font-size: 12px; border-bottom: 1px solid #d4d8dd; padding: 10px 0;">
+                                    <p style="display: inline-block;color: #666666;color: #666666;font-size: 13px;">{{record.close_by}}</p>
+                                </th>
+                                <th style="text-align: right; border-bottom: 1px solid #d4d8dd; padding: 10px 0;">
+                                    <p style="font-size: 13px;">{% trans 'Closed by' %}</p>
+                                </th>
+                            </tr>
+
+                        </thead>
+                        <tbody>
+                            {% if record.detail_bills %}
+                                {% for item in record.detail_bills %}
+                                    <tr style="text-align: right;">
+                                        <td style="width: 30%; padding: 8px 0; text-align: left;">
+                                            <p style="font-weight: 400; font-size: 12px;">{{item.bill_unit}}</p>
+                                        </td>
+                                        <td style="width: 15%; padding: 8px 0; text-align: left;">
+                                            <p style="font-weight: 400; font-size: 12px;">{{item.quantity}}</p>
+                                        </td>
+                                        <td style="width: 40%; padding: 8px 0;">
+                                            <p style="font-weight: 400; font-size: 12px;">{{item.bill_name}}</p>
+                                        </td>
+
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                            
+                            {% if record.sign_bills %}
+                                {% for item in record.sign_bills %}
+                                    <tr style="text-align: right;">
+                                        <td style="width: 30%; padding: 8px 0; text-align: left;">
+                                            <p style="font-weight: 400; font-size: 12px;">{{item.bill_unit}}</p>
+                                        </td>
+                                        <td style="width: 15%; padding: 8px 0; text-align: left;">
+                                            <p style="font-weight: 400; font-size: 12px;">{{item.quantity}}</p>
+                                        </td>
+                                        <td style="width: 40%; padding: 8px 0;">
+                                            <table style="width: 100%;">
+                                                <tr>
+                                                    <td>
+                                                        <p style="font-weight: 400; font-size: 12px; text-align: right;">{{item.bill_name}}</p>
+                                                    </td>
+                                                    <td style="width: 30px;">
+                                                        <img src="{{item.image}}" alt="" style="width: 25px; height:25px;">
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if record.notes %}    
+                                    <tr style="text-align: right;">
+                                        <td colspan="3" style="border-top: 1px solid #d4d8dd; padding: 10px 0 0;">
+                                            <h6 style="font-weight: 400; margin-bottom: 5px; font-size: 13px;">{% trans 'Notes/Description' %}</h6>
+                                            <ul style="list-style-type: none; padding: 0;">
+                                                {% for job_note in record.notes %}
+                                                    <li style="word-break: break-all; color: #666666; font-size: 13px;">{{ job_note.note }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                <tr style="text-align: right;">
+                                    <td colspan="3" style="border-top: 1px solid #d4d8dd; padding: 10px 0 0;">
+                                        <h6 style="font-weight: 400; margin-bottom: 5px; font-size: 13px;">{% trans 'Notes/Description' %}</h6>
+                                        <p style="display: block; width: 100%; color: #666666;color: #666666;font-size: 13px; word-break: break-all;">{{record.description}}</p>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                    
+                        </tbody>
+                    </table>
+                </td>
+            </tr>            
+            <!-- Before Images -->            
+            {% if record.images %}
+                {% if record.images|length == 1 %}
+                    <tr>
+                        <td colspan="2">
+                            <table class="images" dir="rtl" style="width:100%;">
+                                <tr>
+                                    <td style="text-align: center; padding: 10px 0" colspan="2">
+                                        <p style="line-height: 1.5; "><b>{% trans 'Before' %}</b></p>
+                                    </td>        
+                                </tr>
+                                <tr>
+                                    {% for image in  record.images %}
+                                    <td style="width: 50%; padding: 10px;">
+                                        <div style="border: 1px solid gray; border-radius: 10px; overflow: hidden; height: 250px;">
+                                            <img src="https://job-management-media.s3.il-central-1.amazonaws.com/media/{{image.image}}" alt="" style="width: 100%; height: 100%; object-fit: contain;">
+                                        </div>
+                                    </td>
+                                    <td style="width: 50%; padding: 10px;"></td>
+                                    {% endfor %}
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="2">
+                            <table class="images" style="width:100%;" dir="rtl">
+                                <tr>
+                                    <td style="text-align: center; padding: 10px 0" colspan="2">
+                                        <p style="line-height: 1.5; "><b>{% trans 'Before' %}</b></p>
+                                    </td>        
+                                </tr>
+                                {% for image_pair in record.images|group_images %}
+                                <tr>
+                                    {% for image in image_pair %}
+                                    <td style="width: 50%; padding: 10px;">
+                                        <div style="border: 1px solid gray; border-radius: 10px; overflow: hidden; height: 250px;">
+                                            <img src="https://job-management-media.s3.il-central-1.amazonaws.com/media/{{image.image}}" alt="" style="width: 100%; height: 100%; object-fit: contain;">
+                                        </div>
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </td>
+                    </tr>
+                {% endif %} 
+                                       
+            {% endif %}
+
+            <!-- After Images -->
+            {% if record.close_images %}            
+                {% if record.close_images|length == 1 %}
+                    <table class="images" dir="rtl" style="width:100%;">
+                        <tr>
+                            <td style="text-align: center; padding: 10px 0" colspan="2">
+                                <p style="line-height: 1.5; "><b>{% trans 'After' %}</b></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            {% for image in  record.close_images %}
+                            <td style="width: 50%; padding: 10px;">
+                                <div style="border: 1px solid gray; border-radius: 10px; overflow: hidden; height: 250px;">
+                                    <img src="https://job-management-media.s3.il-central-1.amazonaws.com/media/{{image.image}}" alt="" style="width: 100%; height: 100%; object-fit: contain;">
+                                </div>
+                            </td>
+                            <td style="width: 50%; padding: 10px;"></td>
+                            {% endfor %}
+                        </tr>
+                    </table>
+                {% else %}
+                    <table class="images" style="width:100%;" dir="rtl">
+                        <tr>
+                            <td style="text-align: center; padding: 10px 0" colspan="2">
+                                <p style="line-height: 1.5; "><b>{% trans 'After' %}</b></p>
+                            </td>
+                        </tr>
+                        {% for image_pair in record.close_images|group_images %}
+                        <tr>
+                            {% for image in image_pair %}
+                            <td style="width: 50%; padding: 10px;">
+                                <div style="border: 1px solid gray; border-radius: 10px; overflow: hidden; height: 250px;">
+                                    <img src="https://job-management-media.s3.il-central-1.amazonaws.com/media/{{image.image}}" alt="" style="width: 100%; height: 100%; object-fit: contain;">
+                                </div>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+
+            {% endif %}
+
+            {# End of for record loop #}
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" style="height: 30px;">
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+
+</html>

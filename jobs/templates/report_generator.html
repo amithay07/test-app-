@@ -1,0 +1,552 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block extra_css %}
+{{block.super}}
+<style>
+  .report-generator .flatpickr-calendar {
+    order: 1;
+  }
+
+  .report-generator .flatpickr-input {
+    order: 3;
+  }
+
+  .report-generator .flatpickr-input.input {
+    order: 2;
+  }
+
+  /* #sum_up_report::-webkit-scrollbar {
+    display: none;
+  }
+
+  #details_report::-webkit-scrollbar {
+    display: none;
+  } */
+
+  #sum_up_report {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  #details_report {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .btn-group {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 7px;
+  }
+
+  .btn-group .btn {
+    border: none;
+    width: 50%;
+  }
+
+  .btn-group .btn:first-child {
+    border-radius: 0px 7px 7px 0px !important;
+  }
+
+  .btn-group .btn:last-child {
+    border-radius: 7px 0 0 7px !important;
+  }
+
+  .btn-group .dt-button span {
+    font-size: 19px;
+    line-height: 28px;
+  }
+
+  .text-black{
+    color: #32425E;
+  }
+
+  .details-report,.sum-up-report{
+    margin-top: 20px;
+    height: calc(100vh - 345px);
+  }
+
+  .details-report .card-body{
+    border-radius: 15px;
+    padding: 12px;
+  }
+
+  .details-report .card-body:not(:last-child){
+    margin-bottom: 20px;
+  }
+
+  .details-report .card-body .card-header .top-header h6{
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 33px;
+  }
+
+  .details-report .card-body .card-header .top-header p{
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    color: #32425E;
+  }
+
+  .details-report .card-body .card-header .top-header p.address_info{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+
+  .report_table tr td:first-child{
+    width: 87%;
+  }
+
+  .report_table tr td:last-child{
+    width: 3%;
+  }
+  
+  .report_table tr td:nth-child(2){
+    width: 10%;
+  }
+
+  .report_table tr td{
+    padding: 4px 0;
+    border-bottom: none;
+    color: #455269;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+  }
+  
+  .border-bottom{
+    border-color: #DEDEDE !important;
+  }
+
+  .flatpickr-calendar.inline{
+    border: none !important;
+    background: #FAFAFA;
+    border-radius: 9px;
+    margin: 20px 0;
+  }
+  .flatpickr-day.inRange{
+    background: #FFFFFF !important;
+    border: none !important;
+  }
+  .rangeMode .flatpickr-day {
+    margin-top: 16px;
+  }
+  .sum-up-report tr td,.sum-up-report tr th{
+    padding: 11px;
+  }
+
+  .sum-up-report tr th{
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 27px;
+    color: #32425E !important;
+    text-transform: capitalize;
+  }
+
+  .sum-up-report tr td{
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 27px;
+    color: #32425E !important;
+    text-transform: capitalize;
+  }
+
+  .sum-up-report tr td:first-child,.sum-up-report tr th:first-child{
+    width: 14%;
+  }
+
+  .sum-up-report tr td:nth-child(2),.sum-up-report tr th:nth-child(2){
+    width: 69%;
+  }
+
+  .sum-up-report tr td:nth-child(3),.sum-up-report tr th:nth-child(3){
+    width: 10%;
+  }
+
+  .sum-up-report tr td:last-child,.sum-up-report tr th:last-child{
+    width: 7%;
+  }
+
+  .not-available-block {
+    margin-top: 124px;
+    text-align: center;
+  }
+
+  .group-select{
+    max-width: 404px;
+    width: 100%;
+    margin-right: auto;
+  }
+
+  .group-select .select2-container--default .select2-selection--multiple{
+    background-color: #FFFFFF;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+  }
+
+  .group-select .select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__choice{
+    background: #EEF8FD;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 22px;
+    color: #19253B;
+    border: none;
+    padding: 5px 10px;
+  }
+
+  .group-select .select2-container--default .select2-selection--multiple .select2-selection__choice__remove{
+     color: #19253B;
+  }
+
+  .group-select .select2-container--default .select2-selection--multiple .select2-selection__rendered{
+    height: 37px;
+    overflow-y: auto;
+    direction: ltr;
+  }
+
+  .group-select .select2-container--default[dir="rtl"] .select2-selection--multiple .select2-search--inline{
+    margin-top: 4px;
+    direction: rtl;
+  }
+
+  .group-select .select2-container--default .select2-selection--multiple, .group-select .select2.select2-container .select2-selection--single .select2-selection__rendered{
+    padding-left: 18px;
+  }
+
+  .group-select .select2-container--default .select2-selection--multiple .select2-selection__rendered{
+    margin-right: 18px;
+    padding-right: 10px !important;
+  }
+
+  .flatpickr-calendar.inline{
+    margin-top: 0;
+  }
+
+  .sum_up_report tr th,.sum_up_report tr td{
+    border-bottom: 1px solid #DEDEDE;
+  }
+
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid flex-grow-1 container-p-y">
+  <div class="row">
+    <div class="col-md-8">
+      <h2 style="align-items: center;">{% trans 'Report Generator' %}</h2>
+    </div>
+    
+    <div class="col-md-4 text-end justify-content-center">
+      <form action="" method="GET" name="group" id="groups">
+        <div class="mb-2 form-group group-select">
+          <select class="form-control" id="group_filters" name="group" value="Button" required>
+            {% for group in group_list %}
+            <option value="{{group.name}}" id="{{group.id}}" {% if group.name in selected_groups %} selected {% endif %}>
+              {{group.name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <!-- Date Range Picker -->
+    <div class="col-md-5">
+      <div class="h-100 rounded-3">
+        <div class="row">
+          <div class="d-flex flex-column date-picker-block">
+            <form action="" method="GET" name="date" id="date_range_picker">
+              <input autocomplete="off" type="text" class="form-control flatpickr flatpickr-input" name="date_range"
+                placeholder="{% trans 'YYYY-MM-DD to YYYY-MM-DD' %}" id="range" readonly="readonly">
+            </form>
+            <div class="row">
+              <div class="col-md-6">
+                <button id="group_filter_apply" class="btn btn-primary btn-active w-100">{% trans 'Apply' %}</button>
+              </div>
+              <div class="col-md-6">
+                <button id="clear_filter" class="dt-button add-new btn btn-primary  w-100">{% trans 'Clear' %}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Generator -->
+    <div class="col-md-7">
+      <div class="h-100 rounded-3">
+
+        <!-- Details Report and Sum-Up Report tab -->
+        <div class="row">
+          <div class="col-md-12 text-start">
+            <div class="btn-group">
+              <button class="dt-button add-new btn btn-primary detail" tabindex="1" aria-controls="DataTables_Table_0"
+                type="button" id="detail_report_btn">
+                <span class="d-inline-block">
+                    {% trans 'Detail' %}</span>
+              </button>
+              <button class="dt-button add-new btn btn-primary sum-up" tabindex="1" aria-controls="DataTables_Table_0"
+                type="button" id="sum_up_report_btn">
+                <span class="d-inline-block">
+                    {% trans 'Sum-up' %}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div  id="detail_download">
+
+          {% if sum_up_bills %}
+          <div class="row mt-4"  id="sum_up_id">
+            <div class="col-md-6">
+              <div class="d-flex align-items-center">
+                <img src="{% static 'assets/img/suitcase.svg' %}" class="me-2" alt="image-icon" />
+                <p class="mb-0 text-black">{% trans 'Job' %}</p>
+              </div>
+            </div>
+            <div class="col-md-6 text-end justify-content-center">
+              <button class="dt-button add-new btn btn-primary sum-up" tabindex="1" aria-controls="DataTables_Table_0"
+                type="button" id="sumup_report_generate_btn" data="sum_up">
+                <svg class="me-1" width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentcolor">
+                  <path d="M7.39062 9.45312L11 13.0625L14.6094 9.45312" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M11 3.4375V13.0625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18.5625 13.0625V17.875C18.5625 18.0573 18.4901 18.2322 18.3611 18.3611C18.2322 18.4901 18.0573 18.5625 17.875 18.5625H4.125C3.94266 18.5625 3.7678 18.4901 3.63886 18.3611C3.50993 18.2322 3.4375 18.0573 3.4375 17.875V13.0625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>                
+                <span class="d-inline-block">{% trans 'Generate Report' %}</span>
+              </button>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if detail_bills %}
+          <div class="row align-items-center     mt-4"  id="detail_id">
+            <div class="col-md-3">
+              <div id="job_title" class="d-flex align-items-center">
+                <img src="{% static 'assets/img/suitcase.svg' %}" class="me-2" alt="image-icon" />
+                <p class="mb-0 text-black">{% trans 'Job' %}</p>
+              </div>
+            </div>
+            
+            <div class="col-md-9 text-end justify-content-end d-flex align-items-center">
+              <div class="justify-content-between d-flex align-items-center px-3 py-3">
+                <label class="form-check-label me-2" for="job_priority_id">{% trans 'With Photo' %}</label>
+                <label class="switch_group">
+                  <input type="checkbox" id="job_priority_id" role="switch" name="priority">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+              <button class="dt-button add-new btn btn-primary sum-up" tabindex="1" aria-controls="DataTables_Table_0"
+                type="button" id="detail_report_generate_btn" data="detail">
+                <svg class="me-1" width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentcolor">
+                  <path d="M7.39062 9.45312L11 13.0625L14.6094 9.45312" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M11 3.4375V13.0625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18.5625 13.0625V17.875C18.5625 18.0573 18.4901 18.2322 18.3611 18.3611C18.2322 18.4901 18.0573 18.5625 17.875 18.5625H4.125C3.94266 18.5625 3.7678 18.4901 3.63886 18.3611C3.50993 18.2322 3.4375 18.0573 3.4375 17.875V13.0625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="d-inline-block">{% trans 'Generate Report' %}</span>
+              </button>
+            </div>
+          </div>
+          {% endif %}
+          
+          
+        </div>
+
+
+        <!-- Details Report Section -->
+        <div id="details_report" class="overflow-auto details-report">
+          {% if detail_bills %}
+
+          {% for bill in detail_bills %}
+          <div class="card-body border border-1">
+            <div class="card-header border-bottom">
+              <div class="border-bottom pb-2 top-header">
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between">
+                  <div class="d-flex align-items-center" style="cursor: pointer;"  onclick="window.location.href = '/jobs/job-detail/{{bill.id}}/'">
+                    {% if bill.priority == True %}
+                      <img height="30px" width="30px" src="{% static 'assets/img/prority.png' %}" alt="image-icon" class="me-2">
+                      <h6 class="mb-0" style="color: red;">{{bill.address}}</h6>
+                    {% else %}
+                      <h6 class="mb-0">{{bill.address}}</h6>
+                    {% endif %}
+                  </div>
+                  <p class="mb-0">{{bill.close_date|date}}</p>
+                </div>
+                <p class="address_info mb-0">{{bill.address_information}}</p>
+              </div>
+              <div class="d-flex py-2 w-100 flex-wrap align-items-center justify-content-between bottom-header">
+                <p class="mb-0 font-size-12 font-weight-400 line-height-18">{% trans 'Closed by' %}</p>
+                <p class="mb-0 font-size-12 font-weight-500 line-height-18">{{bill.closed_by}}</p>
+              </div>
+            </div>
+            <table class="table report_table mb-0">
+              <tbody id="detail_tbody">
+                {% for bills in bill.bills %}
+                <tr>
+                  {% for key in bills.items %}
+                  <td>{{key.1}}</td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="not-available-block">
+            <img src="{% static 'assets/img/not-available-job.png' %}" alt="not-available">
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Sum-up Report Section -->
+        <div id="sum_up_report" class="overflow-auto sum-up-report">
+          {% if sum_up_bills %}
+          <table class="table">
+            <thead class="sticky-sm-top" style="background-color: white;">
+              <tr>
+                <th scope="col">{% trans 'Sr. no' %}</th>
+                <th scope="col">{% trans 'Name' %}</th>
+                <th scope="col">{% trans 'QTY' %}</th>
+                <th scope="col">{% trans 'Unit' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in sum_up_bills %}
+              <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td>{% if item.image %}<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-lazysrc="{{item.image}}" width="40" height="40" />{% endif %} {{item.name}}
+                </td>
+                <td>{{item.quantity|floatformat:2}}</td>
+                <td>{{item.type_counting}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div class="not-available-block">
+            <img src="{% static 'assets/img/not-available-job.png' %}" alt="not-available">
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function () {
+    $(".search, #serach_button").hide();
+    
+    $("#range").flatpickr({
+      inline: true,
+      locale: {
+        firstDayOfWeek: 0,
+        weekdays: {
+          shorthand: ["א", "ב", "ג", "ד", "ה", "ו", "ש"],
+          longhand: ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"],
+        },
+        months: {
+          shorthand: ["ינו׳", "פבר׳", "מרץ", "אפר׳", "מאי", "יוני", "יולי", "אוג׳", "ספט׳", "אוק׳", "נוב׳", "דצמ׳"],
+          longhand: ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"],
+        },
+      },
+      altInput: true,
+      dateFormat: "Y-m-d",
+      mode: "range",
+      ariaDateFormat: "Y-m-d",
+      maxDate:"today",
+      defaultDate: [`{{from_date}}`, `{{to_date}}`].includes('None') ? [] : [`{{from_date}}`, `{{to_date}}`],
+    });
+    // Remove input fileld of date
+    $(".flatpickr-input").hide()
+
+
+    // Submit Group Filter Form
+    $('#group_filter_apply').on("click", function () {
+      const list = []
+      $("#group_filters option:selected").each(function () {
+        group_value = $(this).text()
+        list.push(group_value.trim())
+      });
+      const list_data = list.join("|")
+      if (list.includes("All") === true) {
+        var date_range_value = $(".flatpickr-input").val()
+        const url = `{% url  'jobs:report-generate' %}?date_range=${date_range_value}`;
+        window.location.href = url
+      } else {
+        var date_range_value = $(".flatpickr-input").val()
+        const url = `{% url  'jobs:report-generate' %}?date_range=${date_range_value}&groups=${list_data}`;
+        window.location.href = url
+      }
+    });
+
+    //Download PDF of report
+    $("#sumup_report_generate_btn, #detail_report_generate_btn").on("click", function () {
+      var isChecked = $("#job_priority_id").prop("checked");
+      const list = []
+      var report = $(this).attr("data")
+      $("#group_filters option:selected").each(function () {
+        group_value = $(this).text()
+        list.push(group_value.trim())
+      });
+
+      const list_data = list.join("|")
+      if (list.length == 0) {
+        var date_range_value = $(".flatpickr-input").val()
+        const url = `{% url  'jobs:generatePdf' %}?date_range=${date_range_value}&report=${report}&with_image=${isChecked}`;
+        window.open(url, "_blank");
+      } else {
+        var date_range_value = $(".flatpickr-input").val()
+        const url = `{% url  'jobs:generatePdf' %}?date_range=${date_range_value}&groups=${list_data}&report=${report}&with_image=${isChecked}`;
+        window.open(url, "_blank");
+      }
+    });
+
+    
+
+    if (localStorage.getItem("report") == "sum_up") {
+      $("#close_jobs").show()
+      $("#details_report, #detail_id").hide()
+      $("#sum_up_report, #sum_up_id").show()
+      $("#sum_up_report_btn").css({ "background-color": "#5AADDE", "color": "#FFFFFF" });
+      $("#detail_report_btn").css({ "background-color": "#eef8fd", "color": "#19253b" });
+      localStorage.setItem("report", "sum_up");
+    }
+    else {
+      $("#detail_report_btn").css({ "background-color": "#5AADDE", "color": "#FFFFFF" });
+      $("#sum_up_report, #sum_up_id").hide()
+      count_row()
+    }
+    $("#detail_report_btn").on("click", function () {
+      localStorage.setItem("report", "detail")
+      $("#sum_up_report, #sum_up_id").hide()
+      $("#details_report, #detail_id").show()
+      $("#detail_report_btn").css({ "background-color": "#5AADDE", "color": "#FFFFFF" });
+      $("#sum_up_report_btn").css({ "background-color": "#eef8fd", "color": "#19253b" });
+      count_row()
+    });
+    $("#sum_up_report_btn").on("click", function () {
+      localStorage.setItem("report", "sum_up")
+      $("#details_report, #detail_id").hide()
+      $("#sum_up_report, #sum_up_id").show()
+      $("#sum_up_report_btn").css({ "background-color": "#5AADDE", "color": "#FFFFFF" });
+      $("#detail_report_btn").css({ "background-color": "#eef8fd", "color": "#19253b" });
+    });
+
+    function count_row() {
+      if ($("table > tbody[id^=detail_tbody] > tr").length == 0) {
+        $("#detail_id").hide()
+      };
+    }
+  });
+</script>
+{% endblock extra_js%}

@@ -1,0 +1,690 @@
+{% load static i18n %}
+<style>
+  .add_image {
+    background-color: #5AADDE;
+    color: white;
+    cursor: pointer;
+    padding: 0px 15px;
+    border-radius: 50%;
+    position: absolute;
+    top: 80%;
+    left: 9%;
+    border: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+  }
+ 
+  .image {
+    position: relative;
+    width: 100%;
+  }
+
+  .add_image_btn{
+    position: absolute;
+    bottom: 66px;
+    left: -20px;
+    z-index: 1;
+  }
+
+  .bill_table{
+    width: 100%;
+  }
+  
+  .bill_table tr td,.bill_table tr th{
+    padding: 6px 0; 
+    font-size: 14px;
+    line-height: 18px;
+    color: #32425E;
+  }
+
+  .bill_table tr td:first-child,.bill_table tr th:first-child{
+    width: 54px;
+    text-align: right;
+  }
+  
+  .bill_table tr td:nth-child(2),.bill_table tr th:nth-child(2){
+    width: 200px;
+    text-align: right;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .bill_table tr td:nth-child(3),.bill_table tr th:nth-child(3){
+    width: 24px;
+    text-align: center;
+    padding-left: 0px;
+    padding-right: 5px;
+  }
+
+  .bill_table tr td:nth-child(4),.bill_table tr th:nth-child(4){
+    width: 36px;
+    text-align: center;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .bill_table tr td:nth-child(5),.bill_table tr th:nth-child(5){
+    width: 24px;
+    text-align: center;
+    padding-left: 26px;
+    padding-right: 0px;
+  }
+
+  .bill_table tr td:nth-child(6),.bill_table tr th:nth-child(6){
+    text-align: right;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  #edit_inputfile-docs {
+    border: 2px dashed #ccc;
+    border-radius: 7px;
+    font-family: sans-serif;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  
+  #edit_inputfile {
+    display: none;
+  }
+
+  .comman_modal .btn_popup_close {
+    position: absolute;
+    left: 0px;
+    background-color: transparent;
+    color: #000000;
+    border: none;
+    padding: 0;
+    top: 34px;
+    left: 26px;
+  }
+
+  .job-row.remove-edit{
+    display: flex;
+    text-align: right;
+    gap: 20px;
+  }
+
+  .job-row.remove-edit h6{
+    margin: 0px;
+  }
+
+  .status-time{
+    text-align: left;
+  }
+
+  .job-inner-card{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+  }
+  #edit_note_id-docs {
+    border: 2px dashed #ccc;
+    border-radius: 7px;
+    font-family: sans-serif;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  #edit_note_id {
+    display: none;
+  }
+
+  #edit_job_notes > div{
+    border-bottom: 1px solid #d4d8dd;
+  }
+
+  #edit_job_notes > div:last-child{
+    border-bottom: none;
+  }
+
+</style>
+
+<form class="close-job pt-0 fv-plugins-bootstrap5 fv-plugins-framework" id="edit_job_form" action="" method="POST">
+  {% csrf_token %}
+  <div class="modal-header justifyn">
+
+    <div class="text-end">
+      <div class="d-flex align-items-center justify-content-end button-head-grp three-drop-button three-btn" 
+      data-id="{{job_id}}" data-address="{{job_address}}" data-address-info="{{job_address_info}}" 
+      data-group="{{job_group_id}}" data-lat="{{job_latitude}}" data-lng="{{job_longitude}}" data-img="{{job_image}}">
+        <button type="button" class="three-drop-button_detail btn dropdown-toggle hide-arrow p-0" data-bs-toggle="dropdown" data-id="{{job_obj.id}}" data-address="{{job_obj.job.address}}" data-module="job_detail" aria-expanded="false">
+            <i class="bx bx-dots-vertical-rounded" style="font-size:30px;"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+
+          {% if request.user.role.title == "מנהל מערכת"  and job_obj.status != "סגור" and request.user.role|stringformat:"s" == "מנהל מערכת" %}
+          <li>
+              <a class="dropdown-item tranfer-job-form transfer_job_id2" id="job_edit_id" name="job_edit_btn">
+                <div class="d-flex align-items-center">
+                  <img src="{% static 'assets/img/PencilSimple.svg' %}" class="me-2" style="width: 22px; height: 22px;">
+                  <span>{% trans 'Edit' %}</span>
+                </div>
+              </a>
+          </li>
+          <li>
+              <a class="dropdown-item tranfer-job-form transfer_job_id2" data-bs-toggle="modal" data-bs-target="#transfer_job_modal" id="transfer_job_id" data-id="{{job_obj.job.id}}" hidden>
+                <div class="d-flex align-items-center">
+                  <img src="{% static 'assets/img/transfer-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                  <span>{% trans 'Transfer Job' %}</span>
+                </div>
+              </a>
+          </li>
+          <li>
+            <a class="dropdown-item return-job-form return_job_options_id2" data-bs-toggle="modal" data-bs-target="#return_job_modal" id="return_job_options_id" hidden>
+              <div class="d-flex align-items-center">
+                <img src="{% static 'assets/img/return-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                <span> {% trans 'Return Job' %}</span>
+              </div>
+            </a>
+          </li>
+          {% endif %}
+
+          {% if request.user.role.title != "מִשׁתַמֵשׁ" %}
+          <li>
+            <a class="dropdown-item ask-about-job-form" id="generate_report_btn" job_data="" group_data="" group_name="">
+              <div class="d-flex align-items-center">
+                <svg width="26" height="27" viewBox="0 0 26 27" fill="none" xmlns="http://www.w3.org/2000/svg" class="menu_icon">
+                  <path d="M9.75 13.5H16.25" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9.75 16.75H16.25" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5.6875 4.5625H20.3125C20.528 4.5625 20.7347 4.6481 20.887 4.80048C21.0394 4.95285 21.125 5.15951 21.125 5.375V20.8125C21.125 21.459 20.8682 22.079 20.4111 22.5361C19.954 22.9932 19.334 23.25 18.6875 23.25H7.3125C6.66603 23.25 6.04605 22.9932 5.58893 22.5361C5.13181 22.079 4.875 21.459 4.875 20.8125V5.375C4.875 5.15951 4.9606 4.95285 5.11298 4.80048C5.26535 4.6481 5.47201 4.5625 5.6875 4.5625V4.5625Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M8.125 2.9375V6.1875" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M13 2.9375V6.1875" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17.875 2.9375V6.1875" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>    
+                <span>{% trans 'Generate Report' %}</span>
+              </div>
+            </a>
+          </li>
+          {% endif %}
+
+          {% if request.user.is_superuser or request.user.role.title == "מנהל מערכת" %}
+            <li>
+              <a class="dropdown-item ask-about-job-form delete_job_btn_id" id="delete_job_btn_id2" data-bs-toggle="modal" data-bs-target="#delete_job_modal" data-address="" data-id="">
+                <div class="d-flex align-items-center">
+                  <img src="{% static 'assets/img/delete_modal.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                  <span>{% trans 'Delete' %}</span>
+                </div>
+              </a>
+            </li>
+          {% endif %}
+          
+          <li>
+            <a class="dropdown-item ask-about-job-form"  id="ask_about_job_id2" job_id="" group_id="" address="" description="" image="">
+              <div class="d-flex align-items-center">
+                <img src="{% static 'assets/img/ask-job-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                <span>{% trans 'Ask About Job' %}</span>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>  
+    </div>
+    <h4 id="close_jobform_label" class="modal-title">{% trans 'Job' %}</h4>
+    <button type="reset" class="btn_popup_close text-reset" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent; color: #000000; border: none;"
+      carousel_id="edit_image_carousel" drop_down="edit_job_group" docs_id="remove_docs">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M25 7L7 25"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+  </div>
+  <div class="modal-body text-center add-job-model edit-form">
+
+    <div class="mb-3 form-group p-0" hidden>
+      <label class="form-label" for="edit_job_status">{% trans 'Status' %}</label>
+      <input autocomplete="off" type="text" class="form-control" id="edit_job_status" name="status"/>
+    </div>
+
+    <div class="mb-3 form-group p-0" hidden>
+      <label class="form-label" for="edit_job_id">{% trans 'Job ID' %}</label>
+      <input autocomplete="off" type="number" class="form-control" id="edit_job_id" name="job_id" maxlength="10" required/>
+    </div>
+
+    <div class="mb-3 form-group p-0">
+      <label class="form-label" for="edit_job_job_id">{% trans 'Job ID' %}</label>
+      <input autocomplete="off" type="text" class="form-control" id="edit_job_job_id" name="id" maxlength="10" required/>
+    </div>
+    <div id="edit_form_id" class="text-center" style="color: red;"></div>
+
+    <div class="mb-3 form-group p-0" hidden>
+      <label class="form-label" for="edit_job_latitude">{% trans 'Latitude' %}</label>
+      <input autocomplete="off" type="text" class="form-control" id="edit_job_latitude" name="latitude" maxlength="10" required value=""/>
+    </div>
+
+    <div class="mb-3 form-group p-0" hidden>
+      <label class="form-label" for="edit_job_longitude">{% trans 'Longitude' %}</label>
+      <input autocomplete="off" type="text" class="form-control" id="edit_job_longitude" name="longitude" maxlength="10" required value=""/>
+    </div>
+    
+    <div class="d-flex mb-3">
+      <div class="form-group mb-0 w-100">
+        <label class="form-label mandatory-field" for="edit_job_address">{% trans 'Address' %}</label>
+        <input autocomplete="off" type="text" id="edit_job_address" class="form-control" name="address" placeholder="{% trans 'Add Address' %}" value="" required />
+      </div>
+      <button id="edit_add-location" type="button" 
+        class="location_box p-4 border-dashed rounded-3 ms-3 d-flex align-items-center btn edit_job_modal" data-bs-toggle="modal"
+        data-bs-target="#location_modal">
+        <svg width="37" height="36" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8.375 32.625H28.625" stroke="#32425E" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+          <path
+            d="M18.5 19.125C20.9853 19.125 23 17.1103 23 14.625C23 12.1397 20.9853 10.125 18.5 10.125C16.0147 10.125 14 12.1397 14 14.625C14 17.1103 16.0147 19.125 18.5 19.125Z"
+            stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path
+            d="M29.75 14.625C29.75 24.75 18.5 32.625 18.5 32.625C18.5 32.625 7.25 24.75 7.25 14.625C7.25 11.6413 8.43526 8.77983 10.545 6.67005C12.6548 4.56026 15.5163 3.375 18.5 3.375C21.4837 3.375 24.3452 4.56026 26.455 6.67005C28.5647 8.77983 29.75 11.6413 29.75 14.625V14.625Z"
+            stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="mb-3 form-group p-0">
+      <label class="form-label" for="edit_job_address_info">{% trans 'Address Information' %}</label>
+      <input autocomplete="off" type="text" id="edit_job_address_info" class="edit_form-control" name="address_information"  value=""/>
+    </div>
+
+    <div class="mb-3 form-group">
+      <label class="form-label mandatory-field" for="edit_job_description">{% trans 'Description' %}</label>
+      <textarea id="edit_job_description" class="form-control border-0" name="description" rows="2" cols="10" placeholder="{% trans 'Add Description' %}"></textarea>
+    </div>
+
+    <!-- {% if request.user.is_superuser or request.user.role.title == "מנהל מערכת" %} -->
+    <div class="mb-3 form-group bg-select-white p-0">
+      <label class="form-label" for="edit_main_group">{% trans 'Main Group' %}</label>
+      <select id="edit_bill_type_id" class="form-select" name="main_group" required>
+        {% for group in group_list %}
+          {% if main_group.group.name %}
+            <option value="{{group.id}}" id="{{group.id}}" {% if group.name == main_group.group.name %} selected {% endif %}>{{group.name}}</option>
+          {% else %}
+            <option value="{{group.id}}" id="{{group.id}}">{{group.name}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <!-- {% endif %} -->
+    
+    <div class="mb-3 form-group p-0">
+      <label class="form-label mandatory-field" for="edit_job_group">{% trans 'Current Group' %}</label>
+      <input type="text" class="form-control" id="edit_job_group" name="id" maxlength="10" required value="" disabled/>
+    </div>
+
+    <div class="image-slider owl-carousel owl-theme mb-3" id="edit_image_carousel">
+    </div>
+
+    <div class="mb-3 form-group edit-attachment" id="create_docs" hidden>
+      <label class="form-label" for="edit_attechment">{% trans 'Attachment' %}</label>
+      <div class="row gx-3 p-2" id="edit_attachment">
+      </div>
+    </div>
+
+  {% if request.user.role.title == "מנהל מערכת" %}   
+    <div id="edit_inputfile-docs">
+      <input type="file" id="edit_inputfile" multiple
+      accept=".jpg, .jpeg, .png, .mp4, .mkv, .m4a, .mov, .wmv, .avi, .avchd, .flv, .f4v, .swf, .webm, .mpeg-2, .html5, .doc, .docx, .html, .htm, .odt, .pdf, .xls, .xlsx, .ods, .ppt, .pptx, .txt, .msword, .csv, .mp3"/>
+      <label class="button" for="edit_inputfile" style="background-color: #eef8fd;">
+        <h6 class="d-flex align-items-center justify-content-center p-4 mb-0 cursor-pointer">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11 19.25C15.5563 19.25 19.25 15.5563 19.25 11C19.25 6.44365 15.5563 2.75 11 2.75C6.44365 2.75 2.75 6.44365 2.75 11C2.75 15.5563 6.44365 19.25 11 19.25Z"
+              stroke="#32425E" stroke-width="1.5" stroke-miterlimit="10" />
+            <path d="M7.5625 11H14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M11 7.5625V14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          <span class="ms-2">{% trans 'Add images and attachments' %} </span>
+        </h6>
+      </label>
+    </div>
+  {% endif %}
+
+    <div class="mb-3 form-group p-0" id="edit_job-bills" hidden>
+      <label class="form-label" for="job_further_insp_id">{% trans 'Forms' %}</label>
+      <div class="p-2">
+        
+        <!-- Close job popup table -->  
+        <table class="table bill_table" id="edit_bill_table">
+          <thead>
+            <tr>
+              <th>{% trans 'Sr. No' %}</th>
+              <th>{% trans 'Name' %}</th>
+              <th></th>
+              <th>{% trans 'QTY' %}</th>
+              <th></th>
+              <th>{% trans 'Unit' %}</th>
+            </tr>
+          </thead>
+          <tbody id="id_tbody">
+            
+          </tbody>
+        </table> 
+        
+        <!-- Close job popup table without buttons -->
+        <table class="table bill_table" id="without_btn_bill_table">
+          <thead>
+            <tr>
+              <th>{% trans 'Sr. No' %}</th>
+              <th>{% trans 'Name' %}</th>
+              <th>{% trans 'QTY' %}</th>
+              <th>{% trans 'Unit' %}</th>
+            </tr>
+          </thead>
+          <tbody id="id_tbody">
+            
+          </tbody>
+        </table>  
+              
+        <div class="d-grid gap-2">
+          <button class="dt-button add-new btn btn-primary close_job_sign_bill" aria-controls="DataTables_Table_0" type="button" data-bs-toggle="modal" data-bs-target="#close_job_sign_bill" id="edit_add_sign_bills" style="background-color: rgb(238, 248, 253); color: #5aadde;" hidden>
+            <i class="bx bx-plus-circle"></i>
+            <span class="d-inline-block" style="font-weight: 400;font-size: 14px;line-height: 18px;">{% trans 'Add Sign Bills' %}</span>
+          </button>
+
+          <button class="dt-button add-new btn btn-primary close_job_material_bill" aria-controls="DataTables_Table_0" type="button" data-bs-toggle="modal" data-bs-target="#close_job_material_bill" id="edit_add_material_bills" style="background-color: rgb(238, 248, 253); color: #5aadde;">
+            <i class="bx bx-plus-circle"></i>
+            <span class="d-inline-block" style="font-weight: 400;font-size: 14px;line-height: 18px;">{% trans 'Add Material Bills' %}</span>
+          </button>
+
+          <button class="dt-button add-new btn btn-primary close_job_form" aria-controls="DataTables_Table_0" type="button" data-bs-toggle="modal" data-bs-target="#close_job_form" id="edit_add_forms" style="background-color: #5aadde; color: rgb(255, 255, 255);">
+            <i class="bx bx-plus-circle"></i>
+            <span class="d-inline-block" style="font-weight: 400;font-size: 14px;line-height: 18px;">{% trans 'Add Forms' %}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3 form-group" id="edit_notes" hidden>
+      <label class="form-label" for="edit_job_notes">{% trans 'Notes' %}</label>
+      
+      <div id="edit_job_notes" class="px-3 py-2"></div>
+    </div>
+
+    <div class="mb-0 form-group mb-3" id="edit_create_notes" hidden>
+      <div class="row gx-3 px-2" id="edit_note_container">
+        <!-- Text areas for adding notes will be dynamically added here -->
+      </div>
+    </div>
+    
+    <div id="edit_note_id-docs">
+      <label class="button" for="edit_note_id" style="background-color: #eef8fd;">
+        <h6 class="d-flex align-items-center justify-content-center p-4 mb-0 cursor-pointer" onclick="addEditNoteTextArea()">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11 19.25C15.5563 19.25 19.25 15.5563 19.25 11C19.25 6.44365 15.5563 2.75 11 2.75C6.44365 2.75 2.75 6.44365 2.75 11C2.75 15.5563 6.44365 19.25 11 19.25Z" stroke="#32425E" stroke-width="1.5" stroke-miterlimit="10" />
+            <path d="M7.5625 11H14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M11 7.5625V14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span class="ms-2">{% trans 'Add Notes' %} </span>
+        </h6>
+      </label>
+    </div>
+
+    <div class="mb-3 form-group" id="editPriority">
+      <label class="form-label" for="edit_priority_label">{% trans 'Priority' %}</label>
+      <div class="d-flex justify-content-between align-items-center px-3 py-3">
+        <label class="form-check-label" for="edit_priority_label">{% trans 'Urgent Job' %}</label>
+        <label class="switch_group">
+          <input type="checkbox" id="edit_priority" role="switch" name="priority">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="mb-0 form-group  mb-3" id="edit_furtherInspection">
+      <label class="form-label" for="edit_further_inspection_label">{% trans 'Further Inspection' %}</label>
+      <div class="d-flex justify-content-between align-items-center px-3 py-2">
+        <label class="form-check-label font-normal text-start p-0" id="edit_further_inspection_label">{% trans 'Further Inspection' %}</label>
+        <label class="switch_group">
+          <input type="checkbox" id="edit_further_inspection" name="further_inspection">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="mb-0 form-group  mb-3" id="edit_furtherBilling" hidden>
+      <label class="form-label" for="edit_further_billing_label">{% trans 'Further Billing' %}</label>
+      <div class="d-flex justify-content-between align-items-center px-3 py-2">
+        <label class="form-check-label font-normal text-start p-0" id="edit_further_billing_label">{% trans 'Further Billing' %}</label>
+        <label class="switch_group">
+          <input type="checkbox" id="edit_further_billing" name="further_billing">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div id="created_updated_closed_by">
+    </div>
+
+  </div>
+
+  <div id="edit_form_error" class="text-center" hidden>
+    <p style="color:red; font-size: 17px; margin-top:3px;" id="form_error">
+      {% trans 'Please updated the job detail then and then you can save the job.' %}
+    </p>
+  </div>
+
+  <div class="mb-3 form-group p-0" hidden>
+    <input autocomplete="off" type="text" class="form-control" id="updated_notes" name="updated_notes" value="{}"/>
+  </div>
+
+  <div class="mb-3 form-group p-0" hidden>
+    <input autocomplete="off" type="text" class="form-control" id="delete_image" name="image_delete" maxlength="10"/>
+  </div>
+
+  <div class="mb-3 form-group p-0" hidden>
+    <input autocomplete="off" type="text" class="form-control" id="delete_docs" name="docs_delete" maxlength="10"/>
+  </div>
+
+  {% if request.user.role.title == "מְפַקֵחַ" %}
+    <div class="text-center approved-job-btn close-job-btn">
+      <button type="button" class="btn btn-primary mb-3" id="approved_job_id" job_id="{{job_obj.id}}" is_reviewed="True" hidden>
+        <img src="{% static 'assets/img/green_check.png' %}" class="text-start" alt="" style="width: 29px; height: 30px;" >
+        <span>{% trans 'Approved' %}</span>
+      </button>
+    </div>
+  {% endif %}
+
+  {% if request.user.role.title == "מְפַקֵחַ" %}
+    <div class="text-center approved-job-btn close-job-btn">
+      <button type="button" class="btn btn-primary mb-3" id="unapproved_job_id" job_id="{{job_obj.id}}" is_reviewed="False" hidden>
+        <img src="{% static 'assets/img/unaproved.png' %}" class="me-2" style="width: 29px; height: 30px;" />
+        <span>{% trans 'Unreviewed' %}</span>
+      </button>
+    </div>
+  {% endif %}
+
+    <div class="modal-footer" id="one_job_detail_button">
+      <div class="row flex-1 m-0 justify-content-center">
+        <div class="col-md-6">
+          <button type="button" class="btn btn-primary btn-active data-submit w-100" id="edit_job_btn">{% trans 'Save' %}</button>
+        </div>
+        <div class="col-md-6 job_partial_btn" hidden>
+          <button type="button" class="btn btn-primary btn-active data-submit w-100" id="job_partial_btn">{% trans 'Partial' %}</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer" id="two_job_detail_button" hidden>          
+      <div class="row flex-1 justify-content-center">
+        <div class="col-md-6 pe-0">
+          <button type="button" class="btn btn-primary btn-active" id="job_close_id">
+            <svg width="29" height="30" viewBox="0 0 29 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19.4844 12.0586L12.8348 18.4023L9.51562 15.2305" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14.5 25.6523C20.5061 25.6523 25.375 20.7834 25.375 14.7773C25.375 8.77125 20.5061 3.90234 14.5 3.90234C8.4939 3.90234 3.625 8.77125 3.625 14.7773C3.625 20.7834 8.4939 25.6523 14.5 25.6523Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>{% trans 'Close' %}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+
+  
+</form>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+
+function addEditNoteTextArea() {
+  console.log("CLOSE ALSO?");
+  var textarea = document.createElement('textarea');
+  textarea.className = 'form-control border-0';
+  textarea.name = 'note'; // Set the name attribute to 'note' to be processed in the backend
+  textarea.rows = '2';
+  textarea.cols = '10';
+  textarea.placeholder = 'Add Note'; // Placeholder text for the text area
+
+  document.getElementById('edit_create_notes').removeAttribute('hidden');
+  document.getElementById('edit_note_container').appendChild(textarea);
+}
+
+
+  let dropArea2 = document.getElementById("edit_inputfile-docs");
+  
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea2.addEventListener(eventName, preventDefaults, false)   
+      document.body.addEventListener(eventName, preventDefaults, false)
+    });
+  
+    function preventDefaults (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  
+    // Highlight drop area when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea2.addEventListener(eventName, function highlight(e) {
+        dropArea2.classList.add('highlight')
+      }, false)
+    });
+  
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea2.addEventListener(eventName, function unhighlight(e) {
+        dropArea2.classList.remove('active')
+      }, false)
+    });
+  
+    // Handle dropped files
+    dropArea2.addEventListener('drop', handleDrop, false);
+  
+    function handleDrop(e) {
+      var dt = e.dataTransfer
+      var files = dt.files
+      var input = $('#edit_inputfile');
+      input.files = files;
+  
+      var on_change_id = $("#edit_inputfile").attr("id");
+      var dataTransfer = new DataTransfer();
+      var files_array = Array.from(files);
+  
+      files_array.forEach(function(file) {
+        dataTransfer.items.add(file);
+      });
+  
+      edit_media_carousel(dataTransfer.files)
+      var newInput = document.createElement("input");
+      newInput.type = "file";
+      newInput.name = "attachment";
+      newInput.classList.add(`edit_image_carousel_job_media_files`);
+      newInput.multiple = true;
+      newInput.files = dataTransfer.files;
+      newInput.hidden = true
+      $(`#${on_change_id}-docs`).append(newInput);
+      this.value=""
+    }
+  
+  
+    function edit_media_carousel(files){
+      var carousel_id = "edit_image_carousel"
+      var attachment = "#edit_inputfile"
+      if (files) {
+        for (let i = 0; i < files["length"]; i++) {
+              const uniqueId = Date.now()
+              var unique_Id = `${uniqueId}_${files[i].size}`
+              if ((files[i].type).includes('application/')||(files[i].type).includes("text/")) {
+                  $("#create_docs, #create_doc").removeAttr("hidden")
+                  $("#edit_attachment").append(`
+                  <div class="col-sm-6 position-relative" id="${unique_Id}">
+                    <button class="remove_docs close-icon small-icon" type="button" 
+                        onclick="doc_remove('${files[i].name}', ${files[i].size}, '${files[i].type}', '${carousel_id}', '', '${unique_Id}', '${attachment}')">
+                        <svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </button>
+                    <div class="document_block">
+                        <div class="document_name">${(files[i].name).split(".")[1]}</div>
+                        <div class="document_info">
+                            <p>${files[i].name}</p>
+                            <span>${(files[i].size / 1048576).toFixed(2)} MB</span>
+                        </div> 
+                    </div>
+                </div>
+                  `)
+              }
+              else{
+                  if ((files[i].type).includes('image/')){
+                    $("#edit_image_carousel.owl-carousel").owlCarousel("add", (`
+                      <button class="owl_image_remove close-icon" type="button" 
+                        onclick="doc_remove('${files[i].name}', ${files[i].size}, '${files[i].type}', '${carousel_id}', 'edit_image_carousel')"><svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </button>
+                      <div class="item"> <img id="create_attachment_image-${uniqueId}"></div>
+                    `));
+                  }
+                  else if((files[i].type).includes('video/')){
+                    $("#edit_image_carousel.owl-carousel").owlCarousel("add", (`<button class="owl_image_remove close-icon" type="button" 
+                      onclick="doc_remove('${files[i].name}', ${files[i].size}, '${files[i].type}', '${carousel_id}', 'edit_image_carousel')">
+                      <svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </button>
+                      <div class="item"> <video id="create_attachment_image-${uniqueId}" type="video/*" controls></video></div>`));
+                  }
+  
+                  let reader = new FileReader();
+                  reader.onload = function (event) {
+
+                    var base64Data = event.target.result;
+    
+                    base64Data = base64Data.replace(/^data:video\/quicktime/, 'data:video/mp4');
+                    $(`#create_attachment_image-${uniqueId}`).attr("src", base64Data);                  };
+                  $(".owl-carousel").owlCarousel("update");
+                  reader.readAsDataURL(files[i]);
+  
+                  if(i==0){
+                      $("#default_image_carousel").hide()
+                      $("#close_image_carousel").attr("hidden", false)
+                  }
+                  $('.owl-carousel').trigger('refresh.owl.carousel');
+              }
+          }
+      }
+    }
+  
+    function drag_drop_media(){
+      var dataTransfer = new DataTransfer();
+      var files = Array.from(this.files);
+  
+      files.forEach(function(file) {
+        dataTransfer.items.add(file);
+      });
+  
+      var newInput = document.createElement("input");
+      newInput.type = "file";
+      newInput.name = "attachment";
+      newInput.multiple = true;
+      newInput.classList.add(`edit_image_carousel_job_media_files`);
+      newInput.files = dataTransfer.files;
+      newInput.hidden = true
+      $(`#edit_inputfile-docs`).append(newInput);
+      this.value=""
+    }
+ 
+</script>
+

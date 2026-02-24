@@ -1,0 +1,36 @@
+{% load myfilters static i18n %}
+<!-- content -->
+<div class="modal-content">
+    <form id="remove_job_id" action="" method="GET">
+      {% csrf_token %}
+      <div class="modal-header justify-content-between">
+        <div class="icon_bg_block">
+          <img src="{% static 'assets/img/delete_modal.svg' %}" alt="delete_icon">      
+        </div>
+        <button type="button" class="delete_job_popup text-reset" data-bs-dismiss="modal" aria-label="Close"
+          style="background-color: transparent; color: #000000; border: none;">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M25 7L7 25"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>              
+        </button>
+      </div>
+
+      <div class="modal-body text-center  delete-bill-modal">
+        <p class="delete_modal_text mb-0">{% trans 'Are you sure you want to remove the job ' %}<b><span id="delete-job-name-role"></span></b> ?</p>
+        <span id=delete-bill-type></span>
+      </div>
+
+      <div class="modal-footer">
+        <div class="row flex-1 m-0 justify-content-center">
+          <div class="col-md-6  ps-0">
+            <a class="btn w-100" data-bs-dismiss="modal" id="">{%trans 'Cancel' %} </a>
+          </div>
+          <div class="col-md-6 pe-0">
+            <input type="submit" class="btn btn-danger w-100" value="{% trans 'Delete Form' %}" id="remove-form_btn_id">
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>

@@ -1,0 +1,1125 @@
+{% extends 'base.html' %}
+{% load myfilters static i18n %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <style>
+    #Add_Bills{
+      border:2px dashed #D7E7EF;
+      width: 100%;
+      height: 70px;
+    }
+    .further_billing{
+      padding: 15px;
+      display: flex;
+      width: 100%;
+    }
+    .page-title{
+      font-weight: 600;
+      font-size: 28px;
+      line-height: 42px;
+      color: #19253B;
+    }
+    ul.breadcrumb li a,ul.breadcrumb li span{
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 24px;
+      color: #7D7D7D;
+    }
+    ul.breadcrumb li+li:before{
+      color: #7D7D7D;
+      padding: 0 7px 0 0;
+    }
+   
+    .big_image_carousel .owl-item img,.big_image_carousel .owl-item video{
+      height: 350px;
+      object-fit: contain;
+    }
+
+    .thumb_image_carousel .owl-item img,.thumb_image_carousel  .owl-item video{
+      height: 90px;
+      border-radius: 7px;
+      object-fit: contain;
+    }
+
+    .thumb_image_carousel .owl-item , .big_image_carousel .owl-item{
+      border-radius: 7px;
+      border: 0.5px solid #c0c0c0;
+    } 
+
+    .owl-carousel .owl-stage-outer .owl-stage{
+      margin: 0 0 0 auto;
+    }
+
+    .header{
+      align-items: center;
+    }
+    
+    #detail_bill_table tr td,#detail_bill_table tr th {
+      text-align: right;
+    }
+
+    #detail_bill_table tr:last-child td {
+      border: none;
+    }
+
+    .error-info {
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      color: #455269;
+    }
+
+    .add-update-user-modal input,.add-update-user-modal label, .add-update-user-modal select, .add-update-user-modal .select2-container--default .select2-selection--single, .add-update-user-modal .select2-container--default .select2-selection--multiple{
+      user-select: none;
+      pointer-events: none;
+      background-color : #FFFFFF;
+      border:none;
+    }
+    
+    .job-details-module .left {
+      position: sticky;
+      top: 206px;
+    }
+
+    .owl-title{
+      background: rgba(0, 0, 0, 0.4);
+      width: max-content;
+      padding: 4px 10px;
+      border-radius: 4px;
+      position: absolute;
+      font-size: 14px;
+      top: 10px;
+      right: 10px;
+      color: #fff;
+    }
+
+    @media (max-width: 1440px) {
+      .big_image_carousel .owl-item img,.big_image_carousel .owl-item video{
+        height: 260px;
+      }
+    }
+    .sticky-head{
+      position: fixed;
+      top: 97px;
+      left: 0;
+      padding: 10px 20px 10px 55px;
+      width: auto;
+      right: 261px;
+      background-color: #fff;
+      border-bottom: 1px solid #d4d8dd;
+      z-index: 9;
+      @media (max-width: 1199px) {
+        right: 0;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<!-- Content -->
+  <div class="container-fluid flex-grow-1 position-relative container-p-y" style="margin-top: 90px">
+    <div class="row align-items-center comman_modal job-details-module sticky-head" style="max-width: 100%;">
+      <div class="col-6">
+        <ul class="breadcrumb p-0 mb-0">
+          <li>
+            <a href="/" id="home">{% trans 'Home' %}</a>
+          </li>
+          <li> 
+            <span>{% trans job_obj.job.address %}</span>
+          </li>
+        </ul>
+        <h2 class="page-title mb-0 one-line-elipsis">
+          
+          {% if job_obj.is_reviewed %}
+            <img src="{% static 'assets/img/green_check.png' %}" alt="">
+            {% endif %}
+            
+          <img src="{% static 'assets/img/green_check.png' %}" alt="" class="green_check" hidden>
+          {% trans job_obj.job.address %}
+        </h2>
+      </div>
+      
+      {% if job_obj.is_active %}      
+        <div class="col-6 text-end">
+          <div class="d-flex align-items-center justify-content-end button-head-grp">
+            <button type="button" class="three-drop-button_detail btn dropdown-toggle hide-arrow p-0" data-bs-toggle="dropdown" data-id="{{job_obj.id}}" data-address="{{job_obj.job.address}}" data-module="job_detail" aria-expanded="false">
+              <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 24.0625C23.1391 24.0625 24.0625 23.1391 24.0625 22C24.0625 20.8609 23.1391 19.9375 22 19.9375C20.8609 19.9375 19.9375 20.8609 19.9375 22C19.9375 23.1391 20.8609 24.0625 22 24.0625Z" fill="#19253B"/>
+                <path d="M22 13.0625C23.1391 13.0625 24.0625 12.1391 24.0625 11C24.0625 9.86091 23.1391 8.9375 22 8.9375C20.8609 8.9375 19.9375 9.86091 19.9375 11C19.9375 12.1391 20.8609 13.0625 22 13.0625Z" fill="#19253B"/>
+                <path d="M22 35.0625C23.1391 35.0625 24.0625 34.1391 24.0625 33C24.0625 31.8609 23.1391 30.9375 22 30.9375C20.8609 30.9375 19.9375 31.8609 19.9375 33C19.9375 34.1391 20.8609 35.0625 22 35.0625Z" fill="#19253B"/>
+              </svg>              
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              {% if request.user.is_superuser or request.user.role|stringformat:"s" == "מנהל מערכת" %}
+                <li>
+                  <a class="dropdown-item tranfer-job-form" data-bs-toggle="modal" data-bs-target="#edit_job_modal" id="edit_job" data-id="{{job_obj.id}}">   
+                    <div class="d-flex align-items-center">
+                      <img src="{% static 'assets/img/PencilSimple.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                      <span>{% trans 'Edit Job' %}</span>
+                    </div>
+                  </a>
+                </li>
+              {% endif %}
+              {% if request.user.role.title == "מנהל מערכת"  and job_obj.status != "סגור" and request.user.role|stringformat:"s" == "מנהל מערכת" %}
+              <li>
+                  <a class="dropdown-item tranfer-job-form" data-bs-toggle="modal" data-bs-target="#transfer_job_modal" id="transfer_job_id" data-id="{{job_obj.job.id}}">
+                    <div class="d-flex align-items-center">
+                      <img src="{% static 'assets/img/transfer-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                      <span>{% trans 'Transfer Job' %}</span>
+                    </div>
+                  </a>
+              </li>
+              <li>
+                <a class="dropdown-item return-job-form" data-bs-toggle="modal" data-bs-target="#return_job_modal" id="return_job_options_id">
+                  <div class="d-flex align-items-center">
+                    <img src="{% static 'assets/img/return-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                    <span> {% trans 'Return Job' %}</span>
+                  </div>
+                </a>
+              </li>
+              {% endif %}
+
+              {% if request.user.role.title != "מִשׁתַמֵשׁ" %}
+              <li>
+                <a class="dropdown-item ask-about-job-form"  id="generate_report_btn" job_data="{{job_obj.id}}" group_data={{job_obj.group_id}} group_name={{job_obj.group.name}}>
+                  <div class="d-flex align-items-center">
+                    <svg width="26" height="27" viewBox="0 0 26 27" fill="none" xmlns="http://www.w3.org/2000/svg" class="menu_icon">
+                      <path d="M9.75 13.5H16.25" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M9.75 16.75H16.25" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M5.6875 4.5625H20.3125C20.528 4.5625 20.7347 4.6481 20.887 4.80048C21.0394 4.95285 21.125 5.15951 21.125 5.375V20.8125C21.125 21.459 20.8682 22.079 20.4111 22.5361C19.954 22.9932 19.334 23.25 18.6875 23.25H7.3125C6.66603 23.25 6.04605 22.9932 5.58893 22.5361C5.13181 22.079 4.875 21.459 4.875 20.8125V5.375C4.875 5.15951 4.9606 4.95285 5.11298 4.80048C5.26535 4.6481 5.47201 4.5625 5.6875 4.5625V4.5625Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M8.125 2.9375V6.1875" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M13 2.9375V6.1875" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M17.875 2.9375V6.1875" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>    
+                    <span>{% trans 'Generate Report' %}</span>
+                  </div>
+                </a>
+              </li>
+              {% endif %}
+              {% if request.user.is_superuser or request.user.role.title == "מנהל מערכת" %}
+                <li>
+                  <a class="dropdown-item ask-about-job-form" id="delete_job_btn_id" data-bs-toggle="modal" data-bs-target="#delete_job_modal" data-address="{{job_obj.job.address}}" data-id="{{job_obj.job.id}}">
+                    <div class="d-flex align-items-center">
+                      <img src="{% static 'assets/img/delete_modal.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                      <span>{% trans 'Delete' %}</span>
+                    </div>
+                  </a>
+                </li>
+              {% endif %}
+              
+              {% if job_obj.is_reviewed != True and request.user.role.title == "מְפַקֵחַ" and job_obj.status == "סגור" %}
+                <li>
+                  <a class="dropdown-item ask-about-job-form"  id="menu_approved_job_id" is_reviewed="True" job_id="{{job_obj.id}}">
+                    <div class="d-flex align-items-center">
+                      <img src="{% static 'assets/img/green_check.png' %}" class="text-start" alt="" style="width: 29px; height: 30px;" >
+                      <span>{% trans 'Approved' %}</span>
+                    </div>
+                  </a>
+                </li>
+              {% endif %}
+
+              {% if job_obj.is_reviewed != False and request.user.role.title == "מְפַקֵחַ" and job_obj.status == "סגור" %}
+                <li>
+                  <a class="dropdown-item ask-about-job-form"  id="menu_unapproved_job_id" is_reviewed="False" job_id="{{job_obj.id}}">
+                    <div class="d-flex align-items-center">
+                      <img src="{% static 'assets/img/unaproved.png' %}" class="me-2" style="width: 22px; height: 22px;" />
+                      <span>{% trans 'Unreviewed' %}</span>
+                    </div>
+                  </a>
+                </li>
+              {% endif %}
+              
+              <li>
+                <a class="dropdown-item ask-about-job-form"  id="ask_about_job_id" onclick="window.location.href = 
+                '/chats/?job_id={{job_obj.id}}&group_id={{job_obj.group_id}}&address={{job_obj.job.address}}&description={{job_obj.job.description}}&image={{job_obj.job.job_image.first.image.url}}' ">
+                  <div class="d-flex align-items-center">
+                    <img src="{% static 'assets/img/ask-job-icon.svg' %}" class="me-2" style="width: 22px; height: 22px;" />
+                    <span>{% trans 'Ask About Job' %}</span>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>  
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- job detail -->
+    <div class="row comman_modal job-details-module" style="max-width: 100%;">
+      <div class="col-md-6">
+        <!-- /Left Side -->
+        <div class="left">
+          <div class="img-block mb-3">
+            {% if job_obj.job|media_list %}
+              {% with  job_obj.job|media_list as images %}                 
+                <div class="big_image_carousel owl-carousel owl-theme image-set" id="big">
+                  {% for key, value  in images.items %}
+                    {% if key|split:'.'|last|video_list %}
+                      <div>
+                        <div class="owl-text-overlay image_status"><h2 class="owl-title">{{value}}</h2></div>
+                        <video class="d-block w-100" type="video/*" controls><source src="{{key}}" controls></video>
+                      </div>
+                    {% else %}
+                      <div>
+                        <div class="owl-text-overlay image_status"><h2 class="owl-title">{{value}}</h2></div>
+                        <a data-magnify="gallery" data-src="" data-group="a" href="{{key}}">
+                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-lazysrc="{{key}}" style="width:100%; height: 350px; border-radius: 5px; padding: 0px; ">
+                        </a>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% endwith %}
+              <div class="thumb_image_carousel owl-carousel owl-theme mt-3" id="thumbs">
+                {% for image in job_obj.job|media_list %}
+                {% if image|split:'.'|last|video_list %}
+                  <video class="d-block w-100" type="video/*" controls>
+                    <source src="{{image}}">
+                  </video>
+                {% else %}
+                  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-lazysrc="{{image}}">
+                {% endif %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <img src="{% static 'assets/img/default_job.png' %}" style="width:100%; height: 350px; border-radius: 5px; padding: 0px; ">
+            {% endif %}
+          </div>
+          <div class="mb-3 border border-1 rounded-3" id="attachement">
+            <label class="form-label" for="">{% trans 'Before Attachment' %}</label> 
+            <div class="row gx-3 px-2">
+              {% if job_obj.job.job_attachment.all %}
+                {% for attachment in job_obj.job.job_attachment.all %}
+                  {% if not attachment.close_job_attachment %}  
+                    {% if attachment.attachment.file.name|split:"."|last == "pdf" %}
+                      <div class="col-sm-6">
+                        <a href="{{attachment.attachment.url}}" target="_blank">
+                          <div class="document_block">
+                            <div class="document_name">{{attachment.attachment.file.name|split:"."|last}}</div>
+                            <div class="document_info">
+                              <p>{{attachment.attachment.file.name|split:"/"|last}}</p>
+                              <span>{{attachment.attachment.size|filesizeformat}}</span>
+                            </div>  
+                          </div>
+                        </a>
+                      </div>
+                    {% else %}
+                      <div class="col-sm-6">
+                        <a href="{{attachment.attachment.url}}" download>
+                          <div class="document_block">
+                            <div class="document_name">{{attachment.attachment.file.name|split:"."|last}}</div>
+                            <div class="document_info">
+                              <p>{{attachment.attachment.file.name|split:"/"|last}}</p>
+                              <span>{{attachment.attachment.size|filesizeformat}}</span>
+                            </div>
+                          </div>
+                        </a>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="mb-3 border border-1 rounded-3 close_attachements" id="attachement">
+            <label class="form-label" for="">{% trans 'After Attachment' %}</label> 
+            <div class="row gx-3 px-2">
+              {% if job_obj.job.job_attachment.all %}
+                {% for attachment in job_obj.job.job_attachment.all %}
+                  {% if attachment.close_job_attachment %}  
+                    {% if attachment.attachment.file.name|split:"."|last == "pdf" %}
+                      <div class="col-sm-6 close_attachement">
+                        <a href="{{attachment.attachment.url}}" target="_blank">
+                          <div class="document_block">
+                            <div class="document_name">{{attachment.attachment.file.name|split:"."|last}}</div>
+                            <div class="document_info">
+                              <p>{{attachment.attachment.file.name|split:"/"|last}}</p>
+                              <span>{{attachment.attachment.size|filesizeformat}}</span>
+                            </div>  
+                          </div>
+                        </a>
+                      </div>
+                    {% else %}
+                      <div class="col-sm-6">
+                        <a href="{{attachment.attachment.url}}" download>
+                          <div class="document_block">
+                            <div class="document_name">{{attachment.attachment.file.name|split:"."|last}}</div>
+                            <div class="document_info">
+                              <p>{{attachment.attachment.file.name|split:"/"|last}}</p>
+                              <span>{{attachment.attachment.size|filesizeformat}}</span>
+                            </div>
+                          </div>
+                        </a>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <!-- /Left Side -->
+      </div>
+      <div class="col-md-6">
+        <div class="login_block">
+          <div class="login_form">
+            <!-- Right Side -->
+            <div class="app-brand mb-4 comman-form">
+              <div class="left modal-body text-center p-0">
+                <div class="header">
+                  <h3 class="job-title mb-0">
+                    {% if job_obj.job.priority and job_obj.job.status != "חלקי" %}
+                      <img src="{% static 'assets/img/prority.png' %}" alt="image-icon" />             
+                      <span class="one-line-elipsis me-2" style="color: red;">{{ job_obj.job.address }}</span>
+                    {% elif  job_obj.job.status == "חלקי" and job_obj.job.priority %}
+                      <img src="{% static 'assets/img/orange_priority.svg' %}" alt="image-icon" />             
+                      <span class="one-line-elipsis me-2" style="color: #F9A602;">{{ job_obj.job.address }}</span>
+                    {% elif  job_obj.job.status == "חלקי" %}
+                      <span class="one-line-elipsis me-2" style="color: #F9A602;">{{ job_obj.job.address }}</span>
+                    {% else %}
+                      <span class="one-line-elipsis me-2">{{ job_obj.job.address }}</span>
+                    {% endif %}
+                  </h3>
+                  <div class="status">
+                    <h5 class="m-0">{{ job_obj.status }}</h5>
+                  </div>
+                </div>
+                
+                {% if return_job.status == "מידע שגוי" %}  
+                <div class="border rounded-3 mb-3">
+                  <label class="form-label py-15" for="job_id">
+                    <div class="d-flex align-items-center mb-1">
+                      <img src="{% static 'assets/img/alert.svg' %}" alt="image-icon" class="me-2" />
+                      <h4 class="mb-0">{% trans 'Job is Return ' %}</h4>
+                    </div>
+                    <p class="error-info mb-0">{{return_job.comment}}</p>
+                  </label>
+                </div>
+                {% endif %}
+                  
+                <div class="mb-3 border rounded-3" hidden>
+                  <label class="form-label" for="job_id">{% trans 'Job ID' %}</label>
+                  <input autocomplete="off" type="number" class="form-control" id="job_id" name="id" maxlength="10" required value="{{ job_obj.job.id }}" readonly/>
+                </div>
+
+                <div class="mb-3 border rounded-3">
+                  <label class="form-label" for="job_id">{% trans 'Job ID' %}</label>
+                  <input autocomplete="off" type="text" class="form-control" id="job_job_id" name="id" maxlength="10" required value="{{ job_obj.job.job_id }}" readonly/>
+                </div>
+                
+                {% if return_job.status == "לְשַׁכְפֵּל" %}  
+                <div class="mb-3 border rounded-3">
+                  <label class="form-label" for="job_id">{% trans 'Related Job ID' %}</label>
+                  <input autocomplete="off" type="number" class="form-control" id="job_id" name="id" maxlength="10" required value="{{ return_job.job.job_id }}" readonly/>
+                </div>  
+                {% endif %}
+                
+                {% if job_obj.job.duplicate_reference %}  
+                  <div class="mb-3 border rounded-3">
+                    <label class="form-label" for="job_id">{% trans 'Related Job ID' %}</label>
+                    <input autocomplete="off" type="text" class="form-control" id="detail_job_id" name="id" maxlength="10" required value="{{ job_obj.job.duplicate_reference }}" readonly/>
+                  </div>  
+                {% endif %}
+
+                <div class="mb-3 border rounded-3" hidden>
+                  <label class="form-label" for="detail_job_latitude">{% trans 'Latitude' %}</label>
+                  <input class="map_lat_lng" type="text" id="detail_job_latitude" name="latitude" required value="{{job_obj.job.latitude}}" readonly/>
+                </div>
+
+                <div class="mb-3 border rounded-3" hidden>
+                  <label class="form-label" for="detail_job_longitude">{% trans 'Longitude' %}</label>
+                  <input autocomplete="off" class="map_lat_lng" type="text" id="detail_job_longitude" name="longitude" required value="{{job_obj.job.longitude}}" readonly/>
+                </div>
+                
+                <div class="d-flex mb-3">
+                  <div class="border rounded-3 flex-1">
+                    <label class="form-label one-line-elipsis" for="job_address_id">{% trans job_obj.job.address %}</label>
+                    <input autocomplete="off" type="text" id="job_address_id" class="form-control" name="address" required value="{{ job_obj.job.address_information }}" readonly/>
+                  </div>
+                  <button id="show_job_location" type="button" 
+                  class="location_box p-4 border-dashed rounded-3 ms-3 d-flex align-items-center btn" data-bs-toggle="modal"
+                  data-bs-target="#location_modal" data_address="{{job_obj.job.address}}">
+                    <svg width="37" height="36" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8.375 32.625H28.625" stroke="#32425E" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                      <path
+                        d="M18.5 19.125C20.9853 19.125 23 17.1103 23 14.625C23 12.1397 20.9853 10.125 18.5 10.125C16.0147 10.125 14 12.1397 14 14.625C14 17.1103 16.0147 19.125 18.5 19.125Z"
+                        stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path
+                        d="M29.75 14.625C29.75 24.75 18.5 32.625 18.5 32.625C18.5 32.625 7.25 24.75 7.25 14.625C7.25 11.6413 8.43526 8.77983 10.545 6.67005C12.6548 4.56026 15.5163 3.375 18.5 3.375C21.4837 3.375 24.3452 4.56026 26.455 6.67005C28.5647 8.77983 29.75 11.6413 29.75 14.625V14.625Z"
+                        stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                </div>
+      
+                <div class="mb-3 border rounded-3">
+                  <label class="form-label" for="job_description_id">{% trans 'Description' %}</label>
+                  <textarea id="job_description_id" class="form-control" name="description" rows="2" cols="10" style="border: none;" readonly>{{job_obj.job.description}}</textarea>
+                </div>
+                
+                <div class="mb-3 border border-1 rounded-3" hidden>
+                  <label class="form-label" for="current_group">{% trans 'Current Group' %}</label>
+                  <input type="text" id="current_group_{{current_group.group.name}}" class="form-control current_group" name="current_group" required value="{{current_group.group.name}}" data-id="{{current_group.group.id}}" readonly>
+                </div>
+
+                {% if current_group and transferred_group|length != 1 %}  
+                <div class="mb-3 border border-1 rounded-3">
+                  <label class="form-label" for="current_group">{% trans 'Current Group' %}</label>
+                  <input type="text" id="current_group-{{current_group.group.name}}" class="form-control current_group" name="current_group" required value="{{current_group.group.name}}" data-id="{{current_group.group.id}}" readonly>
+                </div>
+                {% endif %}
+
+                <div class="mb-3 job_assign_group_id border border-1 rounded-3">
+                  <label class="form-label" for="job_assign_group_id">{% trans 'Main Group' %}</label>
+                  <input autocomplete="off" type="text" id="job_assign_group_id" class="form-control" name="grpoup" required value="{{ main_group.group.name }}" readonly/>
+                </div>
+
+                {% if transferred_group and transferred_group|length != 1 %}
+                <div class="mb-3 border border-1 rounded-3">
+                  <label class="form-label" for="transfer_to_id">{% trans 'Transfer to' %}</label>
+                  {% for group in transferred_group %}
+                  <input autocomplete="off" type="text" id="transfer_to_{{group.group.name}}" class="form-control" name="transfer_to" required value="{{group.group.name}}"/ readonly>
+                  {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if close_job_bill %}
+                  <div class="mb-3 form-group p-0">
+                    <label class="form-label" for="job_further_insp_id">{% trans 'Details' %}</label>
+                    <div class="p-3">
+                      <table class="table mb-0" id="detail_bill_table">
+                        <thead>
+                          <th>{% trans 'Sr.No' %}</th>
+                          <th>{% trans 'Name' %}</th>
+                          <th>{% trans 'QTY' %}</th>
+                          <th>{% trans 'Unit' %}</th>
+                        </thead>
+                        <tbody>
+                          {% for bills in close_job_bill %}
+                          <tr class="bills">
+                            <td scope="row" class="py-1">{{forloop.counter}}</td>
+                            <td>
+                              <div class="bill-block d-flex flex-row bd-highlight align-items-center">
+                                {% if bills.type == "Sign" %}
+                                <img class="me-2"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" 
+                                data-lazysrc="{% if bills.image %}{{bills.image.url}}{% else %}{% static 'assets/img/bill.svg' %}{% endif %}" style="width:30px; height:30px; border-radius:7px;" />
+                                {% endif %}
+                                <div>{{bills.name}}</div>
+                              </div>
+                            </td>
+                            {% if not bills.measurement %}
+                            <td class="py-1" id="jumping_ration_{{bills.id}}">0</td>
+                            {% else %}
+                            <td class="py-1" id="jumping_ration_{{bills.id}}">{{bills.measurement}}</td>
+                            {% endif %}
+                            <td class="py-1 type_counting_{{bills.id}}">{{bills.type_counting}}</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                {% endif %}
+
+                <div class="mb-3 job_added_by_id border border-1 rounded-3">
+                  <label class="form-label" for="job_added_by_id">{% trans 'Job Added By' %}</label>
+                  <div class="job-inner-card">
+                    <div class="job-row remove-edit" id="created_by" data-id="{{job_obj.job.created_by_id}}" data-bs-toggle="modal" data-bs-target="#user_profile">
+                      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-lazysrc="{% if job_obj.job.created_by.profile_image %}{{job_obj.job.created_by.profile_image.url}}{% else %}{% static 'assets/img/avatars/avatar.svg' %}{% endif %}" style="width:50px; height:50px; border-radius:5px;object-fit: cover;" />
+                      <div class="group-block">
+                        
+                        {% if job_obj.job.created_by.user_name %}
+                          <h6>{{job_obj.job.created_by.user_name}}</h6>
+                          {% else %}
+                          <h6>{{job_obj.job.created_by.email}}</h6>
+                        {% endif %}
+                          
+                        <p>{{job_obj.job.created_by.role.title}}</p>
+                      </div>
+                    </div>
+                    <p class="status-time">{% trans 'The Job Added on' %} <br /> {{ job_obj.job.created_at|date }}</p>
+                  </div>
+                </div>
+
+                {% if job_obj.job.updated_by %}
+                  <div class="mb-3 job_added_by_id border border-1 rounded-3">
+                    <label class="form-label" for="job_added_by_id">{% trans 'Job Updated By' %}</label>
+                    <div class="job-inner-card">
+                      <div class="job-row remove-edit" id="created_by" data-id="{{job_obj.job.updated_by_id}}" data-bs-toggle="modal" data-bs-target="#user_profile">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-lazysrc="{% if job_obj.job.created_by.profile_image %}{{job_obj.job.created_by.profile_image.url}}{% else %}{% static 'assets/img/avatars/avatar.svg' %}{% endif %}" style="width:50px; height:50px; border-radius:5px;object-fit: cover;" />
+                        <div class="group-block">   
+                          {% if job_obj.job.updated_by.user_name %}
+                          <h6>{{job_obj.job.updated_by.user_name}}</h6>
+                          {% else %}
+                          <h6>{{job_obj.job.updated_by.email}}</h6>
+                          {% endif %}
+                          <p>{{job_obj.job.updated_by.role.title}}</p>
+                        </div>
+                      </div>
+                      <p class="status-time">{% trans 'The Job Added on' %} <br /> {{ job_obj.job.updated_at|date }}</p>
+                    </div>
+                  </div>
+                {% endif %}      
+                
+                {% if job_obj.status == "סגור" %}
+                  <div class="mb-3 job_added_by_id border border-1 rounded-3">
+                    <label class="form-label" for="job_added_by_id">{% trans 'Job Closed By' %}</label>
+                    <div class="job-inner-card">
+                      <div class="job-row remove-edit" id="closed_by" data-id="{{job_obj.job.closed_by_id}}" data-bs-toggle="modal" data-bs-target="#user_profile">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" data-lazysrc="{% if job_obj.job.created_by.profile_image %}{{job_obj.job.created_by.profile_image.url}}{% else %}{% static 'assets/img/avatars/avatar.svg' %}{% endif %}" style="width:50px; height:50px; border-radius:5px;object-fit: cover;" />
+                        <div class="group-block">
+                          {% if job_obj.job.closed_by.user_name %}
+                          <h6>{{job_obj.job.closed_by.user_name}}</h6>
+                          {% else %}
+                          <h6>{{job_obj.job.closed_by.email}}</h6>
+                          {% endif %}
+                          <p>{{job_obj.job.closed_by.role.title}}</p>
+                        </div>
+                      </div>
+                      <p class="status-time">{% trans 'The Job Closed on' %} <br /> {{ job_obj.job.closed_at|date }}</p>
+                    </div>
+                  </div>
+                  {% if job_obj.job.notes %} 
+                    <div class="mb-3 border border-1 rounded-3">
+                      <label class="form-label" for="job_notes">{% trans 'Notes' %}</label>
+                      <textarea id="job_notes" class="form-control" name="description" rows="1" cols="10" style="border: none;">{{job_obj.job.notes}}</textarea>
+                    </div>
+                  {% endif %}
+                {% endif %}
+                
+                <div class="mb-3 border border-1 rounded-3">
+                  <label class="form-label" for="job_further_inspection">{% trans 'Further Inspection' %}</label>
+                  {% if job_obj.further_inspection == True %}  
+                  <input autocomplete="off" type="text" id="further_inspection_yes" class="form-control" name="further_inspection" required value="{% trans 'Yes' %}" readonly/>
+                  {% else %}
+                  <input autocomplete="off" type="text" id="further_inspection_no" class="form-control" name="further_inspection" required value="{% trans 'No' %}" readonly/>
+                  {% endif %}
+                </div>
+
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-around">
+              {% if job_obj.is_reviewed != True and request.user.role.title == "מְפַקֵחַ" and job_obj.status == "סגור" %}
+                <div class="text-center approved-job-btn close-job-btn">
+                  <button type="button" class="btn btn-primary" id="approved_job_id" job_id="{{job_obj.id}}" is_reviewed="True">
+                    <img src="{% static 'assets/img/green_check.png' %}" class="text-start" alt="" style="width: 29px; height: 30px;" >
+                    <span>{% trans 'Approved' %}</span>
+                  </button>
+                </div>
+              {% endif %}
+
+              {% if job_obj.is_reviewed != False and request.user.role.title == "מְפַקֵחַ" and job_obj.status == "סגור" %}
+                <div class="text-center approved-job-btn close-job-btn">
+                  <button type="button" class="btn btn-primary" id="unapproved_job_id" job_id="{{job_obj.id}}" is_reviewed="False">
+                    <img src="{% static 'assets/img/unaproved.png' %}" class="me-2" style="width: 29px; height: 30px;" />
+                    <span>{% trans 'Unreviewed' %}</span>
+                  </button>
+                </div>
+              {% endif %}
+              
+              {% if job_obj.status != "סגור" and job_obj.is_active and request.user.role.title != "מְפַקֵחַ" %}
+                <div class="text-center close-job-btn">
+                  <button type="button" data-bs-toggle="modal" data-bs-target="#close_job_view_modal" class="btn btn-primary">
+                    <svg width="29" height="30" viewBox="0 0 29 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19.4844 12.0586L12.8348 18.4023L9.51562 15.2305" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M14.5 25.6523C20.5061 25.6523 25.375 20.7834 25.375 14.7773C25.375 8.77125 20.5061 3.90234 14.5 3.90234C8.4939 3.90234 3.625 8.77125 3.625 14.7773C3.625 20.7834 8.4939 25.6523 14.5 25.6523Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{% trans 'Close' %}</span>
+                  </button>
+                </div>
+              {% endif %}
+
+            </div>
+          </div>
+          <!-- /Right Side --> 
+        </div> 
+      </div>
+    </div>
+
+    <!-- Close job modal -->
+  <div class="modal fade close-job-view-modal" id="close_job_view_modal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+      <div class="modal-content">
+        {% include 'close_job.html' %}
+      </div>
+    </div>
+  </div>
+
+  <!-- close job alert modal -->
+  <div class="modal fade close_success_modal" id="close_success_modal"  data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="close_success_modalLabel" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+    </div>
+  </div>
+
+  <!-- Add Bills option modal -->
+  <div class="modal fade create_bill_modal" id="create_bill_modal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+  {% include 'bill_option.html' %}
+  </div>
+
+  <div class="modal fade create_bill_modal" id="create_bill_modal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+  {% include 'bill_option.html' %}
+  </div>
+
+  <!--  add Job Bill modal-->
+  <div class="modal fade add_bill_modal" id="add_bill_modal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+      <div class="modal-content">
+        {% include 'bill_add.html' %}
+      </div>
+    </div>
+  </div>
+
+  <!-- delete job modal-->
+  <div class="modal fade delete_job_modal" id="delete_job_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+      {% include 'delete_job.html' %}
+    </div>
+  </div>
+
+  <!-- Transfer-job, Duplicate Return and Wrong Return Job -->
+  <div>
+    {% include 'job_operations.html' %}
+  </div>
+
+   <!-- Map modal-->
+   <div class="modal fade create_job_modal" id="location_modal" aria-hidden="true">
+    {% include 'map_popup.html' %}
+  </div>
+
+  <!--  show user modal-->
+  <div class="modal fade user_profile" id="user_profile" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+      <div class="modal-content">
+        {% include 'user_form.html' %}
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+  $(document).ready(function(){
+    $(".remove-edit").click(function(){
+      $(".p-image").hide();
+    });
+  });
+
+  $(document).ready(function () {
+
+    //add action on opening delete job
+    $("#delete_job_btn_id").on('click',function(){
+      job_id = $(this).attr("data-id")
+      job_address = $(this).attr("data-address")
+      
+      $("#delete-job-name-role").html(`${job_address}`)
+      $('#delete_job_id').attr('action', `/jobs/delete_job/${parseInt(job_id)}/`)
+    })
+
+    $(".search").hide()
+
+    if($("#attachement").find(".document_block").length == 0){
+        $("#attachement").hide()
+      }
+    
+      $("#close_job_view_modal").on('show.bs.modal', function(){
+        var table_len  = $("#bill_table tr").length
+        i=0
+        if(table_len>i){
+          $('#bill_table tr').each(function() {
+              const td = $(this).find('td:first-child');
+              td.text(i)
+              i=i+1
+            }); 
+        }
+      });
+
+      const closeAttachements = document.querySelector(".close_attachements");
+      const colSm6Elements = closeAttachements.getElementsByClassName("col-sm-6");
+      const colSm6Count = colSm6Elements.length;
+      if(colSm6Count==0){
+        $(".close_attachements").hide()
+      }
+      
+      // Add previous page link add
+      var url_name = document.referrer.split('/')[document.referrer.split('/').length - 2];
+      const pattern = /\d+/;
+      if(!pattern.test(url_name)){
+        const li = $("<li>").append($("<a>").attr("href", document.referrer).attr("id", "current_page_url").text(`{% trans '${url_name}' %}`));
+        $(".breadcrumb li:nth-child(2)").before(li);
+      }
+
+
+      // Close job alert popup
+      $("#change_job_status").on("click", function(){
+          $("#close_jobform_id").hide()
+          $("#success_popup_id .message_block").html(`<svg width="43" height="30" viewBox="0 0 43 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1.69219 2.0769L27.5383 27.9231L40.4614 15" stroke="#19253B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`)
+          $("#success_popup_id .jobstatus-success-body").find("p").html(`{% trans 'Are you sure you want to transfer this job to' %}`) 
+          $("#success_popup_id #transfer_job_yes_id").hide();
+          $("#success_popup_id #return_success_id").hide();
+          $("#success_popup_id #transfer_job_no_id").hide();
+          $("#success_popup_id #partial_job_id").show();
+          $("#success_popup_id #close_job_id").show();
+          
+          $("#close_success_modal .modal-dialog.comman_modal.modal-dialog-centered").append($("#success_popup_id"));
+          $("#close_success_modal").modal("show");
+          $("#success_popup_id").show();
+      })
+
+      //Close job ajax call
+      $("#success_popup_id .close_job").on("click", function(){
+        let close_form = new FormData(document.querySelector("#close_jobform_id"));
+        $("#bill_table tbody tr").each(function(){
+          var rowData={};
+          $(this).find('td[content="True"]').each(function(){
+            var key = $(this).attr('key')
+            if (key=="measurement"){
+              const $tdElement = $(this);
+              const $childElement = $tdElement.find("input");
+              const attributeValue = $childElement.attr("value");
+              rowData[key]= attributeValue
+
+            }else{
+              rowData[key]= ($(this).text()).trim()
+            }
+          });
+          close_form.append("tabledata",JSON.stringify(rowData))
+        });
+        
+        
+        let csrfmiddlewaretoken = $("#close_jobform_id").children().first().val();
+        let status = $(this).attr("value")
+        let transfer_job = "{{job_obj.id}}"
+        $('.loader').removeAttr("style");
+        $.ajax({
+          type: "POST",
+          url: `/jobs/close_job/?status=${status}&transfer_job=${transfer_job}`,
+          data: close_form,
+          processData: false,
+          contentType: false,
+          headers: {
+            'X-CSRFTOKEN': csrfmiddlewaretoken
+          },
+          success: function(response){
+            if(response?.error){
+              form_validation('#close_jobform_id', response?.error)
+            }
+            else{
+              $('#success_popup_id').toggle()
+              if(response['main_group_job']){
+                location.reload();
+              }else{
+                location.reload();
+              }
+            }
+          }
+      });
+      });
+
+            
+      //open bill modal to create sign bill and material bill
+      $(".bill-type-field").hide()
+      $(".job_id").hide()
+      $(".is_created").hide()
+      $("#bill_edit_id").hide()
+      $("#delete_bill_id").hide()
+      $("#Add_Sign_Bill").on("click", function () {
+        $('#type_counting_id').val(null).trigger('change');
+        $(".modal-title").html(`{% trans 'Add Sign Bill' %}`)
+        $(".bill-jumping-ration").hide()
+        $(".sign-bill-image").show()
+        $(`#addBill_id select[name^="type"] option[value="Sign"]`).attr("selected", "selected").trigger('change');
+        $("#addBill_id").attr('action', "")
+      });
+      $("#Add_Material_Bill").on("click", function () {
+        $('#type_counting_id').val(null).trigger('change');
+        $(".modal-title").html(`{% trans 'Add Material Bill' %}`)
+        $(".bill-jumping-ration").show()
+        $(".sign-bill-image").hide()
+        $(`#addBill_id select[name^="type"] option[value="Material"]`).attr("selected", "selected").trigger('change');
+        $("#addBill_id").attr('action', "")
+      });
+
+       //open bill modal to create sign bill and material bill
+      $("#Add_Sign_Bill").on("click", function () {
+        $("#id_imgPreview").attr("src", "{% static 'assets/img/default-profile.png' %}")
+        $(".modal-title").html(`{% trans 'Add Sign Bill' %}`)
+        $(".bill-jumping-ration").hide()
+        $(`#addBill_id select[name^="type"] option[value="Sign"]`).attr("selected", "selected").trigger('change');
+        $("#addBill_id").attr('action', "")
+        $(".bills_type_counting").remove();
+
+        $("#myFile").on("change", function(){
+          $("#id_imgPreview").show()
+        })
+
+        var type= {{type_counting_list|safe}}
+        $.each(type, function(index, type_counting){
+          if(type_counting=="Units" || type_counting=="SQM"){
+            $("#type_counting_id").append(` <option class="bills_type_counting" value="${type_counting}">${type_counting}</option> `)  
+          }
+        });
+      });
+
+      $("#Add_Material_Bill").on("click", function () {
+        $(".modal-title").html(`{% trans 'Add Material Bill' %}`)
+        $(".bill-jumping-ration").show()
+        $(".sign-bill-image").hide()
+        $(`#addBill_id select[name^="type"] option[value="Material"]`).attr("selected", "selected").trigger('change');
+        $("#addBill_id").attr('action', "")
+    
+        $(".bills_type_counting").remove();
+        var type = {{type_counting_list|safe}}
+        $.each(type, function(index, type_counting){
+          $("#type_counting_id").append(` <option class="bills_type_counting" value="${type_counting}">${type_counting}</option> `)  
+        });
+      });
+  
+
+      var bigimage = $("#big");
+      var thumbs = $("#thumbs");
+      //var totalslides = 10;
+      var syncedSecondary = true;
+
+      bigimage
+        .owlCarousel({
+        items: 1,
+        slideSpeed: 700,
+        nav: true,
+        autoplay: false,
+        dots: false,
+        rtl: true,
+        loop: true,
+        responsiveRefreshRate: 200,
+      })
+        .on("changed.owl.carousel", syncPosition);
+        $(".owl-next").html('<img src="{%static 'assets/img/left-arrow.svg' %}" class="right-arrow"/>');
+      $(".owl-prev").html('<img src="{%static 'assets/img/right-arrow.svg' %}" class="left-arrow"/>');
+      
+      thumbs
+        .on("initialized.owl.carousel", function() {
+        thumbs
+          .find(".owl-item")
+          .eq(0)
+          .addClass("current");
+      })
+        .owlCarousel({
+        items: 5,
+        margin:10,
+        dots: true,
+        nav: false,
+        rtl: true,
+        smartSpeed: 200,
+        slideSpeed: 700,
+        slideBy: 4,
+        responsiveRefreshRate: 100
+      })
+        .on("changed.owl.carousel", syncPosition2);
+
+
+      function syncPosition(el) {
+        //if loop is set to false, then you have to uncomment the next line
+        //var current = el.item.index;
+
+        //to disable loop, comment this block
+        var count = el.item.count - 1;
+        var current = Math.round(el.item.index - el.item.count / 2 - 0.5);
+
+        if (current < 0) {
+          current = count;
+        }
+        if (current > count) {
+          current = 0;
+        }
+        //to this
+        thumbs
+          .find(".owl-item")
+          .removeClass("current")
+          .eq(current)
+          .addClass("current");
+        var onscreen = thumbs.find(".owl-item.active").length - 1;
+        var start = thumbs
+        .find(".owl-item.active")
+        .first()
+        .index();
+        var end = thumbs
+        .find(".owl-item.active")
+        .last()
+        .index();
+
+        if (current > end) {
+          thumbs.data("owl.carousel").to(current, 100, true);
+        }
+        if (current < start) {
+          thumbs.data("owl.carousel").to(current - onscreen, 100, true);
+        }
+      }
+
+      function syncPosition2(el) {
+        if (syncedSecondary) {
+          var number = el.item.index;
+          bigimage.data("owl.carousel").to(number, 100, true);
+        }
+      }
+
+      thumbs.on("click", ".owl-item", function(e) {
+        e.preventDefault();
+        var number = $(this).index();
+        bigimage.data("owl.carousel").to(number, 300, true);
+      });
+
+      // Magnific-popup
+      $("[data-magnify=gallery]").magnify({
+        draggable: false,
+        resizable: false,
+        movable: false,
+        title: true,
+        modalWidth: 1109,
+        modalHeight: 607,
+        initEvent: 'click',
+        fixedContent:true,
+        title:true,
+        zIndex: 1090,
+        keyboard: true,
+        progressiveLoading: true,
+        headToolbar: ['close'],
+        footToolbar: ['zoomIn', 'zoomOut', 'prev', 'next'],
+        icons: {
+          prev: '<svg width="12" height="22" viewBox="0 0 12 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.3125 20.375L10.6875 11L1.3125 1.625" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',              
+          next: '<svg width="12" height="22" viewBox="0 0 12 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.6875 20.375L1.3125 11L10.6875 1.625" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',              
+          close: '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M25 7L7 25" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 25L7 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',              
+          zoomIn:'<svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5664 18.5254H22.4831" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5249 22.4836V14.5669" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.2082 33.2498C26.5155 33.2498 33.2498 26.5155 33.2498 18.2082C33.2498 9.90089 26.5155 3.1665 18.2082 3.1665C9.90089 3.1665 3.1665 9.90089 3.1665 18.2082C3.1665 26.5155 9.90089 33.2498 18.2082 33.2498Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M34.8332 34.8332L31.6665 31.6665" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+          zoomOut:'<svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.25 18.5249H22.1667" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.2082 33.2498C26.5155 33.2498 33.2498 26.5155 33.2498 18.2082C33.2498 9.90089 26.5155 3.1665 18.2082 3.1665C9.90089 3.1665 3.1665 9.90089 3.1665 18.2082C3.1665 26.5155 9.90089 33.2498 18.2082 33.2498Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M34.8332 34.8332L31.6665 31.6665" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        }, 
+        callbacks: {
+          opened: function(el){
+            var img_url=$(".owl-item.active a").attr("href")
+            var img_name = img_url.split('/').pop()
+            var url = `${img_url}`;
+            get_size(url)
+            $(".magnify-head-toolbar").append(`<a href="${img_url}" id="img_preview_download" download target="_blank"><img src="{% static "assets/img/download_icon.svg" %}" alt="download-icon" /></a>`);
+            $(".magnify-header").append(`<div class="title_block"><div class="icon_logo"><img src="{% static "assets/img/image_icon.svg" %}" alt="image-icon" /></div><div class="image_title"><p class="image-title" id="img_preview_title">${img_name}</p><span class="image_size" id="img_preview_size"></span></div></div>`);
+          },
+          changed: function(el){
+            var img_url = $(".magnify-image").attr("src")
+            var img = document.getElementsByClassName("magnify-image")
+            var img_name = img_url.split('/').pop()
+            $("#img_preview_download").attr("href", img_url);
+            $("#img_preview_title").text(img_name);
+            var url = `${img_url}`;
+            get_size(url)
+          } 
+        },
+      });
+      function get_size(url){
+        fetch(url)
+        .then(response => {
+          const contentLength = response.headers.get('Content-Length');
+          const fileSizeInBytes = contentLength;
+          if(fileSizeInBytes.length>6){
+            $("#img_preview_size").text(`${(contentLength/(1024*1024)).toFixed(2)} MB`)
+          }else(
+            $("#img_preview_size").text(`${(contentLength/1024).toFixed(2)} KB`)
+          )
+        });
+      };
+
+    $("#show_job_location").on("click", function(){
+      var address = $(this).attr("data_address")
+      var map_readonly = true
+      var detail_latitude = $("#detail_job_latitude").attr("value");
+      var detail_longitude = $("#detail_job_longitude").attr("value");
+      var group = $(".current_group").attr("value");
+      var group_id = $(".current_group").attr("data-id");
+
+      // Store the current href value in localStorage before redirection
+      localStorage.setItem('currentHref', window.location.href);
+
+      $("#get_route").removeAttr("hidden").attr("onclick", `window.location.href='/jobs/recent_search_job/?address=${address}&lat=${detail_latitude}&lng=${detail_longitude}&group=${group}&group_id=${group_id}'`);
+      $.getScript("https://maps.googleapis.com/maps/api/js?key=" + "{{google_api_key}}" + "&libraries=places&language=he").done(function (script, textStatus) {
+        google.maps.event.addEventListener(window, "load", initMap(parseFloat(detail_latitude), parseFloat(detail_longitude), map_readonly))
+      });
+    });
+
+    // Select Placeholder
+    $("#type_counting_id").select2({
+        placeholder: {
+          id: '1',
+          text: "{% trans 'Select Type Counting' %}"
+        },
+        minimumResultsForSearch :10,
+      });
+
+    $("#created_by, #closed_by").on("click", function(){
+      $("#user_profile_button, #user_group_permission, #user_role").hide()
+      
+      user_id = $(this).attr("data-id")
+      var text = this== "created_by" ? `{% trans 'Job Added By' %}` : `{% trans 'Job Closed By' %}`
+      getUserData(user_id)
+      $(".modal-title").html(`${text}`)
+    });
+
+    // set latitude and longitude
+    $("#save_location").on("click", function(){
+      $("#edit_job_latitude").attr("value", latitude)
+      $("#edit_job_longitude").attr("value", longitude)
+      $("#edit_job_address").attr("value", formatted_address);
+    })
+
+    $("#generate_report_btn").on("click", function(){
+        var job = $(this).attr("job_data")
+        var group = $(this).attr("group_name")
+        
+        const url = `{% url  'jobs:generatePdf' %}?job=${job}&group=${group}&single_report=True`;
+
+        window.open(url, "_blank");
+    });
+
+    $("#approved_job_id, #menu_approved_job_id, #unapproved_job_id, #menu_unapproved_job_id").on("click", function(){
+      var status = $(this).attr("is_reviewed")
+      var job_id = $(this).attr("job_id")
+      $.ajax({
+        type: "GET",
+        url: `/jobs/job_approved?job_id=${job_id}&is_reviewed=${status}`,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          location.reload()
+        }
+      })
+    });
+
+    var user_role = `{{request.user.role.title}}`
+    if(user_role == "מִשׁתַמֵשׁ"){
+      $("#close_notes_id").attr("readonly", true);
+      $("#add_sign_bills").prop("disabled", true);
+      $("#add_material_bills").prop("disabled", true);
+      $("#add_forms").prop("disabled", true);
+      $("#further_billing_id").prop("disabled", true);
+      $(".addition").prop("disabled", true);
+      $(".addition").prop("disabled", true);
+      $(".subtraction").prop("disabled", true);
+      $(".bill_measurement_input").prop("disabled", true);
+      $("#partial_job_id").attr("class", "col-md-12")
+    }
+
+    $("#save_location").on("click", function(){  
+      const edit_job_address = document.getElementById("edit_job_address");
+      const edit_job_latitude = document.getElementById("edit_job_latitude");
+      const edit_job_longitude = document.getElementById("edit_job_longitude");
+      edit_job_address.value = formatted_address
+      edit_job_latitude.value = latitude
+      edit_job_longitude.value = longitude
+    })
+
+  });
+  </script>
+{% endblock %}

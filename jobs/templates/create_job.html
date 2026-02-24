@@ -1,0 +1,376 @@
+{% load static i18n %}
+
+<style>
+  #job_attchment_id-docs {
+    border: 2px dashed #ccc;
+    border-radius: 7px;
+    font-family: sans-serif;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  #job_attchment_id {
+    display: none;
+  }
+
+  .owl-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .owl-nav .owl-prev,
+  .owl-nav .owl-next {
+    height: 20px;
+    width: 20px;
+    border-radius: 20px;
+    background: yellow;
+    line-height: 18px;
+    cursor: pointer;
+  }
+
+  #job_note_id-docs {
+    border: 2px dashed #ccc;
+    border-radius: 7px;
+    font-family: sans-serif;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  #job_note_id {
+    display: none;
+  }
+  .button {
+    border-radius: 7px;
+  }
+</style>
+<form class="add-new-job pt-0 fv-plugins-bootstrap5 fv-plugins-framework" id="create_jobform_id" action=""
+  method="POST">
+  {% csrf_token %}
+  <div class="modal-header justify-content-between">
+    <h4 id="create_jobform_label" class="modal-title">{% trans 'Add Job' %}</h4>
+    <button type="reset" class="btn_popup_close text-reset" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent; color: #000000; border: none;"
+    carousel_id="create_image_carousel" drop_down="job_assign_group_id" docs_id="remove_docs">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M25 25L7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="modal-body text-center add-job-model edit-form">
+    <div class="mb-3 form-group">
+      <label class="form-label" for="job_id">{% trans 'Job ID' %}</label>
+      <input autocomplete="off" type="text" class="form-control" id="job_id" name="job_id" maxlength="10" min="1" 
+        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+        maxlength = "10"
+        placeholder="{% trans 'Add Job Id' %}" />
+    </div>
+    <div class="form-group mb-3 w-100" hidden>
+      <label class="form-label" for="job_latitude">{% trans 'Latitude' %}</label>
+      <input autocomplete="off" class="map_lat_lng" type="text" id="job_latitude" name="latitude" required/>
+    </div>
+    <div class="form-group mb-3 w-100" hidden>
+      <label class="form-label" for="job_longitude">{% trans 'Longitude' %}</label>
+      <input autocomplete="off" class="map_lat_lng" type="text" id="job_longitude" name="longitude" required/>
+    </div>
+    <div class="d-flex mb-3">
+      <div class="form-group mb-0 w-100">
+        <label class="form-label mandatory-field" for="job_address_id">{% trans 'Address' %}</label>
+        <input autocomplete="off" type="text" id="job_address_id" class="form-control" name="address" placeholder="{% trans 'Add Address' %}" required />
+      </div>
+      <button id="add-location" type="button"
+        class="location_box p-4 border-dashed rounded-3 ms-3 d-flex align-items-center btn" data-bs-toggle="modal"
+        data-bs-target="#location_modal">
+        <svg width="37" height="36" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8.375 32.625H28.625" stroke="#32425E" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+          <path
+            d="M18.5 19.125C20.9853 19.125 23 17.1103 23 14.625C23 12.1397 20.9853 10.125 18.5 10.125C16.0147 10.125 14 12.1397 14 14.625C14 17.1103 16.0147 19.125 18.5 19.125Z"
+            stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path
+            d="M29.75 14.625C29.75 24.75 18.5 32.625 18.5 32.625C18.5 32.625 7.25 24.75 7.25 14.625C7.25 11.6413 8.43526 8.77983 10.545 6.67005C12.6548 4.56026 15.5163 3.375 18.5 3.375C21.4837 3.375 24.3452 4.56026 26.455 6.67005C28.5647 8.77983 29.75 11.6413 29.75 14.625V14.625Z"
+            stroke="#32425E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+    <div class="mb-1 form-group">
+      <label class="form-label" for="job_address_info_id">{% trans 'Address Information' %}</label>
+      <input autocomplete="off" type="text" id="job_address_info_id" class="form-control" name="address_information" placeholder="{% trans 'Add Address Information' %}" />
+    </div>
+    <div class="mb-3 text-end">
+      <span><small>{% trans 'Additional address information' %}</small></span>
+    </div>
+    <div class="mb-3 form-group">
+      <label class="form-label mandatory-field" for="job_description_id">{% trans 'Description' %}</label>
+      <textarea id="job_description_id" class="form-control border-0" name="description" rows="2" cols="10" placeholder="{% trans 'Add Description' %}" required></textarea>
+    </div>
+    
+    <div class="mb-3 form-group job_assign_group_id bg-select-white">
+      <label class="form-label mandatory-field" for="job_assign_group_id">{% trans 'Assign Group' %}</label>
+      <select id="job_assign_group_id" class="form-control" name="group" required>
+        <option></option>
+        {% for group in group_list %}
+        <option value="{{ group.id }}">{{ group.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- <div class="mb-0 form-group mb-3" id="create_notes" hidden>
+      <label class="form-label" for="">{% trans 'Notes' %}</label>
+      <div class="row gx-3 px-2" id="create_note_container">
+      </div>
+    </div> -->
+
+    <!-- <div id="job_note_id-docs">
+      <label class="button" for="job_note_id" style="background-color: #eef8fd;">
+        <h6 class="d-flex align-items-center justify-content-center p-4 mb-0 cursor-pointer" onclick="addNoteTextArea()">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11 19.25C15.5563 19.25 19.25 15.5563 19.25 11C19.25 6.44365 15.5563 2.75 11 2.75C6.44365 2.75 2.75 6.44365 2.75 11C2.75 15.5563 6.44365 19.25 11 19.25Z"
+              stroke="#32425E" stroke-width="1.5" stroke-miterlimit="10" />
+            <path d="M7.5625 11H14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M11 7.5625V14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          <span class="ms-2">{% trans 'Add Notes' %} </span>
+        </h6>
+      </label>
+    </div> -->
+
+    
+    <div class="mb-0 form-group mb-3" id="create_docs" hidden>
+      <label class="form-label" for="">{% trans 'Attachment' %}</label>
+      <div class="row gx-3 px-2" id="create_docs_attachement">
+      </div>
+    </div>
+    <div id="create_image_carousel" class="image-slider mb-3 owl-carousel owl-theme">
+    </div>
+
+    <div id="job_attchment_id-docs">
+      <input type="file" id="job_attchment_id" multiple
+      accept=".jpg, .jpeg, .png, .mp4, .mkv, .m4a, .mov, .wmv, .avi, .avchd, .flv, .f4v, .swf, .webm, .mpeg-2, .html5, .doc, .docx, .html, .htm, .odt, .pdf, .xls, .xlsx, .ods, .ppt, .pptx, .txt, .msword, .csv, .mp3"/>
+      <label class="button" for="job_attchment_id" style="background-color: #eef8fd;">
+        <h6 class="d-flex align-items-center justify-content-center p-4 mb-0 cursor-pointer">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11 19.25C15.5563 19.25 19.25 15.5563 19.25 11C19.25 6.44365 15.5563 2.75 11 2.75C6.44365 2.75 2.75 6.44365 2.75 11C2.75 15.5563 6.44365 19.25 11 19.25Z"
+              stroke="#32425E" stroke-width="1.5" stroke-miterlimit="10" />
+            <path d="M7.5625 11H14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M11 7.5625V14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          <span class="ms-2">{% trans 'Add images and attachments' %} </span>
+        </h6>
+      </label>
+    </div>
+
+    <div class="mb-3 form-group job_priority_id">
+      <label class="form-label" for="job_priority_id">{% trans 'Priority' %}</label>
+      <div class="d-flex justify-content-between align-items-center px-3 py-3">
+        <label class="form-check-label" for="job_priority_id">{% trans 'Urgent Job' %}</label>
+        <label class="switch_group">
+          <input type="checkbox" id="job_priority_id" role="switch" name="priority">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    <div class="mb-3 form-group job_further_insp_id">
+      <label class="form-label" for="job_further_insp_id">{% trans 'Further Inspection' %}</label>
+      <div class="d-flex justify-content-between align-items-center px-3 py-3">
+        <label class="form-check-label" for="job_further_insp_id">{% trans 'Finish Notification' %}</label>
+        <label class="switch_group">
+          <input type="checkbox" id="job_further_insp_id" name="further_inspection">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    <div class="mb-3 form-group job_lock_close_id">
+      <label class="form-label" for="job_lock_close_id">{% trans 'Lock The Job' %}</label>
+      <div class="d-flex justify-content-between align-items-center px-3 py-3">
+        <label class="form-check-label" for="job_lock_close_id">{% trans 'Do you want to lock this job for closing?' %}</label>
+        <label class="switch_group">
+          <input type="checkbox" id="job_lock_close_id" name="is_lock_closed">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    
+
+  </div>
+
+  <div class="modal-footer">
+    <div class="row flex-1">
+      <div class="col-md-12 px-0 text-center">
+        <button type="submit" class="btn btn-active data-submit" id="job_save_id">
+          <i class='bx bx-plus-circle me-2'></i>
+          <span>{% trans 'Create' %}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+  var createImageCarousel = document.getElementsByClassName('owl-carousel');
+  console.log(createImageCarousel)
+
+  let dropArea1 = document.getElementById("job_attchment_id-docs");
+
+  // Prevent default drag behaviors
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropArea1.addEventListener(eventName, preventDefaults, false)   
+    document.body.addEventListener(eventName, preventDefaults, false)
+  });
+
+  function preventDefaults (e) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  // Highlight drop area when item is dragged over it
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropArea1.addEventListener(eventName, function highlight(e) {
+      dropArea1.classList.add('highlight')
+    }, false)
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropArea1.addEventListener(eventName, function unhighlight(e) {
+      dropArea1.classList.remove('active')
+    }, false)
+  });
+
+  // Handle dropped files
+  dropArea1.addEventListener('drop', handleDrop, false);
+
+  function handleDrop(e) {
+    var dt = e.dataTransfer
+    var files = dt.files
+    var input = $('#job_attchment_id');
+    input.files = files;
+
+    var on_change_id = $("#job_attchment_id").attr("id");
+    var dataTransfer = new DataTransfer();
+    var files_array = Array.from(files);
+
+    files_array.forEach(function(file) {
+      dataTransfer.items.add(file);
+    });
+
+    add_media_carousel(dataTransfer.files)
+    var newInput = document.createElement("input");
+    newInput.type = "file";
+    newInput.name = "attachment";
+    newInput.multiple = true;
+    newInput.files = dataTransfer.files;
+    newInput.hidden = true
+    $(`#${on_change_id}-docs`).append(newInput);
+    this.value = ""
+  }
+  var carousel_id = "close_image_carousel"
+  var selectedImages = [];
+  function add_media_carousel(files) {
+    if (files) {
+      console.log(files.length)
+      for (let i = 0; i < files.length; i++) {
+        const uniqueId = Date.now() + i;
+        if (files[i].type.includes('application/') || files[i].type.includes('text/')) {
+          // Display document information (name and size)
+          $("#create_docs, #create_doc").removeAttr("hidden");
+          $("#create_docs_attachement").append(`
+                      <div class="col-sm-6">
+                          <div class="document_block">
+                              <div class="document_name">${(files[i].name).split(".")[1]}</div>
+                              <div class="document_info">
+                                  <p>${files[i].name}</p>
+                                  <span>${(files[i].size / 1048576).toFixed(2)} MB</span>
+                              </div>
+                          </div>
+                      </div>
+                  `);
+        } else {
+          // Display image or video
+          if (files[i].type.includes('image/')) {
+            $("#create_image_carousel.owl-carousel, #close_image_carousel").owlCarousel("add",`<div class="item">
+              <button class="owl_image_remove close-icon" type="button" 
+                onclick="doc_remove('${files[i].name}', ${files[i].size}, '${files[i].type}', '${carousel_id}', 'create_image_carousel')">
+                <svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </button>
+              <div class="item"><img id="create_attachment_image-${uniqueId}"></div></div>`);
+          } else if (files[i].type.includes('video/')) {
+            $("#create_image_carousel.owl-carousel, #close_image_carousel").owlCarousel("add", `
+            <div class="item">
+              <button class="owl_image_remove close-icon" type="button" 
+                onclick="doc_remove('${files[i].name}', ${files[i].size}, '${files[i].type}', '${carousel_id}', 'create_image_carousel')">
+                <svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </button>
+              <div class="item">
+                <video controls id="create_attachment_image-${uniqueId}" type="video/*"></video>
+              </div>
+            </div>
+          `);
+        }
+          selectedImages.push(files[i])
+          console.log(selectedImages.length)
+          let reader = new FileReader();
+          reader.onload = function (event) {
+            var base64Data = event.target.result;
+    
+            base64Data = base64Data.replace(/^data:video\/quicktime/, 'data:video/mp4');
+            var images = $(`#create_attachment_image-${uniqueId}`).attr("src", base64Data);
+          };
+          reads = reader.readAsDataURL(files[i]);
+          if (i === 0) {
+            $("#default_image_carousel").hide();
+            $("#close_image_carousel").attr("hidden", false);
+          }
+          $('.owl-carousel').trigger('refresh.owl.carousel');
+        }
+      }
+
+    }
+  }
+  function drag_drop_media() {
+    var dataTransfer = new DataTransfer();
+    var files = Array.from(this.files);
+    files.forEach(function (file) {
+      dataTransfer.items.add(file);
+    });
+
+    var newInput = document.createElement("input");
+    newInput.type = "file";
+    newInput.name = "attachment";
+    newInput.multiple = true;
+    newInput.files = dataTransfer.files;
+    newInput.hidden = true
+    $(`#job_attchment_id-docs`).append(newInput);
+    this.value=""
+  }
+
+  function addNoteTextArea() {
+    // Create a new text area element
+    var textarea = document.createElement('textarea');
+    textarea.className = 'form-control border-0';
+    textarea.name = 'note'; // Set the name attribute to 'note' to be processed in the backend
+    textarea.rows = '2';
+    textarea.cols = '10';
+    textarea.placeholder = 'Add Note'; // Placeholder text for the text area
+
+    document.getElementById('create_notes').removeAttribute('hidden');
+    document.getElementById('create_note_container').appendChild(textarea);
+    
+
+  }
+
+ 
+</script>

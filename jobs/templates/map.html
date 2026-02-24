@@ -1,0 +1,1863 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% load myfilters static i18n %}
+{% block extra_css %}
+{{block.super}}
+<style>
+  #myMarker img {
+    border-radius: 100px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  #route-card {
+    display: none;
+  }
+
+  .generate_pdf_button {
+    display: none;
+  }
+  .clear_button{
+    display: none;
+  }
+  .container-fluid {
+    padding: 0 15px;
+  }
+
+  .select2 {
+    width: 175px;
+  }
+
+  .card {
+    border: none;
+    box-shadow: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  #address img {
+    flex: 0 0 20px;
+  }
+
+  .select2.select2-container .select2-selection--single .select2-selection__rendered {
+    padding-left: 24px;
+  }
+
+  .span_black {
+    color: #32425E;
+  }
+
+  .info_block .image_info_block h5 {
+    font-size: 22px;
+    line-height: 33px;
+    font-weight: 500;
+    color: #19253B;
+  }
+
+  .suggestions {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .map-checkbox label{
+    color: black;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .map-checkbox{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="map_module py-0 p-20">
+  <div class="row">
+    <div class="col-lg-8 order-lg-first order-last">
+      <div class="row pt-4 d-lg-flex d-none">
+        <div class="col-md-6">
+          <div class="d-flex align-items-center mb-2">
+            <button class="dt-button add-new btn btn-primary unarchive-group generate_pdf_button" id="generate_pdf">
+              {% trans 'Generate PDF' %}
+            </button>
+            <button class="dt-button add-new btn btn-secondary unarchive-group clear_button me-2" id="clear_button">
+              {% trans 'Clear' %}
+            </button>
+          </div>
+          <h2 class="mb-0 text-black">{% trans 'Map' %}</h2>
+        </div>
+        <div class="col-md-6">
+          <div class="head_select ms-auto">
+            <select id="group" name="group">
+              <!-- <option selected value=0>{% trans 'All' %}</option> -->
+              {% for group_name in groups %}
+              {% if previous_group_id %}
+              <option value="{{ group_name.id }}" {% if group_name.id == previous_group_id %} selected {% endif %}>
+                {{ group_name }}</option>
+              {% else %}
+              {% if forloop.first %}
+              <option value="{{ group_name.id }}" selected>{{ group_name }}</option>
+              {% else %}
+              <option value="{{ group_name.id }}">{{ group_name }}</option>
+              {% endif %}
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+
+      </div>
+      <div id="map" class="mt-4 map"></div>
+      <!-- <div>
+        <label for="id-google-address-a">Start Address</label>
+        <input type="text" placeholder="*Begin typing address" id="id-google-address" name="google_address">
+        <button id="location">Live Location</button>
+      </div> -->
+    </div>
+
+    <div class="col-lg-4 border-start location_block mt-4">
+
+      <div class="row mb-4 d-flex d-lg-none">
+        <div class="col-6">
+          <h2 class="mb-0 text-black">{% trans 'Map' %}</h2>
+        </div>
+        <div class="col-6">
+          <div class="head_select ms-auto">
+            <select id="group" name="group">
+              <option selected value=0>{% trans 'All' %}</option>
+              {% for group_name in groups %}
+              <option value="{{ group_name.id }}">{{ group_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="joblist">
+        <div id="sidebar">
+          <div id="location-head" class="location-head mb-3">
+            <p class="d-inline-flex align-items-center mb-0">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M16.875 5.625H3.125C2.77982 5.625 2.5 5.90482 2.5 6.25V16.25C2.5 16.5952 2.77982 16.875 3.125 16.875H16.875C17.2202 16.875 17.5 16.5952 17.5 16.25V6.25C17.5 5.90482 17.2202 5.625 16.875 5.625Z"
+                  stroke="#32425E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path
+                  d="M13.125 16.875V4.375C13.125 4.04348 12.9933 3.72554 12.7589 3.49112C12.5245 3.2567 12.2065 3.125 11.875 3.125H8.125C7.79348 3.125 7.47554 3.2567 7.24112 3.49112C7.0067 3.72554 6.875 4.04348 6.875 4.375V16.875"
+                  stroke="#32425E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="ms-2 span_black">{% trans 'Job Place' %}</span>
+            </p>
+
+            <!-- {% if request.user.role|stringformat:"s" == "מנהל מערכת" %}
+            <button type="submit" id="route" class="btn btn-primary">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M17.1875 19.25C18.3266 19.25 19.25 18.3266 19.25 17.1875C19.25 16.0484 18.3266 15.125 17.1875 15.125C16.0484 15.125 15.125 16.0484 15.125 17.1875C15.125 18.3266 16.0484 19.25 17.1875 19.25Z"
+                  stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path
+                  d="M6.1875 4.8125H14.4375C15.1668 4.8125 15.8663 5.10223 16.382 5.61796C16.8978 6.13368 17.1875 6.83315 17.1875 7.5625C17.1875 8.29185 16.8978 8.99132 16.382 9.50704C15.8663 10.0228 15.1668 10.3125 14.4375 10.3125H6.1875C5.27582 10.3125 4.40148 10.6747 3.75682 11.3193C3.11216 11.964 2.75 12.8383 2.75 13.75C2.75 14.6617 3.11216 15.536 3.75682 16.1807C4.40148 16.8253 5.27582 17.1875 6.1875 17.1875H15.125"
+                  stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="ms-2">{% trans 'Get Route' %}</span>
+            </button>
+            {% endif %} -->
+          </div>
+          <div class="input-group input-group-merge mb-3" id="search-job-group">
+            <label class="input-group-text p-0">
+              <img src="{% static 'assets/img/magnify.svg' %}" alt="magnify-icon">
+            </label>
+            <input autocomplete="off" type="text" class="input-text w-100 form-control ms-0 p-0 ps-2" id="search-job"
+              placeholder="{% trans 'Search Job' %}" />
+          </div>
+          <div class="head_select me-auto">
+            <select class="form-control" id="sort_by" name="sort_by">
+              <option value="ascending">{% trans 'Ascending' %}</option>
+              <option value="descending" selected>{% trans 'Descending' %}</option>
+            </select>
+          </div>
+          <div id="search-job-list"></div>
+          <div class="route_card" id="route-card">
+            <button id="back-location-btn" class="back-location-btn btn ps-0 mb-4">
+              <svg width="11" height="20" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.75 18.125L9.875 10L1.75 1.875" stroke="#19253B" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+              <span class="ms-3">חזור</span>
+            </button>
+            <div class="d-flex">
+              <div class="route_start text-center">
+                <div class="round-group-list">
+                  <div class="round-group">
+                    <div class="round"></div>
+                    <div class="route_line"></div>
+                  </div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M10 10C11.3807 10 12.5 8.88071 12.5 7.5C12.5 6.11929 11.3807 5 10 5C8.61929 5 7.5 6.11929 7.5 7.5C7.5 8.88071 8.61929 10 10 10Z"
+                    stroke="#455269" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+                  <path
+                    d="M16.25 8.125C16.25 13.75 10 18.125 10 18.125C10 18.125 3.75 13.75 3.75 8.125C3.75 6.4674 4.40848 4.87769 5.58058 3.70558C6.75269 2.53348 8.3424 1.875 10 1.875C11.6576 1.875 13.2473 2.53348 14.4194 3.70558C15.5915 4.87769 16.25 6.4674 16.25 8.125V8.125Z"
+                    stroke="#455269" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+              <div class="route_end flex-1" id="destination-div">
+                <input autocomplete="off" type="search" class="input-text w-100 mb-3 draggable-container"
+                  id="destination_0" placeholder="{% trans 'Choose starting place' %}" draggable="true" />
+                <input autocomplete="off" type="search" class="input-text w-100 mb-3 draggable-container"
+                  id="destination_1" placeholder="{% trans 'Choose destination' %}" draggable="true" />
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="add_location ms-auto mb-3" id="add-destination" style="display: none">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M11 19.25C15.5563 19.25 19.25 15.5563 19.25 11C19.25 6.44365 15.5563 2.75 11 2.75C6.44365 2.75 2.75 6.44365 2.75 11C2.75 15.5563 6.44365 19.25 11 19.25Z"
+                stroke="#19253B" stroke-width="1.5" stroke-miterlimit="10" />
+              <path d="M7.5625 11H14.4375" stroke="#19253B" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M11 7.5625V14.4375" stroke="#19253B" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            <span>{% trans 'Add Destination' %}</span>
+          </button>
+
+          <button type="button" class="btn w-100 text-start ps-1" id="current-location" style="display: none">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M10 16.875C13.797 16.875 16.875 13.797 16.875 10C16.875 6.20304 13.797 3.125 10 3.125C6.20304 3.125 3.125 6.20304 3.125 10C3.125 13.797 6.20304 16.875 10 16.875Z"
+                stroke="#19253B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M10 1.5625V4.6875" stroke="#19253B" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M1.5625 10H4.6875" stroke="#19253B" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M10 18.4375V15.3125" stroke="#19253B" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M18.4375 10H15.3125" stroke="#19253B" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path
+                d="M10 12.5C11.3807 12.5 12.5 11.3807 12.5 10C12.5 8.61929 11.3807 7.5 10 7.5C8.61929 7.5 7.5 8.61929 7.5 10C7.5 11.3807 8.61929 12.5 10 12.5Z"
+                stroke="#19253B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="text-black ps-1">{% trans 'Current Location' %}</span>
+          </button>
+          <hr />
+
+        </div>
+        <div id="suggestion-panel"></div>
+        <div id="directions-panel" class="directions-panel" style="display: none">
+          <div class="d-flex">
+            <div class="route_start text-center" style="display:none" id="direction-round-group">
+              <div class="round-group-list" id="round-group-list-2">
+              </div>
+            </div>
+            <div class="route_end flex-1" id="selectedjob-div">
+              <div id="selected_job_0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="job-card" class="mt-4"></div>
+
+      <div class="" id="job-list">
+        {% if job_list %}
+        {% for job in job_list %}
+        <a href="#" id="job-{{job.id}}" data-address="{{job.job.address}}" data-status="{{job.status}}"
+          data-latitude="{{job.job.latitude}}" data-longitude="{{job.job.longitude}}"
+          data-description="{{job.job.description}}" data-created_at="{{job.job.created_at}}"
+          data-images="{% if job.job_image|length > 0 %}https://job-management-media.s3.il-central-1.amazonaws.com/media/{% for image in job.job_image %}{{ image }}{% endfor %}{% else %}https://job-management-media.s3.il-central-1.amazonaws.com/static/assets/img/default_job.png{% endif %}">
+          <div class="card rounded-3 py-2 mb-2">
+            <div class="image_block me-3">
+              {% with job.job|get_first_image as first_image %}
+              <img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg=="
+                data-lazysrc="{% if first_image %}{{ first_image }}{% else %}{% static 'assets/img/default_job.png' %}{% endif %}">
+              {% endwith %}
+            </div>
+            <div class="card_info">
+              <div class="info_block">
+                <h5 id="address">
+                  {% if job.job.priority == True %}
+                  <img src="{% static 'assets/img/info-icon.svg' %}" alt="info-icon">
+                  {% endif %}
+                  <strong class="ms-2">{{job.job.address}}</strong>
+                </h5>
+                <p class="text-end mb-0 status_block" id="status">{{job.status}}</p>
+              </div>
+              <p class="mb-0">{{job.job.created_at|date}}</p>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+        {% else %}
+        <span class="ms-2 span_black">{% trans 'No jobs available' %}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer-job, Duplicate Return and Wrong Return Job -->
+<div>
+  {% include 'job_operations.html' %}
+</div>
+
+<!-- map popup -->
+<div class="modal fade create_job_modal" id="location_modal" aria-hidden="true">
+  {% include 'map_popup.html' %}
+</div>
+
+<!-- Job list -->
+<div class="modal fade group_job_modal" id="job_list_model" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+    {% include 'job_list_popup.html' %}
+  </div>
+</div>
+
+<!-- delete job modal-->
+<div class="modal fade delete_job_modal" id="delete_job_modal" tabindex="-1" data-bs-backdrop="static"
+  data-bs-keyboard="false" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+    {% include 'delete_job.html' %}
+  </div>
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script
+  src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&libraries=places,geometry&callback=initMap"
+  async defer></script>
+<script>
+  function resetToggleState() {
+    const toggle = document.getElementById('job_priority_id');
+    toggle.checked = false;
+    localStorage.removeItem('job_priority_id');
+  }
+
+  window.addEventListener('load', resetToggleState);
+  var map = null;
+  var geocoder = null;
+  var selectedInput = null;
+  var directionsService = null;
+  var directionsRenderer = null;
+  var groupId;
+  var selectedWaypoints = [];
+  var quaryParmas = new URLSearchParams(window.location.search)
+  var lastSelectedIndex = 0;
+  var currentHref = localStorage.getItem('currentHref');
+  let value = 0;
+  let selectedJobs = {};
+  $(document).ready(function () {
+    if (window.location.search) {
+      var quaryParmas = new URLSearchParams(window.location.search)
+      let address = quaryParmas.get("address")
+      let detailedJobLat = quaryParmas.get("lat")
+      let detailedJobLong = quaryParmas.get("lng")
+      groupId = quaryParmas.get("group_id")
+
+      $("#route").click();
+
+      // Set the group value to the desired group_id
+      $("#group").val(groupId);
+
+      $("#destination_0").val(address)
+      $("#destination_0").attr('data-address', address)
+      $("#destination_0").attr('data-method', "fromJobDetails")
+      $("#destination_0").attr('data-lat', Number(detailedJobLat));
+      $("#destination_0").attr('data-lng', Number(detailedJobLong));
+      if (quaryParmas.get("lat") && quaryParmas.get("lng")) {
+        selectedWaypoints.push({ lat: Number(quaryParmas.get("lat")), lng: Number(quaryParmas.get("lng")), address: address, method: "fromJobDetails" })
+      }
+    }
+    // Event listener for select element change
+    $('#sort_by').on("change", function () {
+      var sortOrder = $(this).val();
+      var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      // Make the AJAX call with the selected sorting order
+      groupData(document.getElementById("group").value, csrftoken, sortOrder);
+    });
+
+  })
+
+  $(document).ready(function () {
+    $(".search, #serach_button").hide();
+
+    $("#group").change(function () {
+      selectedWaypoints = []
+      var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      var sortOrder = document.getElementById("sort_by").value;
+      groupId = document.getElementById("group").value;
+
+      var destinationInputs = document.querySelectorAll("#destination-div input[placeholder='Add destination']");
+      destinationInputs.forEach(function (input) {
+        input.remove()
+      });
+      document.getElementById("location-head").style.display = "flex";
+      document.getElementById("add-destination").style.display = "none";
+      document.getElementById("current-location").style.display = "none";
+      document.getElementById("job-card").innerHTML = '';
+
+
+      $("#directions-panel").html(`
+        <div class="d-flex">
+          <div class="route_start text-center" style="display:none" id="direction-round-group">
+            <div class="round-group-list" id="round-group-list-2">
+            </div>
+          </div>
+          <div class="route_end flex-1" id="selectedjob-div">
+            <div id="selected_job_0"></div>
+          </div>
+        </div>
+      `);
+
+      var destinationDiv = document.getElementById("destination-div");
+
+      var destinationInputs = destinationDiv.querySelectorAll('input[id^="destination_"]');
+      destinationInputs.forEach(function (input, index) {
+        input.value = ''
+        input.removeAttribute('data-address')
+        input.removeAttribute('data-status')
+        input.removeAttribute('data-images')
+        input.removeAttribute('data-created_at')
+        input.removeAttribute('data-method')
+        input.removeAttribute('data-lat')
+        input.removeAttribute('data-lng')
+      }
+      );
+
+      document.getElementById("search-job-group").style.display = "flex";
+      groupData(groupId, csrftoken, sortOrder);
+      $(".extra-round-group").remove();
+
+      // // Event listener for the change event on #sort_by
+      $('#sort_by').on("change", function () {
+        // Update sortOrder with the newly selected value
+        sortOrder = $(this).val();
+        groupData(groupId, csrftoken, sortOrder);
+
+      })
+    })
+  });
+
+  function groupData(groupId, csrftoken, sortOrder) {
+    if (groupId) {
+      $.ajax({
+        url: "/jobs/get_jobs_for_group/" + groupId,
+        type: "POST",
+        dataType: "json",
+        headers: {
+          "X-CSRFToken": csrftoken
+        },
+        data: { sort_order: sortOrder },
+        success: function (response) {
+          document.getElementById("route-card").style.display = "none";
+          document.getElementById("job-list").style.display = "block";
+          document.getElementById('map').innerHTML = ''
+          var jobList = document.getElementById("job-list");
+          if (response.job_list.length === 0) {
+            // No jobs available, display a message
+            jobList.innerHTML = "<span class='ms-2 span_black'>{% trans 'No jobs available' %}</span>";
+            initMap();
+          } else {
+            jobList.innerHTML = "";
+            $.each(response?.job_list, function (index, job) {
+              image_list = []
+              $.each(response?.job_images, function (index, image) {
+                if (image?.job__id == job?.job__id) {
+                  image_list.push(`https://job-management-media.s3.il-central-1.amazonaws.com/media/${image?.image}`)
+                }
+              })
+              const dateStr = job?.created_at
+              const date = new Date(dateStr);
+              const options = { month: 'short', day: 'numeric', year: 'numeric' };
+              const formattedDate = date.toLocaleDateString('en-US', options);
+              if (image_list[0] == undefined) {
+                image = `{% static 'assets/img/default_job.png' %}`
+                image_list.push(`https://job-management-media.s3.il-central-1.amazonaws.com/static/assets/img/default_job.png`)
+              } else {
+                for (const value of image_list) {
+                  const pathElements = value.split(".");
+                  const lastElement = pathElements[pathElements.length - 1];
+
+                  if (lastElement === "jpg" || lastElement === "png" || lastElement === "jpeg") {
+                    image = value;
+                    break; // Stop the iteration once the condition is satisfied
+                  }
+                }
+              }
+
+              jobList.innerHTML += `
+              <a href="#" id="job-${job?.id}" data-address="${job?.job__address}" data-status="${job?.status}" data-latitude="${job?.job__latitude}" data-longitude="${job?.job__longitude}" data-images="${image_list}" data-description="${job?.job__description}" data-created_at ="${job?.created_at}">
+                <div class="card rounded-3 py-2 mb-2">
+                  <div class="image_block me-3">
+                    <img src="${image}">
+                  </div>
+                  <div class="card_info">
+                    <div class="info_block">
+                      <h5 id="address">
+                        <img src="{% static 'assets/img/info-icon.svg' %}" alt="info-icon">
+                        <strong class="ms-2">${job?.job__address}</strong>
+                      </h5>
+                      <p class="text-end mb-0 status_block" id="status">${job?.status}</p>
+                    </div>
+                    <p class="mb-0">${formattedDate}</p>
+                  </div>
+                </div>
+              </a>`
+            })
+            initMap();
+          }
+        },
+      });
+    }
+  }
+
+  // Define a global variable to hold the last opened info window
+  let lastOpenedInfoWindow = null;
+  let clickedJobIds  = [];
+  var checkedMarkers = {}; // Object to store checked state for each jobId
+// Function to open the info window for a marker
+function openInfoWindowForMarker(marker, infowindow, content, map, jobId) {
+    // Close the last opened info window before opening a new one
+    if (lastOpenedInfoWindow) {
+        lastOpenedInfoWindow.close();
+    }
+
+    var isChecked = checkedMarkers[jobId] ? 'checked' : '';
+
+    // Create a new content with a checkbox
+    const newContent = `
+    <div>
+        <div class="map-checkbox">
+            <input type="checkbox" id="markerCheckbox_${jobId}" name="markerCheckbox" data-job-id="${jobId}" class="large-checkbox" ${isChecked}>
+            <label for="markerCheckbox_${jobId}">{% trans 'Select Job' %}</label>
+        </div>
+        ${content}
+    </div>
+    `;
+    // Open the info window for the marker with the new content
+    infowindow.setContent(newContent);
+    infowindow.open(map, marker);
+
+    // Event delegation for checkbox change
+    $(document).off('change', '.large-checkbox').on('change', '.large-checkbox', function () {
+        var jobId = $(this).data('job-id');
+        if (this.checked) {
+            if (!clickedJobIds.includes(jobId)) {
+                selectedJobs[jobId] = marker;
+                clickedJobIds.push(jobId);
+                document.getElementById("generate_pdf").style.display = "flex";
+                document.getElementById("clear_button").style.display = "flex";  
+                var newImageUrl = `{% static 'assets/img/checkmark.png' %}`;
+                icons = {
+                    url: newImageUrl,
+                    scaledSize: new google.maps.Size(40, 40),
+                };
+                marker.setIcon(icons);        
+                console.log(selectedJobs);
+            }
+            checkedMarkers[jobId] = true; 
+        } else {
+            if (checkedMarkers[jobId]) {
+                delete checkedMarkers[jobId]; 
+            }
+        }
+    });
+}
+var markers = []
+function clearHighlightedJobs() {
+    // Clear the checked state
+    checkedMarkers = {};
+
+    // Update checkboxes in info windows
+    $('.large-checkbox').each(function() {
+        var jobId = $(this).data('job-id');
+        $(this).prop('checked', false);
+    });
+
+
+    selectedJobs = {};
+    markers.forEach(function(marker) {
+        marker.setIcon(marker.originalIcon);
+    });
+
+    // Hide buttons if necessary
+    document.getElementById("generate_pdf").style.display = "none";
+    document.getElementById("clear_button").style.display = "none";
+
+    // Close any open info window
+    if (lastOpenedInfoWindow) {
+        lastOpenedInfoWindow.close();
+    }
+}
+  function initMap() {
+    const myLatlng = { lat: 21.238214, lng: 72.887416 };
+    geocoder = new google.maps.Geocoder();
+    const mapDiv = document.getElementById("map");
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer();
+    var maxLat = Math.atan(Math.sinh(Math.PI)) * 180 / Math.PI;
+
+    map = new google.maps.Map(mapDiv, {
+      zoom: 15,
+      minZoom: 2,
+      center: myLatlng,
+      restriction: {
+        latLngBounds: { north: maxLat, south: -maxLat, west: -180, east: 180 },
+      },
+    });
+
+    var locations = []
+    var jobList = document.getElementById('job-list');
+    var jobItems = jobList.getElementsByTagName('a');
+    var lastClickedMarker = null;
+    var infowindows = [];
+    var lastClickedInfowindow = null;
+    // declare a variable to hold the last clicked marker
+    if (jobItems.length === 0) {
+      default_map = new google.maps.Map(mapDiv, {
+        zoom: 8,
+        minZoom: 2,
+        center: { lat: 31.0461, lng: 34.8516 },
+        restriction: {
+          latLngBounds: { north: maxLat, south: -maxLat, west: -180, east: 180 },
+        },
+      });
+      // Optionally, you can add a default marker at the defaultLatlng
+      var defaultMarker = new google.maps.Marker({
+        map: default_map,
+        title: 'Default Location',
+      });
+      markers.push(defaultMarker);
+      // Optionally, you can add additional logic here for the default map scenario
+    }
+    else {
+      for (var i = 0; i < jobItems.length; i++) {
+        var latitude = jobItems[i].getAttribute('data-latitude');
+        var longitude = jobItems[i].getAttribute('data-longitude');
+        var address = jobItems[i].querySelector("#address").innerHTML;
+        var description = jobItems[i].getAttribute('data-description');
+        var status = jobItems[i].querySelector('#status').innerHTML;
+        var jobId = jobItems[i].getAttribute('id').substring(4);
+        var image_urls = jobItems[i].getAttribute("data-images");
+        var image_urls_array = image_urls.split(",");
+        var image_url = image_urls_array[0];
+        var position = new google.maps.LatLng(latitude, longitude);
+
+
+        var marker = new google.maps.Marker({
+          position: position,
+          map: map,
+          icon: {
+            url: image_url,
+            scaledSize: new google.maps.Size(40, 40),
+          },
+          optimized: false,
+        });
+        marker.originalIcon = {
+          url: image_url,
+          scaledSize: new google.maps.Size(40, 40),
+      };
+
+        var myoverlay = new google.maps.OverlayView();
+        myoverlay.draw = function () {
+          this.getPanes().markerLayer.id = 'myMarker';
+        };
+        myoverlay.setMap(map);
+
+        markers.push(marker)
+        var infowindow = new google.maps.InfoWindow();
+        infowindows.push(infowindow);
+        marker.originalIcon = {
+  url: image_url,
+  scaledSize: new google.maps.Size(40, 40),
+};
+
+        // create a closure to bind the correct values of address, status,image and description to the event listener
+        (function (marker, infowindow, address, status, image_url, description, jobId) {
+          marker.addListener('click', function () {
+            // close last clicked infowindow, if any
+            // close last clicked infowindow, if any
+            if (lastClickedInfowindow) {
+              lastClickedInfowindow.close();
+            }
+            // set the content of the InfoWindow and open it on this marker
+            let content = infoWindowContent(image_url, address, description, status, jobId)
+            openInfoWindowForMarker(marker, infowindow, content, map,jobId);
+            // remember this infowindow as last clicked infowindow
+            lastClickedInfowindow = infowindow;
+            
+          });
+        })(marker, infowindow, address, status, image_url, description, jobId);
+      }
+
+      var bounds = new google.maps.LatLngBounds();
+      for (var i = 0; i < markers.length; i++) {
+        bounds.extend(markers[i].getPosition());
+
+      }
+      map.fitBounds(bounds);
+    }
+    $("#clear_button").on("click",function(){
+      clearHighlightedJobs();
+      clickedJobIds = [];
+    })
+    $("#generate_pdf").on("click", function () {
+      var jobIdsString = clickedJobIds.join(",");
+      const url = `{% url 'jobs:job-lists-details' %}?jobIds=` + jobIdsString;
+      window.location.href = url;
+    });
+
+    // add destinations 
+    const destinationDiv = document.getElementById('destination-div');
+    const startInput = document.getElementById("destination_0");
+    const endInput = document.getElementById("destination_1");
+    const selectedJobDiv = document.getElementById("selectedjob-div")
+    const search_job = document.getElementById("search-job")
+
+    const suggestionsList = document.createElement('ul');
+    suggestionsList.classList.add('suggestions');
+    let jobs = []
+    // add destination places 
+    addDestination(destinationDiv, selectedJobDiv, suggestionsList, jobs)
+    const currentLocationBtn = document.getElementById("current-location");
+    let active_event = null;
+    var clickedLocation = null;
+
+    startInput.addEventListener("click", function () {
+      active_event = startInput;
+      selectedInput = 'destination_0';
+    });
+
+    endInput.addEventListener("click", function () {
+      active_event = endInput;
+      selectedInput = 'destination_1';
+    });
+
+    destinationDiv.onclick = function (event) {
+      const clickedElement = event.target;
+      if (clickedElement.tagName === 'INPUT' && clickedElement.type === 'search') {
+        active_event = clickedElement;
+        selectedInput = clickedElement.id;
+      }
+    };
+
+
+    // check value in selected input ,if not then add new pinned location 
+    map.addListener('click', function (event) {
+      addPinnedLocation(event, geocoder, selectedInput);
+    });
+
+    // add current location in selected box
+    currentLocationBtn.onclick = function () {
+      addCurrentLocation(geocoder, startInput, endInput, active_event, selectedInput);
+    };
+
+    for (const job of jobList.children) {
+      let address = job.dataset.address;
+      let latitude = job.dataset.latitude;
+      let longitude = job.dataset.longitude;
+      let images = job.dataset.images;
+      let status = job.dataset.status;
+      let created_at = job.dataset.created_at;
+      let jobId = job.getAttribute('id').substring(4);
+      let description = job.getAttribute('data-description')
+      jobs.push({ address, latitude, longitude, images, status, created_at, jobId, description });
+    }
+    jobSuggestion(search_job, suggestionsList, jobs)
+    suggestPlaces(startInput, suggestionsList, jobs)
+    suggestPlaces(endInput, suggestionsList, jobs)
+    directionsRenderer.setMap(map);
+
+    // Hide suggestions when user clicks outside of the input and suggestion list
+    document.onclick = function (event) {
+      if (!event.target.matches('#destination, .suggestions *')) {
+        suggestionsList.style.display = 'none';
+      }
+    };
+  }
+
+  // creates the canvas and returns its data URL
+  function createMarkerIcon(imageUrl) {
+    var canvas = document.createElement('canvas');
+    var markerImage = new Image();
+    markerImage.src = imageUrl;
+    canvas.width = 50;
+    canvas.height = 50;
+    var context = canvas.getContext('2d');
+
+    // Begin drawing the marker icon
+    context.beginPath();
+    context.arc(25, 25, 25, 0, 2 * Math.PI, false);
+    context.clip();
+
+    // Draw the marker image on the canvas
+    context.drawImage(markerImage, 0, 0, 50, 50);
+
+    // Return the marker icon as a data URL
+    return canvas.toDataURL();
+  }
+
+  // add clicked location in selected input box
+  function addPinnedLocation(event, geocoder, selectedInput) {
+    if (selectedInput !== null) {
+      clickedLocation = event.latLng;
+      previousSelection = document.getElementById(selectedInput).value
+      place_index = document.getElementById(selectedInput).id.split("_")[1]
+
+      // Update the selectedWaypoints based on previous selection or add a new entry
+      if (previousSelection) {
+        selectedWaypoints[place_index] = { lat: Number(clickedLocation.lat()), lng: Number(clickedLocation.lng()), method: "pinnedLocation" }
+        lastSelectedIndex = 0
+      } else {
+        selectedWaypoints.push({ lat: Number(clickedLocation.lat()), lng: Number(clickedLocation.lng()), method: "pinnedLocation" })
+      }
+
+      // Reverse geocode the clicked location to obtain the formatted address
+      geocoder.geocode({ location: event.latLng }, function (results, status) {
+        if (status === 'OK') {
+          if (results[0]) {
+            // Update the selected input with the formatted address and location details
+            document.getElementById(selectedInput).value = results[0].formatted_address + clickedLocation;
+            document.getElementById(selectedInput).setAttribute('data-lat', Number(clickedLocation.lat()));
+            document.getElementById(selectedInput).setAttribute('data-lng', Number(clickedLocation.lng()));
+            document.getElementById(selectedInput).setAttribute('data-method', 'pinnedLocation');
+            selectedInput = null
+          }
+        }
+      });
+    }
+    calculateAndDisplayRoute("pinnedLocation");
+  }
+
+  // add current location in clicked input box
+  function addCurrentLocation(geocoder, startInput, endInput, active_event, selectedInput) {
+    if (selectedInput !== null) {
+      previousSelection = document.getElementById(selectedInput).value;
+      place_index = document.getElementById(selectedInput).id.split("_")[1]
+
+      const destination = document.getElementById(selectedInput);
+
+      // Get the current position using the geolocation API
+      navigator.geolocation.getCurrentPosition((position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        // Update the selectedWaypoints based on previous selection or add a new entry
+        if (previousSelection) {
+          selectedWaypoints[place_index] = { lat: Number(lat), lng: Number(lng), method: "currentLocation" }
+          lastSelectedIndex = 0
+        } else {
+          selectedWaypoints.push({ lat: Number(lat), lng: Number(lng), method: "currentLocation" });
+        }
+
+        // Reverse geocode the current location to obtain the formatted address
+        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+          if (status === "OK") {
+            const formattedAddress = results[0].formatted_address;
+            const input = active_event === startInput ? startInput : active_event === endInput ? endInput : destination;
+
+            // Update the input value and attributes with the current location details
+            input.value = formattedAddress;
+            input.setAttribute('data-lat', Number(lat));
+            input.setAttribute('data-lng', Number(lng));
+            input.setAttribute('data-method', 'currentLocation');
+
+          }
+          calculateAndDisplayRoute("currentLocation");
+        });
+      });
+    }
+  }
+
+  // add destination box 
+  function addDestination(destinationDiv, selectedJobDiv, suggestionsList, jobs) {
+    let isAdded = false;
+    const MAX_INPUT_COUNT = 8;
+
+    // Handle click event on the "add-destination" element
+    document.getElementById('add-destination').onclick = function () {
+      const inputTags = document.querySelectorAll('input[id^="destination_"]');
+      let firstInput = inputTags[0]
+      let secondInput = inputTags[1]
+
+      // Show alert when source and destination is empty
+      if (!firstInput.value || !secondInput.value) {
+        alert('Please select a source and destination.');
+        return;
+      }
+
+      const inputCount = destinationDiv.querySelectorAll('input[type="search"]').length;
+
+      let newHtml = `<div class="round-group extra-round-group">
+        <div class="round"></div>
+        <div class="route_line"></div>
+        </div>`
+
+      if (inputCount >= MAX_INPUT_COUNT) {
+        return;
+      }
+
+      // Add new job detail div and update the input count
+      addNewJobDetailDiv(inputCount + 1, selectedJobDiv);
+
+      const lastInput = document.querySelector('input[id^="destination_"]:last-child');
+      if (!lastInput.value) { return; }
+
+      // Determine the count for adding a new destination input
+      let count;
+      if (isAdded && lastInput.value !== '') {
+        count = inputCount - 1
+      } else if (lastInput.value != "" && firstInput.value !== '' && secondInput.value !== '') {
+        isAdded = true;
+        count = 1
+      }
+
+      // Add new destination input and append the newHtml to round-group-list
+      addNewDestinationInput(count, destinationDiv, suggestionsList, jobs);
+      $(".route_card .round-group-list").append(newHtml);
+
+      // Auto-select the newly added input tag
+      const inputElements = document.querySelectorAll('input[id^="destination_"]');
+      const lastInputElement = inputElements[inputElements.length - 1];
+      lastInputElement.focus();
+      lastInputElement.click();
+
+    };
+  }
+
+  function addNewJobDetailDiv(count, selectedJobDiv) {
+    const addjobDetailDiv = document.createElement('div');
+    addjobDetailDiv.id = `selected_job_${count - 2}`;
+    selectedJobDiv.appendChild(addjobDetailDiv);
+  }
+
+  // Function to add a new destination input field
+  function addNewDestinationInput(count, destinationDiv, suggestionsList, jobs) {
+    const addDestinationInput = document.createElement('input');
+    addDestinationInput.type = 'search';
+    addDestinationInput.id = `destination_${count + 1}`;
+    addDestinationInput.className = 'input-text w-100 mb-3 draggable-container';
+    addDestinationInput.placeholder = "{% trans 'Add destination' %}";  // Placeholder for the input field
+    addDestinationInput.draggable = 'true';
+    destinationDiv.appendChild(addDestinationInput);
+    addDestinationInput.oninput = function () {
+      suggestPlaces(addDestinationInput, suggestionsList, jobs);
+    };
+
+    addDestinationInput.addEventListener('search', handleSearchEvent);  // Event listener for search events
+  }
+
+  // Function to handle the search event
+  function handleSearchEvent() {
+    const latToRemove = this.dataset['lat'];  // Latitude to remove from dataset
+    const lngToRemove = this.dataset['lng'];  // Longitude to remove from dataset
+    const clickedIndex = selectedWaypoints.findIndex(function (waypoint) {
+      return waypoint.lat === latToRemove && waypoint.lng === lngToRemove;
+    });
+    selectedWaypoints = selectedWaypoints.filter(function (waypoint) {
+      return waypoint.lat != latToRemove || waypoint.lng != lngToRemove;
+    });
+
+    if (selectedWaypoints.length > 1) {
+      if (this.parentNode) {
+        document.getElementById(this.id).remove();
+      }
+      $(".route_card .round-group-list").find('.round-group').last().remove();
+    } else {
+      const destinationDiv = document.getElementById("destination-div");
+      const selectedInput = document.getElementById(this.id);
+      if (this.id === 'destination_0') {
+        if (selectedWaypoints.length === 0) {
+          clearDataset(selectedInput);  // Clear dataset of the selected input
+        }
+        const nextInput = destinationDiv.children[1];
+        updateInputFromNext(selectedInput, nextInput);
+        clearDataset(nextInput);  // Clear dataset of the next input
+      }
+      if (this.id !== 'destination_0') {
+        clearDataset(selectedInput);  // Clear dataset of the selected input
+      }
+    }
+
+    handleRoundGroupList();
+    updateInputFields();
+
+    calculateAndDisplayRoute(null, null, true, parseInt(this.id));  // Calculate and display the route
+  }
+
+  // Function to clear the dataset of an input
+  function clearDataset(input) {
+    Object.keys(input.dataset).forEach((key) => {
+      delete input.dataset[key];
+    });
+  }
+
+  // Function to update the selected input from the next input
+  function updateInputFromNext(input, nextInput) {
+    for (const key in nextInput.dataset) {
+      input.dataset[key] = nextInput.dataset[key];
+    }
+    input.value = nextInput.value;
+    nextInput.value = '';
+  }
+
+  // Function to handle the round group list
+  function handleRoundGroupList() {
+    var roundGroupList = document.getElementById('round-group-list-2');
+    var roundGroupElements = roundGroupList.getElementsByClassName('round-group');
+    destinationId = parseInt(this.id);
+    if (roundGroupElements.length > 0) {
+      // Remove the last round-group element
+      roundGroupList.removeChild(roundGroupElements[roundGroupElements.length - 1]);
+    }
+    lastSelectedIndex = 0;
+  }
+
+  // Function to update the input fields dynamically
+  function updateInputFields() {
+    const placeholders = ["Choose starting place", "Choose destination", "Add destination"];
+    const searchInputs = document.querySelectorAll('input[type="search"]');
+    for (let i = 0; i < searchInputs.length; i++) {
+      const input = searchInputs[i];
+      const newId = `destination_${i}`;
+      if (input.id !== newId) {
+        input.id = newId;
+      }
+
+      if (i === 0) {
+        input.placeholder = placeholders[0];
+      } else if (i === 1) {
+        input.placeholder = placeholders[1];
+      } else {
+        input.placeholder = placeholders[2];
+      }
+    }
+  }
+
+  // Event listener for search events on destination inputs
+  var searchInputs = document.querySelectorAll('input[type="search"]');
+  searchInputs.forEach(function (input) {
+    input.addEventListener('search', handleSearchEvent);
+  });
+
+
+  // suggests places(job-address)
+  function suggestPlaces(place, suggestionsList, jobs) {
+    const directionsPanel = document.getElementById("directions-panel");
+    const suggestionPanel = document.getElementById("suggestion-panel");
+
+    suggestionsList.innerHTML = "";
+    let selectedIndex = -1;
+
+    // Event handler when the place input field is clicked
+    place.onclick = function () {
+      place_index = place.id.split("_")[1]
+    }
+
+    // Event handler when the place input field value is changed
+    place.oninput = function (event) {
+      const inputValue = event.target.value.trim().toLowerCase();
+
+      // Filter jobs based on the input value
+      let suggestions = jobs.filter((job) =>
+        job.address.toLowerCase().includes(inputValue)
+      );
+
+      // Clear previous suggestions
+      clearSuggestions(suggestionsList)
+
+      // Create new list of suggestions
+      suggestions.forEach((suggestion, index) => {
+        const suggestionItem = document.createElement("li");
+        suggestionItem.innerHTML = getSuggestionItemHtml(suggestion)
+
+        // Event handler when a suggestion item is clicked
+        suggestionItem.onclick = function () {
+          const latitude = suggestion.latitude;
+          const longitude = suggestion.longitude;
+          directionsPanel.style.display = "block"
+
+          // Update place attributes with suggestion data
+          place.value = suggestion.address;
+          place.setAttribute('data-address', suggestion.address)
+          place.setAttribute('data-status', suggestion.status)
+          place.setAttribute('data-images', suggestion.images)
+          place.setAttribute('data-created_at', suggestion.created_at)
+          place.setAttribute('data-method', 'jobLocation')
+
+          if (place.getAttribute('data-lat') && place.getAttribute('data-lng')) {
+            selectedWaypoints[place_index] = { lat: Number(latitude), lng: Number(longitude), address: suggestion.address, status: suggestion.status, images: suggestion.images, created_at: suggestion.created_at, method: "jobLocation" }
+            lastSelectedIndex = 0
+          } else {
+            selectedWaypoints.push({ lat: Number(latitude), lng: Number(longitude), address: suggestion.address, status: suggestion.status, images: suggestion.images, created_at: suggestion.created_at, method: "jobLocation" });
+          }
+          place.setAttribute('data-lat', Number(latitude))
+          place.setAttribute('data-lng', Number(longitude))
+
+          suggestionsList.innerHTML = "";
+          calculateAndDisplayRoute("jobLocation");
+        };
+
+        suggestionsList.appendChild(suggestionItem);
+      });
+
+      // Show suggestions if input value meets the criteria
+      if (inputValue.length >= 2 && suggestions.length > 0) {
+        suggestionsList.style.display = "block";
+        directionsPanel.style.display = "none"
+        suggestionPanel.appendChild(suggestionsList);
+      } else {
+        suggestionsList.style.display = "none";
+      }
+    };
+  }
+
+  function clearSuggestions(suggestionsList) {
+    while (suggestionsList.firstChild) {
+      suggestionsList.removeChild(suggestionsList.firstChild);
+    }
+  }
+
+  // suggests places(job-address)
+  function jobSuggestion(place, suggestionsList, jobs) {
+    suggestionsList.innerHTML = "";
+    let selectedIndex = -1;
+
+    // Event handler when the place input field value is changed
+    place.oninput = function (event) {
+      const inputValue = event.target.value.trim().toLowerCase();
+
+      // Hide job list and current location elements
+      document.getElementById("job-list").style.display = "none";
+      document.getElementById("current-location").style.display = "none";
+
+      // Clear job card content
+      let jobCard = document.getElementById('job-card');
+      jobCard.innerText = '';
+
+      // Filter jobs based on the input value
+      let suggestions = jobs.filter((job) =>
+        job.address.toLowerCase().includes(inputValue)
+      );
+
+      // Show "No Data Found" image if no suggestions found
+      if (!suggestions.length) {
+        document.getElementById("job-card").innerHTML = `
+      <img src="{% static 'assets/img/no-data-found.svg' %}" alt="no-data-found.svg">`;
+      }
+
+      // Show job list if input value is empty
+      if (!inputValue) {
+        document.getElementById("job-list").style.display = "block";
+        document.getElementById("current-location").style.display = "none";
+      }
+
+      // Clear previous suggestions
+      clearSuggestions(suggestionsList);
+
+      // Create new list of suggestions
+      suggestions.forEach((suggestion, index) => {
+        const suggestionItem = document.createElement("li");
+        suggestionItem.innerHTML = getSuggestionItemHtml(suggestion);
+
+        // Event handler when a suggestion item is clicked
+        suggestionItem.onclick = function () {
+          place.value = suggestion.address;
+          let latitude = suggestion.latitude;
+          let jobId = suggestion.jobId;
+          let longitude = suggestion.longitude;
+          let address = suggestion.address;
+          let status = suggestion.status;
+          let description = suggestion.description;
+          let images = suggestion.images.split(',');
+
+          // Update job card HTML
+          jobCard.innerHTML = createJobCardHTML(images, address, status, description);
+          // $(".owl-carousel").owlCarousel("refresh");
+
+          // Refresh and initialize map slider
+          mapSlider();
+
+          // Clear suggestions and search job input field
+          suggestionsList.innerHTML = "";
+          document.getElementById("search-job").value = '';
+
+          // Create new Google Maps LatLng object
+          let myLatlng = new google.maps.LatLng(latitude, longitude);
+          map = new google.maps.Map(document.getElementById("map"), {
+            center: myLatlng,
+            zoom: 10,
+          });
+
+          // Create marker with custom icon
+          let marker = new google.maps.Marker({
+            position: myLatlng,
+            map: map,
+            icon: {
+              url: createMarkerIcon(images[0]),
+              scaledSize: new google.maps.Size(50, 50),
+              anchor: new google.maps.Point(25, 25)
+            }
+          });
+
+          // Create info window content
+          let content = infoWindowContent(images[0], address, description, status, jobId);
+          const infoWindow = new google.maps.InfoWindow({
+            content: content,
+          });
+
+          // Attach the InfoWindow to the marker
+          infoWindow.open(map, marker);
+
+          // Show the Marker when the InfoWindow is opened
+          google.maps.event.addListener(infoWindow, 'domready', function () {
+            marker.setMap(map);
+          });
+        };
+
+        suggestionsList.appendChild(suggestionItem);
+      });
+
+      // Show suggestions if input value meets the criteria
+      if (inputValue.length >= 2 && suggestions.length > 0) {
+        suggestionsList.style.display = "block";
+        document.getElementById("search-job-list").appendChild(suggestionsList);
+      } else {
+        suggestionsList.style.display = "none";
+      }
+    };
+  }
+
+
+  function getDate(datetime) {
+    // Create a new Date object from the given datetime string
+    const date = new Date(datetime);
+
+    // Check if the date is valid (not NaN)
+    if (isNaN(date)) {
+      // If the date is not valid, parse the datetime string manually
+      const parts = datetime.split(/[\s,]+/);
+      const month = parts[0];
+      const day = parseInt(parts[1]);
+      const year = parseInt(parts[2]);
+
+      // Return the date in the format "Month Day Year" (e.g., "Jan 1 2023")
+      return `${month} ${day} ${year}`;
+    } else {
+      // If the date is valid, format it using the toLocaleDateString method
+      // with options to get the long month name, numeric day, and numeric year (e.g., "January 1, 2023")
+      const formattedDate = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      return formattedDate;
+    }
+  }
+
+
+
+  function getSuggestionItemHtml(suggestion, locationAddMethod = null) {
+    // Generate HTML for a suggestion item with a pinned location
+    if (locationAddMethod == "pinnedLocation") {
+      const imageUrl = "{% static 'assets/img/default_job.png' %}";
+      return `
+        <div class="card rounded-3 py-2 mb-2">
+          <div class="image_block me-3 location-icon">
+            <img src="{% static 'assets/img/location-icon.svg' %}">
+          </div>
+          <div class="card_info">
+            <div class="info_block">
+                <strong class="ms-2">${suggestion.lat.toFixed(4)},${suggestion.lng.toFixed(4)}</strong>
+            </div>
+          </div>
+        </div>`
+    }
+    // Generate HTML for a suggestion item with the current location
+    else if (locationAddMethod == "currentLocation") {
+      return `
+        <div class="card rounded-3 py-2 mb-2">
+          <div class="image_block me-3 location-icon">
+            <img src="{% static 'assets/img/location-icon.svg' %}">
+          </div>
+          <div class="card_info">
+            <div class="info_block">
+                <strong class="ms-2">Your Current Location</strong>
+            </div>
+          </div>
+        </div>`
+    }
+    // Generate HTML for a job selected from job details
+    else if (locationAddMethod == "fromJobDetails") {
+      return `
+        <div class="card rounded-3 py-2 mb-2">
+          <div class="image_block me-3 location-icon">
+            <img src="{% static 'assets/img/location-icon.svg' %}">
+          </div>
+          <div class="card_info">
+            <div class="info_block">
+              <strong class="ms-2">${suggestion.address}</strong>
+            </div>
+          </div>
+        </div>`
+    } else {
+      // Generate HTML for a regular suggestion item
+      const imageUrl = suggestion.images ? suggestion.images.split(',')[0] : "{% static 'assets/img/avatars/avatar-1.png' %}";
+      const date = getDate(suggestion.created_at)
+      return `
+        <div class="card rounded-3 py-2 mb-2">
+          <div class="image_block me-3">
+            <img src="${imageUrl}">
+          </div>
+          <div class="card_info">
+            <div class="info_block">
+              <h5 id="address">
+                <img src="{% static 'assets/img/info-icon.svg' %}" alt="info-icon">
+                <strong class="ms-2">${suggestion.address}</strong>
+              </h5>
+              <p class="text-end mb-0 status_block" id="status">${suggestion.status}</p>
+            </div>
+            <p class="mb-0">${date}</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function addNewRoundGroupDiv(count, newDiv) {
+    // Check if the round group already exists
+    const existingRoundGroup = newDiv.querySelector(`.round-group[data-index="${count}"]`);
+    if (!existingRoundGroup) {
+      // Add the round group for the given count
+      newDiv.insertAdjacentHTML('beforeend', `
+      <div class="round-group" data-index="${count}">
+        <div class="round">${count}</div>
+        <div class="route_line"></div>
+      </div>
+    `);
+    }
+
+    // Add the next round group if it doesn't exist
+    const nextRoundGroup = newDiv.querySelector(`.round-group[data-index="${count + 1}"]`);
+    if (!nextRoundGroup) {
+      // Add the round group for the next count
+      newDiv.insertAdjacentHTML('beforeend', `
+      <div class="round-group" data-index="${count + 1}">
+        <div class="round">${count + 1}</div>
+        <div class="route_line"></div>
+      </div>
+    `);
+    }
+  }
+
+
+  // Calculate and display the route
+  function calculateAndDisplayRoute(locationAddMethod = null, drag = null, removeDestination = null, destinationId = null) {
+    // Display the selected job div
+    document.getElementById('selectedjob-div').style.display = 'block'
+    if (removeDestination == true) {
+      // Remove the extra selected job if there are multiple waypoints
+      if (selectedWaypoints.length > 1) {
+        const extraSelectedJob = document.getElementById(`selected_job_${selectedWaypoints.length - 1}`);
+        if (extraSelectedJob) {
+          extraSelectedJob.remove();
+        }
+      } else {
+        // Handle removing the selected job elements when only one waypoint exists
+        let selectedJob = document.getElementById('selected_job_0')
+        document.getElementById('selectedjob-div').style.display = 'none'
+        document.getElementById('direction-round-group').style.display = 'none'
+        const firstChildDiv = selectedJob.children[0];
+        const secondChildDiv = selectedJob.children[1];
+        const thirdChildDiv = selectedJob.children[2];
+
+        if (selectedWaypoints.length === 1) {
+          if (destinationId != 0) {
+            selectedJob.removeChild(thirdChildDiv);
+            selectedJob.removeChild(secondChildDiv);
+          }
+          else {
+            selectedJob.removeChild(secondChildDiv);
+            selectedJob.removeChild(firstChildDiv);
+          }
+
+        } else {
+          selectedJob.removeChild(firstChildDiv);
+        }
+      }
+    }
+
+    // Return if there are less than 2 selected waypoints
+    if (selectedWaypoints.length < 1) {
+      return;
+    }
+
+    const selectedMode = "DRIVING";
+    const firstLocationAddMethod = selectedWaypoints[0].method;
+    const start = selectedWaypoints[0];
+    const end = selectedWaypoints[selectedWaypoints.length - 1];
+    const waypts = selectedWaypoints.slice(1, -1).map(waypt => ({
+      location: waypt,
+      stopover: true,
+    }));
+
+    // Display the route on the map using DirectionsService
+    directionsRenderer.setMap(map);
+    directionsService.route({
+      origin: start,
+      destination: end,
+      waypoints: waypts,
+      optimizeWaypoints: false,
+      travelMode: google.maps.TravelMode[selectedMode],
+    }, (response, status) => {
+      if (status === "OK") {
+        directionsRenderer.setDirections(response);
+      } else {
+        window.alert("Directions request failed due to " + status);
+      }
+    });
+
+    const newDiv = document.getElementById("round-group-list-2");
+    for (let i = lastSelectedIndex; i < selectedWaypoints.length - 1; i++) {
+      const current = selectedWaypoints[i];
+      const next = selectedWaypoints[i + 1];
+      directionsService.route({
+        origin: current,
+        destination: next,
+        travelMode: google.maps.TravelMode[selectedMode],
+      }).then(response => {
+        if (!drag) {
+          // Add a new round group div for the current index
+          addNewRoundGroupDiv(i, newDiv);
+        }
+        const leg = response.routes[0].legs[0];
+        const distance = leg.distance.text;
+        const duration = leg.duration.text;
+        const routeDetails = `
+        <div class="route-details-header">
+          <p class="distance">${distance}</p>
+          <p class="duration">${duration}</p>
+        </div>
+        ${getSuggestionItemHtml(next, next.method)}
+      `;
+        const selectedJobDivId = `selected_job_${i}`;
+        const selectedJob = document.getElementById(selectedJobDivId);
+
+        if (selectedJob) {
+          if (i === 0) {
+            // Update the HTML content for the selected job
+            selectedJob.innerHTML = `${getSuggestionItemHtml(current, firstLocationAddMethod)}${routeDetails}`
+          } else {
+            selectedJob.innerHTML = routeDetails;
+          }
+        }
+        document.getElementById("direction-round-group").style.display = "block";
+      });
+    }
+  }
+
+
+  document.getElementById("back-location-btn").onclick = function () {
+    if (currentHref) {
+      window.location.href = currentHref;
+      localStorage.removeItem('currentHref');
+      currentHref = null
+    } else {
+      document.getElementById("job-list").style.display = "block";
+      document.getElementById("route-card").style.display = "none";
+      document.getElementById("location-head").style.display = "flex";
+      document.getElementById("directions-panel").style.display = "none";
+      document.getElementById("search-job-group").style.display = "flex";
+      document.getElementById("directions-panel").innerHTML = "";
+      document.getElementById("add-destination").style.display = "none";
+      document.getElementById("current-location").style.display = "none";
+      // Initialize the map and reload the location
+      initMap();
+      location.reload();
+    }
+  }
+
+  // show route card on click Get Route button
+  // document.getElementById("route").onclick = function () {
+  //   document.getElementById("route-card").style.display = "block";
+  //   document.getElementById("directions-panel").style.display = "block";
+  //   document.getElementById("location-head").style.display = "none";
+  //   document.getElementById("destination_0").value = "";
+  //   document.getElementById("add-destination").style.display = "block";
+  //   document.getElementById("current-location").style.display = "block";
+  //   document.getElementById("destination_1").value = ""
+  //   document.getElementById("job-list").style.display = "none";
+  //   document.getElementById('job-card').innerHTML = "";
+  //   document.getElementById('search-job-group').style.display = "none";
+
+  //   // Remove extra round groups from the DOM
+  //   const extraRoundGroups = document.querySelectorAll('.extra-round-group');
+  //   extraRoundGroups.forEach((div) => {
+  //     div.remove();
+  //   });
+
+  //   // Initialize the map
+  //   initMap()
+  // };
+
+  // show job details and job location on map
+  $(document).on("click", 'a[id^="job-"]', async function (e) {
+    e.preventDefault();
+
+    // Scroll to the top of the location_block element
+    $(".location_block").animate({ scrollTop: "0" }, 1000);
+
+    // Get job details from the clicked link
+    let jobId = $(this).attr("id").split('-')[1];
+    let address = $(this).attr('data-address');
+    let status = $(this).attr('data-status');
+    let latitude = parseFloat($(this).attr('data-latitude'));
+    let longitude = parseFloat($(this).attr('data-longitude'));
+    let description = $(this).attr('data-description');
+    let images = $(this).attr('data-images').split(',');
+    let jobCard = document.getElementById('job-card');
+
+    jobCard.innerHTML = createJobCardHTML(images, address, status, description);
+
+    // Clear previous markers and infowindows
+    markers = [];
+    markers.forEach(marker => marker.setMap(null));
+    infowindows = [];
+    infowindows.forEach(infoWindow => infoWindow.close());
+
+    // Create a new Google Maps Marker for the clicked job location
+    let myLatlng = { lat: latitude, lng: longitude };
+    let marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map, // Use the existing map instance
+      icon: {
+        url: images[0],
+        scaledSize: new google.maps.Size(40, 40),
+      },
+      optimized: false,
+    });
+    markers.push(marker);
+
+    let content = infoWindowContent(images[0], address, description, status, jobId);
+
+    // Create the InfoWindow
+    var infoWindow = new google.maps.InfoWindow({
+      content: content,
+    });
+    // Open the info window for the marker
+    openInfoWindowForMarker(marker, infoWindow, content, map);
+    // remember this infowindow as last clicked infowindow
+    lastClickedInfowindow = infoWindow;
+
+    // Show the Marker when the InfoWindow is opened
+    google.maps.event.addListener(infoWindow, 'domready', function () {
+      marker.setMap(map);
+    });
+    mapSlider()
+  });
+
+
+
+
+
+  function mapSlider() {
+
+    // map.setCenter(position);
+    var bigimage = $("#bigImageCarousel");
+    var thumbs = $("#thumbsImageCarousel");
+    //var totalslides = 10;
+    var syncedSecondary = true;
+    $(document).ready(function () {
+
+      bigimage
+        .owlCarousel({
+          items: 1,
+          slideSpeed: 700,
+          nav: true,
+          autoplay: true,
+          dots: false,
+          rtl: true,
+          loop: true,
+          responsiveRefreshRate: 200,
+        })
+        .on("changed.owl.carousel", syncPosition);
+      $(".owl-next").html('<img src="{%static "assets/img/left-arrow.svg" %}" class="right-arrow"/>');
+      $(".owl-prev").html('<img src="{%static "assets/img/right-arrow.svg" %}" class="left-arrow"/>');
+
+      thumbs
+        .on("initialized.owl.carousel", function () {
+          thumbs
+            .find(".owl-item")
+            .eq(0)
+            .addClass("current");
+        })
+        .owlCarousel({
+          items: 5,
+          margin: 10,
+          dots: true,
+          nav: false,
+          rtl: true,
+          smartSpeed: 200,
+          slideSpeed: 700,
+          slideBy: 4,
+          responsiveRefreshRate: 100
+        })
+        .on("changed.owl.carousel", syncPosition2);
+
+      thumbs.on("click", ".owl-item", function (e) {
+        e.preventDefault();
+        var number = $(this).index();
+        bigimage.data("owl.carousel").to(number, 300, true);
+      });
+    })
+
+    function syncPosition(el) {
+      //if loop is set to false, then you have to uncomment the next line
+      //var current = el.item.index;
+
+      //to disable loop, comment this block
+      var count = el.item.count - 1;
+      var current = Math.round(el.item.index - el.item.count / 2 - 0.5);
+
+      if (current < 0) {
+        current = count;
+      }
+      if (current > count) {
+        current = 0;
+      }
+      //to this
+      thumbs
+        .find(".owl-item")
+        .removeClass("current")
+        .eq(current)
+        .addClass("current");
+      var onscreen = thumbs.find(".owl-item.active").length - 1;
+      var start = thumbs
+        .find(".owl-item.active")
+        .first()
+        .index();
+      var end = thumbs
+        .find(".owl-item.active")
+        .last()
+        .index();
+
+      if (current > end) {
+        thumbs.data("owl.carousel").to(current, 100, true);
+      }
+      if (current < start) {
+        thumbs.data("owl.carousel").to(current - onscreen, 100, true);
+      }
+    }
+
+    function syncPosition2(el) {
+      if (syncedSecondary) {
+        var number = el.item.index;
+        bigimage.data("owl.carousel").to(number, 100, true);
+      }
+    }
+  }
+
+
+  function createJobCardHTML(images, address, status, description) {
+    let imageHTML = '';
+
+    // Generate HTML for images
+    if (images) {
+      for (let i = 0; i < images.length; i++) {
+        if (images[i]) {
+          imageHTML += `<img src="${images[i]}" alt="Image ${i}"> `;
+        }
+      }
+    } else {
+      // If no images are provided, use a default image
+      imageHTML = `<img src="{% static 'assets/img/default_job.png' %}" alt="static">`;
+    }
+
+    // Construct the job card HTML
+    return `
+    <div class="card_info p-2">
+        <div class="big_image_carousel owl-carousel owl-theme image-set" id="bigImageCarousel">
+          ${imageHTML}
+        </div>
+        <div class="thumb_image_carousel owl-carousel owl-theme mt-3" id="thumbsImageCarousel">
+          ${imageHTML}
+        </div>
+        <div class="info_block">
+          <div class="d-flex align-items-center image_info_block justify-content-between mb-3">
+            <h5 class="lh-1 m-0" id="address">${address}</h5>
+            <small class="text-end mb-0 status_block">${status}</small>
+          </div>
+          <p class="m-0 owl_image_desc">${description}</p>
+        </div>
+        <hr class="mt-4 mb-3">
+    </div>`;
+  }
+
+  function infoWindowContent(image, address, description, status, jobId) {
+    let firstImage = image || "{% static 'assets/img/default_job.png' %}";
+
+    // Return the HTML content for the info window
+    return `
+      <div class="card map_card-popup rounded-3 py-2 mb-0" data-bs-toggle="modal" onclick="get_job_detail(${parseInt(jobId)})" data-bs-target="#edit_job_modal" id="edit_job1">
+        <div class="image_block me-3">
+          <img src="${firstImage}" />
+        </div>
+        <div class="card_info">
+          <div class="info_block mb-2">
+            <h5 class="mb-0" id="address">${address}</h5>
+          </div>
+          <div class="info_block align-items-baseline">
+            <p class="mb-0">${description}</p>
+            <p class="text-end mb-0 status_block" >${status}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+
+  document.ondragstart = function (event) {
+    // Check if the dragged element is a draggable-container
+    if (event.target.classList.contains('draggable-container')) {
+      DragAndDrop(event);
+    }
+  };
+
+  function DragAndDrop(event) {
+    let activeElement = null;
+    lastSelectedIndex = 0;
+
+    // Handle drag start event
+    dragStart(event);
+
+    const destinationDiv = document.querySelector('#destination-div');
+
+    // Handle drag over event for the destination div
+    destinationDiv.ondragover = function (event) { dragOver(event) };
+
+    // Handle drop event for the destination div
+    destinationDiv.ondrop = function (event) { drop(event) };
+
+    function dragStart(event) {
+      // Store the active element and set dataTransfer properties
+      activeElement = event.target;
+      event.dataTransfer.setData('text/plain', event.target.id);
+      event.target.classList.add('dragging');
+    }
+
+    function dragOver(event) {
+      // Prevent default behavior to enable dropping
+      event.preventDefault();
+    }
+
+    function drop(event) {
+      // Prevent default behavior and handle dropping of the dragged element
+      event.preventDefault();
+      const targetId = event.target.id;
+      const draggedId = event.dataTransfer.getData('text/plain');
+      const draggedElement = document.getElementById(draggedId);
+      const targetElement = document.getElementById(targetId);
+
+      // Check if the dragged and target elements have latitude and longitude data
+      if (!draggedElement.getAttribute("data-lat") || !targetElement.getAttribute("data-lat")) {
+        return;
+      }
+
+      if (targetId === 'destination-div') {
+        // Append the dragged element to the destination div
+        destinationDiv.appendChild(draggedElement);
+      } else {
+        // Reorder the dragged element relative to the target element
+        const targetIndex = Array.prototype.indexOf.call(destinationDiv.children, targetElement);
+        const draggedIndex = Array.prototype.indexOf.call(destinationDiv.children, draggedElement);
+        if (draggedIndex < targetIndex) {
+          destinationDiv.insertBefore(draggedElement, targetElement.nextSibling);
+        } else {
+          destinationDiv.insertBefore(draggedElement, targetElement);
+        }
+      }
+
+      // Update the id and placeholser dynamically based on the new position 
+      const inputElements = destinationDiv.querySelectorAll('input[id^="destination_"]');
+      const placeholders = ["Choose starting place", "Choose destination", "Add destination"];
+      inputElements.forEach((inputElement, index) => {
+        inputElement.id = `destination_${index}`;
+        if (index === 0) {
+          inputElement.placeholder = placeholders[0];
+        } else if (index === 1) {
+          inputElement.placeholder = placeholders[1];
+        } else {
+          inputElement.placeholder = placeholders[2];
+        }
+      });
+
+
+      // Remove the dragging class from the dragged element
+      draggedElement.classList.remove('dragging');
+
+      // Update the selectedWaypoints array based on the updated input elements
+      selectedWaypoints = [];
+      inputElements.forEach((inputElement) => {
+        const latitude = inputElement.getAttribute("data-lat");
+        const longitude = inputElement.getAttribute("data-lng");
+        if (latitude !== null && longitude !== null) {
+          const method = inputElement.getAttribute("data-method");
+          let attributes = {
+            lat: parseFloat(latitude),
+            lng: parseFloat(longitude),
+            method: method
+          };
+          if (method == "jobLocation") {
+            attributes.address = inputElement.getAttribute("data-address");
+            attributes.status = inputElement.getAttribute("data-status");
+            attributes.images = inputElement.getAttribute("data-images");
+            attributes.created_at = inputElement.getAttribute("data-created_at");
+          }
+          if (method == "fromJobDetails") {
+            attributes.address = inputElement.getAttribute("data-address");
+          }
+          selectedWaypoints.push(attributes);
+        }
+      });
+
+      // Reinitialize the directions service, renderer, and map
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer();
+
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 15,
+        center: { lat: Number(selectedWaypoints[0].lat), lng: Number(selectedWaypoints[0].lng) },
+      });
+
+      let locations = [];
+      var bounds = new google.maps.LatLngBounds();
+      selectedWaypoints.forEach((selectedWaypoint) => {
+        locations.push({ lat: Number(selectedWaypoint.lat), lng: Number(selectedWaypoint.lng) });
+      });
+      for (var i = 0; i < locations.length; i++) {
+        bounds.extend(locations[i]);
+      }
+      map.fitBounds(bounds);
+
+      // Calculate and display the route
+      calculateAndDisplayRoute(null, "true");
+
+      // Handle click event on the map
+      map.addListener('click', function (event) {
+        addPinnedLocation(event, geocoder, selectedInput);
+      });
+    }
+  }
+
+</script>
+{% endblock %}

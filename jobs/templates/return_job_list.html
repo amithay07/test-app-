@@ -1,0 +1,215 @@
+{% load static i18n %}
+{% load myfilters static i18n %}
+<style>
+  .card {
+    border: none;
+    box-shadow: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .card .card_info {
+      flex: 1;
+  }
+
+  .card label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+  }
+
+  .card .info_block {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .card .info_block .status_block{
+    background: #EEF8FD;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    color: #5AADDE;
+  }
+
+  .card .info_block .content{
+    flex: 1;
+    text-align: right;
+  }
+
+  .card .image_block img {
+      border-radius: 7px;
+      width: 94px;
+      height: 94px;
+  }
+
+  .card .image_block{
+    margin-left: 12px;
+  }
+
+  .card input[type="radio"]{
+    margin-left: 16px !important;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    padding: 0 !important;
+    accent-color: #19253b;
+  }
+
+  .span_black {
+    color: #32425E;
+  }
+
+  .info_block .content h5 {
+    display: inline-flex;
+    align-items: baseline;
+  }
+
+  .info_block .content p {
+    font-weight: 400;
+    font-size: 10px;
+    line-height: 15px;
+    color: #32425E;
+  }
+
+  .info_block .content small {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    color: #455269;
+  }
+  .info_block .content h5 span {
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 33px;
+    color: #19253B;
+    display: -webkit-box;
+    max-width: 190px;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-list{
+    max-height: 520px;
+    overflow: auto;
+  }
+
+</style>
+<div class="modal-content">
+  <form id="return_joblistform_id" action="" method="POST">
+    {% csrf_token %}
+    <div class="modal-header justify-content-between">
+      <h4 id="exampleModalToggleLabel" class="offcanvas-title">{% trans 'Job list' %}</h4>
+      <button type="button" class="transfer_popup_close text-reset" data-bs-dismiss="modal" aria-label="Close"
+      style="background-color: transparent; color: #000000; border: none;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25 7L7 25"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body text-center transfer_job_modal_body overflow-auto px-0">
+
+      <div class="card-list p-30 py-0">
+        <div class="form-group mb-3 p-0 search-group ps-3">
+          <svg width="23" height="22" viewBox="0 0 23 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.9648 17.1875C14.9516 17.1875 18.1836 13.9556 18.1836 9.96875C18.1836 5.98194 14.9516 2.75 10.9648 2.75C6.97804 2.75 3.74609 5.98194 3.74609 9.96875C3.74609 13.9556 6.97804 17.1875 10.9648 17.1875Z" stroke="#455269" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16.0695 15.0732L20.2461 19.2498" stroke="#455269" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>          
+          <input autocomplete="off" id="jobs_search_id" placeholder="{% trans 'Search' %}" class="form-control" name="job_search_box" />
+        </div>
+
+        <div id="duplicateReturnJobList">
+          {% for job in duplicate_job_list %}
+          {% if job_obj.job.id != job.job.id %}
+            <div class="card rounded-3 group_list py-2 mb-2 duplicate_job_group" group="{{job.group_id}}">
+              <input type="radio" id="duplicate-job-{{ job.id }}" name="job" value="{{ job.id }}" />
+              <label for="duplicate-job-{{ job.id }}">
+                <div class="image_block">
+                  {% with job_image=job.job|get_first_image  %}  
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" 
+                    data-lazysrc="{% if job_image %}{{ job_image }}{% else %}{% static 'assets/img/default_job.png' %}{% endif %}" />
+                  {% endwith %}
+                </div>
+                <div class="card_info">
+                  <div class="info_block">
+                    <div class="content">
+                      <h5 id="address" class="mb-0" class="one-line-elipsis">
+                        {% if job.job.priority == True %}
+                          <img src="{% static 'assets/img/info-icon.svg' %}" alt="info-icon">
+                        {% endif %}
+                        <span class="ms-2" id="job_address">{{job.job.address}}</span>
+                        <span class="ms-2" id="job_id" style="display: none;">{{job.job.id}}</span>
+                      </h5>
+                      <p class="mb-0">{{job.job.created_at}}</p>
+                      <small>{{ job.job.address_information|truncatechars:40 }}</small>
+                    </div>
+                    <p class="text-end mb-0 status_block" id="status">{{ job.status }}</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    
+      <div class="text-center" id="return_list_error"></div>
+    </div>
+  
+    <div class="modal-footer">
+      <div class="row flex-1 justify-content-center m-0">
+        <div class="col-md-6">
+          <button type="submit" class="btn btn-primary btn-active" id="return_joblist_btn_id">{% trans 'Done' %}</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+<script>
+  $(document).ready(function () {
+     $("#jobs_search_id").on("keyup", function () {
+      var filter = $(this).val();
+      
+      if(filter.length===0){
+        $(".no-data-found").remove()
+      }
+
+       $(".group_list").each(function () {
+         if ($(this).find("#job_address, #job_id").text().search(new RegExp(filter, "i")) < 0) {
+          $(this).hide();
+        } else {
+          $(this).show();
+        }
+      });
+
+      var length_of_list = $(".group_list").children(':visible').length
+      if(length_of_list!=0){
+        $(".no-data-found").remove()
+      }
+
+      const hasClass = $("#duplicateReturnJobList").children().last().attr("class")
+      if(length_of_list === 0 && hasClass!="no-data-found"){
+        $("#duplicateReturnJobList").append(`
+          <div class="no-data-found"> 
+          <img src="{% static 'assets/img/no-data-found.svg' %}" alt="no-data-found.svg">
+          </div>
+        `)
+      }
+    })
+  })
+</script>
+
+
+
+
+
+  

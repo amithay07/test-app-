@@ -1,0 +1,164 @@
+{% load static i18n %}
+{% load myfilters static i18n %}
+<style>
+  .card {
+    border: none;
+    box-shadow: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .card .card_info {
+      flex: 1;
+  }
+
+  .card label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+  }
+
+  .card .info_block {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .card .info_block .status_block{
+    background: #EEF8FD;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    color: #5AADDE;
+  }
+
+  .card .info_block .content{
+    flex: 1;
+    text-align: right;
+  }
+
+  .card .image_block img {
+      border-radius: 7px;
+      width: 94px;
+      height: 94px;
+  }
+
+  .card .image_block{
+    margin-left: 12px;
+  }
+
+  .card input[type="radio"]{
+    margin-left: 16px !important;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    padding: 0 !important;
+    accent-color: #19253b;
+  }
+
+  .span_black {
+    color: #32425E;
+  }
+
+  .info_block .content h5 {
+    display: inline-flex;
+    align-items: baseline;
+  }
+
+  .info_block .content p {
+    font-weight: 400;
+    font-size: 10px;
+    line-height: 15px;
+    color: #32425E;
+  }
+
+  .info_block .content small {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    color: #455269;
+  }
+  .info_block .content h5 span {
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 33px;
+    color: #19253B;
+    display: -webkit-box;
+    max-width: 190px;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-list{
+    max-height: 520px;
+    overflow: auto;
+  }
+
+  #prority_img {
+    width: -28px;
+    height: 25px;
+  }
+</style>
+<div class="modal-content">
+  
+    <div class="modal-header justify-content-between">
+      <h4 id="exampleModalToggleLabel" class="offcanvas-title">{% trans 'Job list' %}</h4>
+      <button type="button" class="btn_popup_close text-reset" data-bs-dismiss="modal" aria-label="Close"
+        style="background-color: transparent; color: #000000; border: none;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25 7L7 25"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body text-center dashboard_job_modal_body overflow-auto px-0">
+
+      <div class="card-list p-30 py-0" id="search_input_id" status="">
+        <div class="form-group mb-3 p-0 search-group ps-3">
+          <svg width="23" height="22" viewBox="0 0 23 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.9648 17.1875C14.9516 17.1875 18.1836 13.9556 18.1836 9.96875C18.1836 5.98194 14.9516 2.75 10.9648 2.75C6.97804 2.75 3.74609 5.98194 3.74609 9.96875C3.74609 13.9556 6.97804 17.1875 10.9648 17.1875Z" stroke="#455269" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16.0695 15.0732L20.2461 19.2498" stroke="#455269" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>          
+          <input autocomplete="off" id="jobs_search" placeholder="{% trans 'Search' %}" class="form-control" name="job_search_box" />
+        </div>
+
+      </div>
+      <div class="card-list" id="popup_job_list">
+      </div>
+      
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+  $(document).ready(function () {
+     $("#jobs_search").on("keyup", function () {
+      var filter = $(this).val();
+      $(".no-data-found").remove()
+      $(".group_list").each(function () {
+        if ($(this).find("#popup_job_address").text().search(new RegExp(filter, "i")) < 0) {
+          $(this).hide();
+        } else {
+          $(this).show();
+        }
+      });
+      var length_of_list = $(".group_list").children(':visible').length
+      const hasClass = $("#popup_jobs").children().last().attr("class")
+      
+      if(length_of_list === 0 && hasClass!="no-data-found"){
+        $("#popup_jobs").append(`
+          <div class="no-data-found"> 
+          <img src="{% static 'assets/img/no-data-found.svg' %}" alt="no-data-found.svg">
+          </div>
+        `)
+      }
+    })
+  })
+
+</script>  

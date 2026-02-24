@@ -1,0 +1,625 @@
+{% load static i18n %}
+{% load myfilters static i18n %}
+<style>
+  .add_image {
+    background-color: #5AADDE;
+    color: white;
+    cursor: pointer;
+    padding: 0px 15px;
+    border-radius: 50%;
+    position: absolute;
+    top: 80%;
+    left: 9%;
+    border: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+  }
+ 
+  .image {
+    position: relative;
+    width: 100%;
+  }
+
+  .add_image_btn{
+    position: absolute;
+    bottom: 66px;
+    left: -20px;
+    z-index: 1;
+  }
+
+  .bill_table{
+    width: 100%;
+  }
+  
+  .bill_table tr td,.bill_table tr th{
+    padding: 6px 0; 
+    font-size: 14px;
+    line-height: 18px;
+    color: #32425E;
+  }
+
+  .bill_table tr td:first-child,.bill_table tr th:first-child{
+    width: 54px;
+    text-align: right;
+  }
+  
+  .bill_table tr td:nth-child(2),.bill_table tr th:nth-child(2){
+    width: 200px;
+    text-align: right;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .bill_table tr td:nth-child(3),.bill_table tr th:nth-child(3){
+    width: 24px;
+    text-align: center;
+    padding-left: 0px;
+    padding-right: 5px;
+  }
+
+  .bill_table tr td:nth-child(4),.bill_table tr th:nth-child(4){
+    width: 36px;
+    text-align: center;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .bill_table tr td:nth-child(5),.bill_table tr th:nth-child(5){
+    width: 24px;
+    text-align: center;
+    padding-left: 26px;
+    padding-right: 0px;
+  }
+
+  .bill_table tr td:nth-child(6),.bill_table tr th:nth-child(6){
+    text-align: right;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  #close_inputfile-docs {
+    border: 2px dashed #ccc;
+    border-radius: 7px;
+    font-family: sans-serif;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  
+  #close_inputfile {
+    display: none;
+  }
+</style>
+
+<form class="close-job pt-0 fv-plugins-bootstrap5 fv-plugins-framework" id="close_jobform_id" action="" method="POST">
+  {% csrf_token %}
+  <div class="modal-header justifyn">
+    <h4 id="close_jobform_label" class="modal-title">{% trans 'Close Job' %}</h4>
+    <button type="reset" class="btn_close text-reset" data-bs-dismiss="modal" aria-label="Close">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M25 7L7 25"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+  </div>
+  <div class="modal-body text-center add-job-model edit-form">
+    
+    <div class="mb-3 form-group p-0">
+      <label class="form-label" for="job_id">{% trans 'Job ID' %}</label>
+      <input autocomplete="off" type="text" class="form-control" id="job_id" name="id" maxlength="10" required value="{{job_obj.job.job_id}}"/>
+    </div>
+    
+    <div class="mb-3 form-group p-0" hidden>
+      <label class="form-label" for="close_job_latitude">{% trans 'Latitude' %}</label>
+      <input autocomplete="off" type="text" class="form-control" id="close_job_latitude" name="latitude" maxlength="10" required value="{{ job_obj.job.latitude }}"/>
+    </div>
+
+    <div class="mb-3 form-group p-0" hidden>
+      <label class="form-label" for="close_job_longitude">{% trans 'Longitude' %}</label>
+      <input autocomplete="off" type="text" class="form-control" id="close_job_longitude" name="longitude" maxlength="10" required value="{{ job_obj.job.longitude }}"/>
+    </div>
+
+    <div class="mb-3 form-group p-0">
+      <label class="form-label" for="close_job_address_id">{% trans 'Address' %}</label>
+      <input autocomplete="off" type="text" id="close_job_address_id" class="form-control" name="address" required  value="{{ job_obj.job.address }}"/>
+    </div>
+
+    <div class="mb-3 form-group p-0">
+      <label class="form-label" for="close_job_address_info_id">{% trans 'Address Information' %}</label>
+      <input autocomplete="off" type="text" id="close_job_address_info_id" class="form-control" name="address_information" required  value="{{ job_obj.job.address_information }}"/>
+    </div>
+
+    <div class="mb-3 form-group p-0">
+      <label class="form-label" for="close_job_description_info_id">{% trans 'Description' %}</label>
+      <input autocomplete="off" type="text" id="close_job_description_info_id" class="form-control" name="description" required  value="{{ job_obj.job.description }}"/>
+    </div>
+
+    <div class="mb-3 form-group p-0 position-relative">
+      {% if job_obj.job.job_image.first.image %}
+        <div class="image-slider owl-carousel owl-theme" id="close_image_carousel">
+          {% for image in job_obj.job.job_image.all %}
+
+            {% if image.image.url|check_extension == "Image" %}
+              <div class="item">
+                <button class="owl_image_remove close-icon" type="button" 
+                  onclick="close_doc_remove('{{image.id}}', 'close_image_carousel')">
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" 
+                data-lazysrc="{{image.image.url}}"/>
+              </div>
+            {% elif image.image.url|check_extension == "Video" %}
+              <div class="item">
+                <button class="owl_image_remove close-icon" type="button" 
+                  onclick="close_doc_remove('{{image.id}}', 'close_image_carousel')">
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <video class="d-block w-100" type="video/*" controls>
+                  <source src="{{image.image.url}}">
+                </video>
+              </div>
+            {% endif %}
+              
+          {% endfor %}
+        </div>  
+      {% else %}
+          <div class="image-slider owl-carousel owl-theme" id="default_image_carousel">
+            <img src="{% static 'assets/img/default_job.png' %}"/>
+          </div>
+          <div class="image-slider owl-carousel owl-theme" id="close_image_carousel" hidden>
+          </div>  
+        {% endif %}
+    </div>
+
+    <div class="mb-0 form-group mb-3 p-0" id="create_docs" hidden>
+      <label class="form-label" for="">{% trans 'Attachment' %}</label>
+      <div class="row gx-3 px-2" id="close_docs_attachement">
+      </div>
+    </div>
+
+    <div id="close_inputfile-docs">
+      <input type="file" id="close_inputfile" multiple
+      accept=".jpg, .jpeg, .png, .mp4, .mkv, .m4a, .mov, .wmv, .avi, .avchd, .flv, .f4v, .swf, .webm, .mpeg-2, .html5, .doc, .docx, .html, .htm, .odt, .pdf, .xls, .xlsx, .ods, .ppt, .pptx, .txt, .msword, .csv, .mp3"/>
+      <label class="button" for="close_inputfile" style="background-color: #eef8fd;">
+        <h6 class="d-flex align-items-center justify-content-center p-4 mb-0 cursor-pointer">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11 19.25C15.5563 19.25 19.25 15.5563 19.25 11C19.25 6.44365 15.5563 2.75 11 2.75C6.44365 2.75 2.75 6.44365 2.75 11C2.75 15.5563 6.44365 19.25 11 19.25Z"
+              stroke="#32425E" stroke-width="1.5" stroke-miterlimit="10" />
+            <path d="M7.5625 11H14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M11 7.5625V14.4375" stroke="#32425E" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          <span class="ms-2">{% trans 'Add images and attachments' %} </span>
+        </h6>
+      </label>
+    </div>
+
+    <div class="mb-3 form-group p-0">
+      <label class="form-label" for="job_further_insp_id">{% trans 'Forms' %}</label>
+      <div class="p-2">
+        
+        <!-- Close job popup table -->
+        {% if not close_job_bill %}
+          <table class="table bill_table" id="bill_table">
+            <thead>
+              <tr>
+                <th>{% trans 'Sr. No' %}</th>
+                <th>{% trans 'Name' %}</th>
+                <th></th>
+                <th>{% trans 'QTY' %}</th>
+                <th></th>
+                <th>{% trans 'Unit' %}</th>
+              </tr>
+            </thead>
+            <tbody id="id_tbody">
+              {% for bills in job_obj.group.form.first.bill.all %}
+              {% if bills.type == "Material" %}
+              <tr class="default_bills" id="bill_{{bills.id}}" bill_id="{{bills.id}}">
+                <td id="serial_no"></td>
+                <td content="True" key="bill_name">{{bills.name}}</td>
+                <td>
+                  <button type="button" class="btn btn-primary p-0 my-2 subtraction" style="font-size: 30px;width: 24px;height: 24px;display: flex;vertical-align: middle;align-items: center;justify-content: center;background: #EEF8FD;color: #5AADDE;" data-id="{{bills.id}}" data-value="{{bills.jumping_ration}}" id="subtraction-{{bills.id}}" bill_type="{{bills.type}}">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentcolor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.125 10H16.875" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>                      
+                  </button>
+                  </td>
+                {% if not bills.measurement %}
+                  <td content="True" key="measurement" style="width:120px;">
+                    <input autocomplete="off" onkeyup="added_bill_measurement('jumping_ration-{{bills.id}}')" type="number" 
+                    id="jumping_ration-{{bills.id}}"  value="0"
+                    style="font-size: 14px;"
+                    class="bill_measurement_input"
+                    onclick="removeDefaultZero(this)">
+                  </td>
+                {% else %}
+                  <td content="True" key="measurement" style="width:120px;">
+                    <input autocomplete="off" onkeyup="added_bill_measurement('jumping_ration-{{bills.id}}')" type="number" 
+                    id="jumping_ration-{{bills.id}}"  value="{{bills.measurement}}"
+                    style="font-size: 14px;"
+                    class="bill_measurement_input"
+                    onclick="removeDefaultZero(this)">
+                  </td>
+                {% endif %}
+                <td>
+                  <button type="button" class="btn btn-primary p-0 my-2 addition" style="font-size: 20px;width: 24px;height: 24px;display: flex;align-items: center;justify-content: center;" data-id="{{bills.id}}" data-value="{{bills.jumping_ration}}" id="addition-{{bills.id}}" bill_type="{{bills.type}}">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentcolor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.125 10H16.875" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M10 3.125V16.875" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </td>
+                <td class="type_counting_{{bills.id}}" content="True" key="type_counting">{{bills.type_counting}}</td>
+                <td class="type_counting_${close_job_bill.jumping_ration}" style="display:none;" content="True" key="jumping_ration">{{bills.jumping_ration}}</td>
+                <td class="type_counting_${close_job_bill.type}" style="display:none;" content="True" key="type">{{bills.type}}</td>
+                <td class="type_counting_{{job_obj.id}}" style="display:none;" content="True" key="job_id">{{job_obj.id}}</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>  
+        {% endif %}  
+
+        <!-- Close job popup table for partial job -->
+        {% if close_job_bill %}
+          <table class="table bill_table" id="bill_table">
+            <thead>
+              <tr>
+                <th>{% trans 'Sr. No' %}</th>
+                <th>{% trans 'Name' %}</th>
+                <th></th>
+                <th>{% trans 'QTY' %}</th>
+                <th></th>
+                <th>{% trans 'Unit' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for bills in close_job_bill %}
+              <tr class="default_bills" id="bill_{{bills.id}}" bill_id="{{bills.id}}">
+                <td id="serial_no"></td>
+                <td content="True" key="bill_name">
+                  <div class="bill-block d-flex flex-row bd-highlight align-items-center">
+                    {% if bills.type == "Sign" %}
+                    <img class="me-2"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdgAAAEDCAYAAACWIBV1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAnLSURBVHgB7d0/bF3VAcfxkzZ/reCgWFVASaQi4Q4dyNAhHtqqWbN2pWvHssLUlZWVtaxZ09GVGJpIZcASrYQrQMKIUGqTOME2Tkzq85obkuA/99nv9+zc+/lIT1aen/WeY733vef+OefI0trGwwIAjNRPCgAwcgILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAFHC/TI/OJaufH5vfLvpe/K4uqDQt6FyePl/OSxMnPhdJmeOlmgL44srW08LNBxK/e/L3/9+HaZ/exu4eBceeWF8vtfni3QBwJLL7z7j/+Uua9WCwevjmLfmDlXoOscg6XzZj9ZFtdDpO6mn/10uUDXCSydZ7fw4XN9/k6BrhNYOq2OlpaczHTorG4eE69/G+gyZxHTadvFdWriaPnTZccB02pI35tbLAvL6z/6ng0fuk5g6aVXz54YRJa8eonOVoGFrrOLGAACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAgQWAAIEFgACBBYAAqzXBR22cv/7wbqrdV3W85PHy8Qx29QwLgILHbS48qBcn79d5m6tltUH3z++f/rsyfL6pSlr4cIY2JyFjlm4s17efv/LcnPh26fiWs0vrZU/z35RbizcK0CWwEKH1JHrux98/aOwPuu9DxfL/OJaAXIEFjpk7tbK4JhrG9fn7xQgR2ChQ+pu4bbqCHa3kS6wdwILHTJsMFfWBRZSBBZ6bOK4jwBI8e6CDnl16kTrx9ZLdU4d9REAKd5d0CEzF063fuzV6TMFyBFY6JDpqZPl6i/OtHrc5SFiDAzPdC4wQnVqwpuf3ysLy+tlaXVjcN/5M8fKpXMTg6iNw9XpFwdfZz+5u+VJT1demWwVYWB/BBZG5MNbK4MJHLaaPelvn94tZ08dLW/MnBvLNIU1snV3cb0UZ2H5/mb4N8rFyePl8sXTjrvCmAgsjMD1j2/vOnFDnQDinRtfjS2yNeh1N/DlAhwEm7KwT23i2mgiW6c0BLpNYGEfholro4lsPU4LdJfAwh7tJa4NkYXuE1jYg93iWhc2/8OlqR3P1q2LoIssdJfAwpDaxLWeyFRPMKpn84os9JPAwhDaxvX85PHH94ks9JPAQku7xbVeevPmb15+Kq4NkYX+EVhooU1c68i1Xnu6nTaRffv9L8uNhXsFeP4JLOxiFHFt7BbZqs4GJbLw/DOTE+zg2kdLZfazu9t+f5i4Nmpk6+NrSLfTfG8mPCF/M3fy3Fcrg7mT67/r73R+8tjgdY5jxinoKu8e2MZuI8m9xLXRhPMgI7twZ728+8HXg2tyn7p/8zhwvd1c+LbViBvYmsDCFpJxbRxkZGtc60lVW62286Tr87cHX0UWhucYLDxjHHFt1HC+fmmq7PZ6Zj9dLqNSV9hpE9dGjez1j/c2YxX0mREsPGGccW20Gcle++c3ZfX+w32PJG9sHm99b25x6J+rka27knfbGAB+YAQLjxxEXBs1sn/81c92XKt1vyPJvcb18c9v/t/stBEAPE1g6b165uw7f791YHFtvPbSxOA5EpFtE9c6On3z1y/veOawyEJ7AkuvrTyaQWl+6bttHzOOuDYunDk+8si2jWsdRTfPL7KwfwJLbzVx/WKH6QlrcOr0h+OI65PPOarIDhPXRv1dRRb2T2DppXoGbZu47ha6lFFEdvaT5aHj2mgb2WHORoa+EVh6ae7W6qGN6zCvYbvI1ukdr/3rm7KT7eLaaBPZYS/5gT4RWHjGYYjrk6/lrd/ufOLRs5Fts6TeW5u7vdtMXtFE9sIWKwQ12k5aAX0jsPCEwxTXRpuRZI3sXz787+A27Hq1bZ9fZGE4AguPTE+dPHRxbbSJbJ07uN62s5e4Nk49+lmRhfYEFjbNXDx9aOPaaBPZ7ewnro1hIru48qBA3wksvVfj+vprz8cUgHuJ7Cji2hBZaE9g6bXnKa6NYSLbTJIxirg2mshOT53Y9jF13mKRpe8Elt56HuPaaCK705nAzTHlUca18f/IvrTj8zeRfXa9WegLq+nQSzU+z2tcGzWy9VrWusLO3K2Vsri6UVbub5SLm0GtUa2/Y1qzus528zjXuAosfSWw9NLZUz8tXVFD+7tXJstB2S2y0Fd2EQP7ttusUNBHAguMhMjC0wQWGJnmmDAgsMCIXZ1+UWShCCwQILIgsECIyNJ3AgvE1Mi+dm6iQB8JLBB16tiRAn0ksAAQILAAECCwABAgsAAQILAAEGA1HXrpi7v3y8Lyejl11DZm2vzidwX6SGDptLqU21YW7qyXt9//snBwtvvbQFfYfKfT6qLjRqmHz9TE0bEsCA8HyScPnWe6vsPnIBeIh3ERWDrvyuaH+fTUicLhcOncRLny8xcKdN2RpbWNhwV64NpH35TZz5YLB6du7NQ9Cnbb0wcCS6/ML66VmwvfDs4grjfy6vHWV8+eKDMXTjvuSq8ILAAE2E8DAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwABAgsAAQILAAECCwAB/wOE4TPEWphaUAAAAABJRU5ErkJggg==" 
+                      data-lazysrc="{% if bills.image %}{{bills.image.url}}{% else %}{% static 'assets/img/bill.svg' %}{% endif %}" style="width: 30px;height: 30px;border-radius:7px;" />
+                    {% endif %}
+                    <div>{{bills.name}}</div>
+                  </div>
+                </div>
+                </td>
+                <td>
+                  <button type="button" class="btn btn-primary p-0 my-2 partial_job_subtraction" style="font-size: 30px;width: 24px;height: 24px;display: flex;vertical-align: middle;align-items: center;justify-content: center;background: #EEF8FD;color: #5AADDE;" data-id="{{bills.id}}" data-value="{{bills.jumping_ration}}" id="subtraction-{{bills.id}}" bill_type="{{bills.type}}">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentcolor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.125 10H16.875" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                  </button>
+                </td>
+                {% if not bills.measurement %}
+                <td content="True" key="measurement" style="width:120px;">
+                  <input autocomplete="off" onkeyup="added_bill_measurement('partial_job_jumping_ration-{{bills.id}}')" type="number"
+                  id="partial_job_jumping_ration-{{bills.id}}" content="True" value="0"
+                  style="font-size: 14px;"
+                  class="bill_measurement_input"
+                  onclick="removeDefaultZero(this)">
+                </td>
+                {% else %}
+                <td content="True" key="measurement" style="width:120px;">
+                  <input autocomplete="off" onkeyup="added_bill_measurement('partial_job_jumping_ration-{{bills.id}}')" type="number"
+                  id="partial_job_jumping_ration-{{bills.id}}" content="True" value="{{bills.measurement}}"
+                  style="font-size: 14px;"
+                  class="bill_measurement_input"
+                  onclick="removeDefaultZero(this)">
+                </td>
+                {% endif %}
+                <td style="padding-left:10px;">
+                  <button type="button" class="btn btn-primary p-0 my-2 partial_job_addition" style="font-size: 20px;width: 24px;height: 24px;display: flex;align-items: center;justify-content: center;" data-id="{{bills.id}}" data-value="{{bills.jumping_ration}}" id="addition-{{bills.id}}" bill_type="{{bills.type}}">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentcolor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.125 10H16.875" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M10 3.125V16.875" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </td>
+                <td class="type_countingx_{{bills.id}}" content="True" key="type_counting">{{bills.type_counting}}</td>
+                <td class="jumping_ration_${close_job_bill.jumping_ration}" style="display:none;" content="True" key="jumping_ration">{{bills.jumping_ration}}</td>
+                <td class="type_${close_job_bill.type}" style="display:none;" content="True" key="type">{{bills.type}}</td>
+                <td class="job_id_{{job_obj.id}}" style="display:none;" content="True" key="job_id">{{job_obj.id}}</td>
+                <td content="True" key="close_bill_id" style="display:none;">{{bills.id}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table> 
+        {% endif %}
+
+        <div class="d-grid gap-2">
+          {% if True in is_sign %}
+          <button class="dt-button add-new btn btn-primary close_job_sign_bill" aria-controls="DataTables_Table_0" type="button" data-bs-toggle="modal" data-bs-target="#close_job_sign_bill" id="add_sign_bills" style="background-color: rgb(238, 248, 253); color: #5aadde;">
+            <i class="bx bx-plus-circle"></i>
+            <span class="d-inline-block" style="font-weight: 400;font-size: 14px;line-height: 18px;">{% trans 'Add Sign Bills' %}</span>
+          </button>
+          {% endif %}
+
+          <button class="dt-button add-new btn btn-primary close_job_material_bill" aria-controls="DataTables_Table_0" type="button" data-bs-toggle="modal" data-bs-target="#close_job_material_bill" id="add_material_bills" style="background-color: rgb(238, 248, 253); color: #5aadde;">
+            <i class="bx bx-plus-circle"></i>
+            <span class="d-inline-block" style="font-weight: 400;font-size: 14px;line-height: 18px;">{% trans 'Add Material Bills' %}</span>
+          </button>
+
+          <button class="dt-button add-new btn btn-primary close_job_form" aria-controls="DataTables_Table_0" type="button" data-bs-toggle="modal" data-bs-target="#close_job_form" id="add_forms" style="background-color: #5aadde; color: rgb(255, 255, 255);">
+            <i class="bx bx-plus-circle"></i>
+            <span class="d-inline-block" style="font-weight: 400;font-size: 14px;line-height: 18px;">{% trans 'Add Forms' %}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+     
+    <div class="mb-3 form-group p-0">
+      <label class="form-label" for="close_notes_id">{% trans 'Notes' %}</label>
+      
+      {% if job_obj.job.notes == None %}
+        <textarea name="notes" class="form-control border-0" id="close_notes_id" cols="30" rows="2" placeholder="{% trans 'Add notes here' %}" required></textarea>
+        {% else %}
+        <textarea name="notes" class="form-control border-0" id="close_notes_id" cols="30" rows="2" placeholder="{% trans 'Add notes here' %}" required>{{job_obj.job.notes}}</textarea>
+      {% endif %}
+        
+    </div>
+    
+    <div class="check-select2 mb-0 form-group group_list">
+      <div class="further_billing align-items-center">
+        <label class="form-check-label" for="further_billing_id">{% trans 'Further Billing ' %}</label>
+        <div class="gray-round-checkbox">  
+          <input type="checkbox" id="further_billing_id"  name="further_billing" class="round-input" {% if job_obj.job.further_billing %}checked{% endif %}/>
+          <label for="further_billing_id" class="round-label"></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3 form-group p-0" hidden>
+      <input autocomplete="off" type="text" class="form-control" id="close_delete_image" name="image_delete" maxlength="10"/>
+    </div>
+  
+    <div class="mb-3 form-group p-0" hidden>
+      <input autocomplete="off" type="text" class="form-control" id="close_delete_docs" name="docs_delete" maxlength="10"/>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <div class="row flex-1 m-0 justify-content-center">
+      <div class="col-md-8">
+        <button type="button" class="btn btn-primary btn-active data-submit w-100" id="change_job_status">{% trans 'Change job status' %}</button>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+
+  let dropArea3 = document.getElementById("close_inputfile-docs");
+  
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea3.addEventListener(eventName, preventDefaults, false)   
+      document.body.addEventListener(eventName, preventDefaults, false)
+    });
+  
+    function preventDefaults (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  
+    // Highlight drop area when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea3.addEventListener(eventName, function highlight(e) {
+        dropArea3.classList.add('highlight')
+      }, false)
+    });
+  
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea3.addEventListener(eventName, function unhighlight(e) {
+        dropArea3.classList.remove('active')
+      }, false)
+    });
+  
+    // Handle dropped files
+    dropArea3.addEventListener('drop', handleDrop, false);
+  
+    function handleDrop(e) {
+      var dt = e.dataTransfer
+      var files = dt.files
+      var input = $('#close_inputfile');
+      input.files = files;
+  
+      var on_change_id = $("#close_inputfile").attr("id");
+      var dataTransfer = new DataTransfer();
+      var files_array = Array.from(files);
+  
+      files_array.forEach(function(file) {
+        dataTransfer.items.add(file);
+      });
+  
+      close_media_carousel(dataTransfer.files)
+      var newInput = document.createElement("input");
+      newInput.type = "file";
+      newInput.name = "attachment";
+      newInput.classList.add(`close_image_carousel_job_media_files`);
+      newInput.multiple = true;
+      newInput.files = dataTransfer.files;
+      newInput.hidden = true
+      $(`#${on_change_id}-docs`).append(newInput);
+      this.value=""
+    }
+  
+  
+    function close_media_carousel(files){
+      var carousel_id = "close_image_carousel"
+      var attachment = "#close_docs_attachement"
+      if (files) {
+        for (let i = 0; i < files["length"]; i++) {
+              const uniqueId = Date.now()
+              var unique_Id = `${uniqueId}_${files[i].size}`
+              if ((files[i].type).includes('application/')||(files[i].type).includes("text/")) {
+                  $("#create_docs, #create_doc").removeAttr("hidden")
+                  $("#close_docs_attachement").append(`
+                  <div class="col-sm-6 position-relative" id="${unique_Id}">
+                    <button class="remove_docs close-icon small-icon" type="button" 
+                        onclick="doc_remove('${files[i].name}', ${files[i].size}, '${files[i].type}', '${carousel_id}', '', '${unique_Id}', '${attachment}')">
+                        <svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                          <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="document_block">
+                        <div class="document_name">${(files[i].name).split(".")[1]}</div>
+                        <div class="document_info">
+                            <p>${files[i].name}</p>
+                            <span>${(files[i].size / 1048576).toFixed(2)} MB</span>
+                        </div> 
+                    </div>
+                </div>
+                  `)
+              }
+              else{
+                  if ((files[i].type).includes('image/')){
+                    $("#close_image_carousel.owl-carousel").owlCarousel("add", (`
+                      <button class="owl_image_remove close-icon" type="button" 
+                        onclick="doc_remove('${files[i].name}', ${files[i].size}, '${files[i].type}', '${carousel_id}', 'close_image_carousel')">
+                        <svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                          <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </button>
+                      <div class="item"> <img id="create_attachment_image-${uniqueId}"></div>
+                    `));
+                  }
+                  else if((files[i].type).includes('video/')){
+                    $("#close_image_carousel.owl-carousel").owlCarousel("add", (`<div class="item"> <button class="owl_image_remove close-icon" type="button" 
+                      onclick="doc_remove('${files[i].name}', ${files[i].size}, '${files[i].type}', '${carousel_id}', 'close_image_carousel')">
+                      <svg width="32" height="32" viewBox="0 0 32 32" stroke="#000000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M25 7L7 25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      </button>
+                      <video id="create_attachment_image-${uniqueId}" type="video/*" controls></video></div>`));
+                  }
+  
+                  let reader = new FileReader();
+                  reader.onload = function (event) {
+                    var base64Data = event.target.result;
+    
+            base64Data = base64Data.replace(/^data:video\/quicktime/, 'data:video/mp4');
+                      $(`#create_attachment_image-${uniqueId}`).attr("src", base64Data);
+                  };
+                  $(".owl-carousel").owlCarousel("update");
+                  reader.readAsDataURL(files[i]);
+  
+                  if(i==0){
+                      $("#default_image_carousel").hide()
+                      $("#close_image_carousel").attr("hidden", false)
+                  }
+                  $('.owl-carousel').trigger('refresh.owl.carousel');
+              }
+          }
+      }
+    }
+  
+    function drag_drop_media(){
+      var dataTransfer = new DataTransfer();
+      var files = Array.from(this.files);
+  
+      files.forEach(function(file) {
+        dataTransfer.items.add(file);
+      });
+  
+      var newInput = document.createElement("input");
+      newInput.type = "file";
+      newInput.name = "attachment";
+      newInput.multiple = true;
+      newInput.classList.add(`close_image_carousel_job_media_files`);
+      newInput.files = dataTransfer.files;
+      newInput.hidden = true
+      $(`#close_inputfile-docs`).append(newInput);
+      this.value=""
+    }
+
+  
+  //job close subtraction
+  $(document).on("click", ".subtraction", function(){
+
+    let id = $(this).attr("data-id")
+    let bill_type = $(this).attr("bill_type")
+    let type_counting = $(`.type_count_${id}`).text()
+    let jumping_ration = parseFloat($(this).attr("data-value"))
+    let value = parseFloat($(`#jumping_ration-${id}`).attr("value"))
+
+    sub_value= subtraction(id, bill_type, type_counting, jumping_ration, value);
+    subtraction_value= sub_value <= 0 ? 0 : sub_value
+    $(`#jumping_ration-${id}`).attr("value", subtraction_value)
+    $(`#jumping_ration-${id}`).val(subtraction_value)
+  });
+
+  //job close addition
+  $(document).on("click", ".addition", function(){
+
+    let id = $(this).attr("data-id")
+    let bill_type = $(this).attr("bill_type")
+    let type_counting = $(`.type_count_${id}`).text()
+    let jumping_ration = parseFloat($(this).attr("data-value"))
+    let value = parseFloat($(`#jumping_ration-${id}`).attr("value"))
+
+    addition_value = addition(id, bill_type, type_counting, jumping_ration, value);
+    $(`#jumping_ration-${id}`).attr("value", addition_value)
+    $(`#jumping_ration-${id}`).val(addition_value)
+  });
+  
+  function removeDefaultZero(inputElement) {
+    if (inputElement.value === '0') {
+      inputElement.value = '';
+    }
+  }
+
+  function added_bill_measurement(inputId){
+    const inputElement = $(`#${inputId}`).val()
+    $(`#${inputId}`).attr("value", inputElement)
+  }
+
+  //partial job subtraction
+  $(document).on("click", ".partial_job_subtraction", function(){
+    let id = $(this).attr("data-id")
+    let bill_type = $(this).attr("bill_type")
+    let type_counting = $(`.type_counting_${id}`).text()
+    let jumping_ration = parseFloat($(this).attr("data-value"))
+    let value = parseFloat($(`#partial_job_jumping_ration-${id}`).attr("value"))
+    
+    sub_value= subtraction(id, bill_type, type_counting, jumping_ration, value);
+    subtraction_value= sub_value <= 0 ? 0 : sub_value
+    $(`#partial_job_jumping_ration-${id}`).val(subtraction_value)
+    $(`#partial_job_jumping_ration-${id}`).attr("value", subtraction_value)
+  });
+
+  //partial job addition
+  $(document).on("click", ".partial_job_addition", function(){
+    let id = $(this).attr("data-id")
+    let bill_type = $(this).attr("bill_type")
+    let type_counting = $(`.type_counting_${id}`).text()
+    let jumping_ration = parseFloat($(this).attr("data-value"))
+    let value = parseFloat($(`#partial_job_jumping_ration-${id}`).attr("value"))
+
+    addition_value = addition(id, bill_type, type_counting, jumping_ration, value);
+    $(`#partial_job_jumping_ration-${id}`).val(addition_value)
+    $(`#partial_job_jumping_ration-${id}`).attr("value", addition_value)
+  });
+
+</script>
+

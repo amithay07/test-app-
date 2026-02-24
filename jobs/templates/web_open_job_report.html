@@ -1,0 +1,218 @@
+
+{% load static i18n %}
+{% load myfilters static i18n %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 0px;
+      padding: 10px 30px;
+
+      @bottom-left {
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        margin-top: -60px;
+        font-size: 14px;
+        margin-left: 30px;
+        content: "Page " counter(page)" / " counter(pages);
+      }
+    }
+
+    @media screen,
+    print {
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+      }
+
+      tfoot {
+        page-break-after: always;
+      }
+
+      table {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border-spacing: 0;
+      }
+
+      img {
+        max-width: 100%;
+      }
+
+      th,
+      td {
+        padding: 0;
+        vertical-align: middle;
+      }
+
+      .head_table>td {
+        border-bottom: 1px solid #999999;
+      }
+
+      p {
+        margin-bottom: 0;
+        font-size: 14px;
+        line-height: 14px;
+        font-weight: 400;
+      }
+
+      .body_table p {
+        font-size: 14px;
+      }
+
+      .body_table tbody tr td {
+        vertical-align: baseline;
+      }
+
+      .product_table {
+        border: 1px solid #d4d8dd;
+        border-radius: 10px;
+        padding: 10px;
+        margin-top: 10px;
+        page-break-inside: avoid;
+      }
+      .images-section {
+        page-break-inside: avoid;
+      }
+
+      .images-section img {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body style="padding: 20px;">
+  <table class="main-table">
+      <tr class="head_table">
+        <td style="text-align:right; width:25%; padding:0;"></td>
+        <td style="width: 75%; text-align: right; padding: 10px 0;">
+          <table class="brand_table">
+            <tr>
+              <td style="width: 90%; padding: 0;">
+                <div style="margin-right: 14px;">
+                  <h4 style="margin-bottom: 10px;">משה בוצ׳ן</h4>
+                  <p style="margin-bottom: 0;">ביוב - עבודות ואחזקה בע״מ</p>
+                </div>
+              </td>
+              <td style="width: 10%; padding: 0;">
+                <img src="https://i.ibb.co/GvR3hk4/Brand.png" alt="brand" style="object-fit: contain; width:100%; height:100%">
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: left; vertical-align: top; font-size: 12px; padding: 10px 0;">
+            <p style="display: inline-block;color: #666666;color: #666666; font-size: 20px; font-weight: 600;"></p>
+        </td>
+        <td style="text-align: right; padding: 10px 0;">
+            <p style="font-size: 20px; font-weight: 600;">רשימת משימות</p>
+        </td>
+    </tr>
+  {% for record in context %}
+  <table class="table_data">
+    
+    <tr>
+      <td colspan="2" style="padding-top: 10px;">
+        <table class="product_table">
+          <tbody>
+            <tr>
+              <td colspan="2"
+                style="text-align: left; vertical-align: top; font-size: 12px; border-bottom: 1px solid #d4d8dd; padding-bottom: 10px;">
+                <div style="display: flex; gap:5px">
+                  <p>{{record.updated_at|date:"Y"}}</p>
+                  <p>{{record.updated_at|date:"M"}}</p>
+                  <p>{{record.updated_at|date:"d"}} </p>
+                </div>
+              </td>
+              <td style="text-align: right; border-bottom: 1px solid #d4d8dd; padding-bottom: 10px;">
+                <h6 style="font-weight: 400; margin-bottom: 5px; font-size: 20px; width: 100%; word-break: break-all;">
+                  {{record.address}}</h6>
+                <p style="font-size: 13px;">{{record.job_id}}</p>
+                <p style="font-size: 13px;">{{record.description}}</p>
+                <p style="font-size: 13px; width: 100%; word-break: break-all;">{{record.address_information}}</p>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2"
+                style="text-align: left; vertical-align: top; font-size: 12px; border-bottom: 1px solid #d4d8dd; padding: 10px 0;">
+                <p style="display: inline-block;color: #666666;font-size: 13px;">{{record.created_by}}
+                </p>
+              </td>
+              <td style="text-align: right; border-bottom: 1px solid #d4d8dd; padding: 10px 0;">
+                <p style="font-size: 13px;">{% trans 'Created by' %}</p>
+              </td>
+            </tr>
+            {% if record.notes %}
+            <tr style="text-align: right;">
+              <td colspan="3" style="border-top: 1px solid #d4d8dd; padding: 10px 0 0;">
+                <h6 style="font-weight: 400; margin-bottom: 5px; font-size: 13px;">{% trans 'Notes/Description' %}</h6>
+                <ul style="list-style-type: none; padding: 0;">
+                  {% for job_note in record.notes %}
+                  <li style="word-break: break-all; color: #666666; font-size: 13px;">{{ job_note.note }}</li>
+                  {% endfor %}
+                </ul>
+              </td>
+            </tr>
+            {% else %}
+            <tr style="text-align: right;">
+              <td colspan="3" style="border-top: 1px solid #d4d8dd; padding: 10px 0 0;">
+                <h6 style="font-weight: 400; margin-bottom: 5px; font-size: 13px;">{% trans 'Notes/Description' %}</h6>
+                <p style="display: inline-block; width: 100%; word-break: break-all; color: #666666; font-size: 13px;">
+                  {{record.description }}</p>
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <tr class="images-section">
+      <td>
+        {% if record.images %}
+        <table width="100%">
+          <tr>
+            <td style="text-align: center; padding: 10px 0">
+              <p style="line-height: 1.5; "><b>Images</b></p>
+            </td>
+          </tr>
+        </table>
+        {% for image in record.images %}
+        <table class="images" dir="rtl" style="width:100%;">
+          <tr>
+            <td style="width: 50%; padding: 10px;">
+              <div style="border: 1px solid gray; border-radius: 10px; overflow: hidden; height: 250px;">
+                <img src="https://job-management-media.s3.il-central-1.amazonaws.com/media/{{image.image}}" alt=""
+                  style="width: 100%; height: 100%; object-fit: contain;">
+              </div>
+            </td>
+          </tr>
+        </table>
+        {% endfor %}
+        {% endif %}
+            </td>
+          </tr>
+  </table>
+
+  {% endfor %}
+  </table>
+</body>
+
+</html>

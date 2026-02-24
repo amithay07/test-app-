@@ -1,0 +1,50 @@
+{% load static i18n %}
+<!-- content -->
+<div class="modal-content">
+  <form class="return-job" id="return_job_optionsform_id" action="" method="POST">
+    {% csrf_token %}
+    <div class="modal-header justify-content-between">
+      <h4 id="return_job_optionsform_label" class="modal-title">{% trans 'Return Job' %}</h4>
+      <button type="button" class="return_close_popup text-reset" data-bs-dismiss="modal" aria-label="Close"
+        style="background-color: transparent; color: #000000; border: none;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25 7L7 25"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M25 25L7 7"  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body text-center return-job-options-body">
+      <div id="duplicate_job_div_id" class="check-select2 mb-3 form-group p-15">
+        <label for="duplicate_job_id">{% trans 'Duplicate' %}</label>
+        <input type="radio" id="duplicate_job_id" name="is_duplicate" value="is_duplicate" />
+        <br />
+      </div>
+      <div id="wrong_info_div_id" class="mb-1 form-group p-15">
+        <div class="check-select2">
+          <label for="wrong_info_id">{% trans 'Wrong Information' %}</label>
+          <input type="radio" id="wrong_info_id" name="is_duplicate" value="is_wrong_info" />
+          <br />
+        </div>
+        <div id="wrong_info_content_div_id" style="margin-top: 20px;">
+          <textarea id="wrong_info_content_id" name="comment" placeholder="{% trans 'Please enter wrong information context...' %}" style="width: 100%;height: 150px;padding: 12px;border-radius: 7px;border: 1px solid #d7e7ef;background: #FFFFFF;" required></textarea>
+        </div>
+      </div>
+      <div id="return_error" class="text-center"></div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="row flex-1 justify-content-center">
+        <div class="col-md-6">
+          <button type="submit" class="btn btn-primary btn-active m-0" id="return_job_id">
+            <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg" class="menu_icon">
+              <path d="M7.48145 9.84692H2.98145V5.34692" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M6.16895 18.3313C7.32246 19.4857 8.79246 20.2721 10.393 20.591C11.9935 20.9099 13.6527 20.7469 15.1605 20.1227C16.6684 19.4984 17.9573 18.441 18.8641 17.0842C19.7709 15.7273 20.255 14.132 20.255 12.5C20.255 10.868 19.7709 9.2727 18.8641 7.91585C17.9573 6.559 16.6684 5.50158 15.1605 4.87735C13.6527 4.25313 11.9935 4.09014 10.393 4.40902C8.79246 4.72789 7.32246 5.5143 6.16895 6.66875L2.98145 9.84688" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            {% trans 'Return Job' %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
